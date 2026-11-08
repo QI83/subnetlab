@@ -22,3 +22,6 @@ __pycache__/
 # Logs / temporários
 *.log
 *.tmp
+
+# Notas internas de trabalho (nao vao para o repo publico)
+STATE.md
