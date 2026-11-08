@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Node (se algum script futuro usar)
+node_modules/
+npm-debug.log*
+
+# Python (scripts de extração)
+__pycache__/
+*.pyc
+
+# Claude Code (sessões locais)
+.claude/
+
+# Logs / temporários
+*.log
+*.tmp
