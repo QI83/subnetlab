@@ -71,6 +71,20 @@ window.QUESTIONS_M3 = [
 
 Depois inclua o `<script defer src="data/moduloN.js">` no `index.html`. O app detecta automaticamente qualquer `window.QUESTIONS_M*`.
 
+### 📌 Regra obrigatória: figuras originais
+
+**Toda figura de questão deve ser a imagem original da fonte oficial — nunca uma recriação ou desenho "representativo".**
+
+Figuras redesenhadas mudam detalhes (nomes de interface, IPs, rótulos, topologia) e o aluno acaba treinando num cenário diferente do da prova.
+
+Passo a passo:
+1. Localize a imagem original na fonte da questão.
+2. Baixe o arquivo original (não redesenhe).
+3. Converta para WebP, largura máx. 900px, qualidade ~82-84.
+4. Salve em `img/m<modulo>-q<id>.webp`.
+5. Referencie: `fig: "img/m3-q021.webp"` + `figAlt` com descrição curta e fiel.
+6. Sem figura na fonte? Deixe `fig` vazio — **não invente**.
+
 ## Rodar localmente
 
 Nenhum build, nenhuma dependência. Duplo clique em `index.html`.

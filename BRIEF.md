@@ -101,6 +101,20 @@ sw.js               — service worker (cache offline)
 - Código organizado em seções comentadas; funções pequenas; nomes claros.
 - Comentários e textos de UI em **PT-BR**.
 
+## REGRA DO PROJETO — Figuras originais (obrigatória)
+
+**Nunca criar, recriar, desenhar ou "representar" uma figura de questão.** A figura exibida tem que ser a **imagem original** publicada na fonte oficial da questão.
+
+Motivo: figuras recriadas mudam detalhes (nomes de interfaces, IPs, rótulos, topologia) e o aluno treina em cima de um cenário que não é o da prova.
+
+Como aplicar:
+1. Localizar a imagem original na fonte (`<img src=".../wp-content/uploads/...">` dentro do bloco da questão, ou o base64 do print da plataforma).
+2. Baixar o arquivo original (nunca redesenhar).
+3. Converter para WebP com largura máxima de 900px, qualidade ~82-84, fundo branco se tiver transparência.
+4. Salvar em `img/m<modulo>-q<id>.webp`.
+5. Referenciar na questão: `fig: "img/m3-q021.webp"` e preencher `figAlt` com uma descrição curta e fiel do que a figura mostra (não "diagrama da questão").
+6. Se a questão não tiver figura na fonte, **não invente uma**: deixe `fig` vazio.
+
 ## Critérios de aceite
 
 1. Abrir `index.html` por `file://` e o quiz funcionar completo nas 60 questões.
