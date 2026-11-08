@@ -8,13 +8,19 @@
 // Coleta todos os módulos window.QUESTIONS_M* registrados via script tag.
 // Para adicionar M1 ou M3: incluir o script na página — detectado aqui.
 let Q = [];
+let ALL = [];
 
 function buildPool() {
-  Q = [];
+  ALL = [];
   Object.keys(window)
     .filter(k => /^QUESTIONS_M\d+$/.test(k))
     .sort()
-    .forEach(k => Q.push(...window[k]));
+    .forEach(k => ALL.push(...window[k]));
+  Q = S.selectedMod ? ALL.filter(q => q.mod === S.selectedMod) : ALL.slice();
+}
+
+function availableMods() {
+  return [...new Set(ALL.map(q => q.mod))].sort((a, b) => a - b);
 }
 
 // ── 2. SIGLAS CCNA ──────────────────────────────────────────────────
@@ -359,6 +365,7 @@ let S = {
   timerLeft:     0,
   reviewIdx:     0,
   searchQuery:   '',
+  selectedMod:   0,
 };
 
 // ── 7. TIMER ────────────────────────────────────────────────────────
@@ -828,14 +835,26 @@ function renderStart() {
     </div>
   `).join('');
 
-  // Módulos disponíveis (pronto para M1/M3)
-  const mods = [...new Set(Q.map(q => q.mod))].sort();
+  // Módulos disponíveis
+  const mods = availableMods();
   const modLabels = { 1: 'ITN', 2: 'SRWE', 3: 'ENSA' };
   const modInfo   = {
     1: 'Introdução às Redes',
     2: 'Switching, Routing e Wireless',
     3: 'Redes Empresariais'
   };
+  const modChips = mods.length > 1 ? `
+    <div class="mod-chips" role="tablist" aria-label="Selecionar módulo">
+      ${mods.map(m => {
+        const n = ALL.filter(q => q.mod === m).length;
+        const act = S.selectedMod === m;
+        return `<button class="mod-chip${act ? ' active' : ''}" role="tab" aria-selected="${act}" data-mod="${m}">Módulo ${m} — ${modLabels[m] || ''} · ${n}</button>`;
+      }).join('')}
+      <button class="mod-chip${S.selectedMod === 0 ? ' active' : ''}" role="tab" aria-selected="${S.selectedMod === 0}" data-mod="0">Todos · ${ALL.length}</button>
+    </div>` : '';
+  const titleSub = S.selectedMod
+    ? `Módulo ${S.selectedMod} — ${modLabels[S.selectedMod] || ''} · ${Q.length} questões`
+    : `Todos os módulos · ${Q.length} questões`;
 
   return `<div class="start-wrap">
     <div class="start-topbar">
@@ -843,7 +862,7 @@ function renderStart() {
         <div class="module-label">CCNA v7 — Cisco Networking Academy</div>
         <h1 class="start-h">SubnetLab<br>
           <span style="font-size:14px;font-weight:400;color:var(--text2)">
-            Módulo 2 — SRWE · ${Q.length} questões
+            ${titleSub}
           </span>
         </h1>
       </div>
@@ -855,6 +874,7 @@ function renderStart() {
       </div>
     </div>
 
+    ${modChips}
     ${renderCountdown()}
     ${resumeBanner}
     ${lastResult}
@@ -865,7 +885,7 @@ function renderStart() {
 
     ${evoHtml}
 
-    <p class="sec-hdr" style="margin-top:4px">Tópicos — Módulo 2</p>
+    <p class="sec-hdr" style="margin-top:4px">Tópicos — ${S.selectedMod ? 'Módulo ' + S.selectedMod : 'Todos'}</p>
     <div class="tgrid">
       ${topics.map(t => `<div class="tpill">
         <span class="tdot" style="background:${topicColor(t)}"></span>
@@ -905,6 +925,17 @@ function bindStart() {
 
   document.getElementById('searchBtn')?.addEventListener('click', () => { S.screen = 'search'; render(); });
   document.getElementById('glossBtn')?.addEventListener('click', showGlossary);
+  document.querySelectorAll('.mod-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const m = parseInt(btn.dataset.mod, 10) || 0;
+      if (m === S.selectedMod) return;
+      S.selectedMod = m;
+      localStorage.setItem('sl_mod', String(m));
+      buildPool();
+      S.order = null;
+      render();
+    });
+  });
   document.getElementById('readyBtn')?.addEventListener('click', showReadiness);
   document.getElementById('statsBtn')?.addEventListener('click', showQStats);
   document.getElementById('exportBtn')?.addEventListener('click', exportData);
@@ -997,7 +1028,7 @@ function renderQuizQuestion() {
   let figHtml = '';
   if (q.fig) {
     figHtml = `<div class="qfig" id="qfig" role="button" tabindex="0" aria-label="Ver imagem em tamanho real">
-      <img src="${esc(q.fig)}" alt="${esc(q.figAlt || 'Diagrama da questão')}" loading="lazy" style="max-width:100%">
+      <img src="${esc(q.fig)}" alt="${esc(q.figAlt || 'Diagrama da questão')}" decoding="async" style="max-width:100%">
       <div class="qfig-caption">${esc(q.figAlt || 'Diagrama da questão')} · toque para ampliar</div>
     </div>`;
   }
@@ -1371,7 +1402,7 @@ function renderReview() {
   let figHtml = '';
   if (q.fig) {
     figHtml = `<div class="qfig" id="rev-qfig" role="button" tabindex="0" aria-label="Ampliar imagem">
-      <img src="${esc(q.fig)}" alt="${esc(q.figAlt || '')}" loading="lazy" style="max-width:100%">
+      <img src="${esc(q.fig)}" alt="${esc(q.figAlt || '')}" decoding="async" style="max-width:100%">
     </div>`;
   }
 
@@ -1953,6 +1984,16 @@ function registerSW() {
 // ── 18. INICIALIZAÇÃO ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   buildPool();
+
+  // Restaurar módulo salvo (se existir e for válido)
+  const savedMod = parseInt(localStorage.getItem('sl_mod') || '0', 10) || 0;
+  if (savedMod && availableMods().includes(savedMod)) {
+    S.selectedMod = savedMod;
+    buildPool();
+  } else if (availableMods().length > 1) {
+    // Sem escolha salva e com vários módulos: começar mostrando todos
+    S.selectedMod = 0;
+  }
 
   if (!Q.length) {
     document.getElementById('app').innerHTML =
