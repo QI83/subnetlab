@@ -598,6 +598,7 @@ function applyScore(q, ok, _dispIdx) {
 
 function showLivesOut() {
   if (document.getElementById('lives-out-overlay')) return;
+  closeAllModals();
   const el = document.createElement('div');
   el.className = 'cmodal-overlay';
   el.id = 'lives-out-overlay';
@@ -1577,7 +1578,12 @@ function bindSearchResults() {
 }
 
 // ── 11. OVERLAYS ────────────────────────────────────────────────────
+function closeAllModals() {
+  document.querySelectorAll('.cmodal-overlay, .gloss-overlay').forEach(el => el.remove());
+}
+
 function showAlert(msg) {
+  closeAllModals();
   const el = document.createElement('div');
   el.className = 'cmodal-overlay';
   el.id = 'alert-overlay';
@@ -1594,6 +1600,7 @@ function showAlert(msg) {
 }
 
 function showConfirm(title, msg, onOk) {
+  closeAllModals();
   const el = document.createElement('div');
   el.className = 'cmodal-overlay';
   el.innerHTML = `<div class="cmodal">
@@ -1613,6 +1620,7 @@ function showConfirm(title, msg, onOk) {
 function showLightbox(src, alt) {
   const existing = document.getElementById('lb-overlay');
   if (existing) { existing.remove(); return; }
+  closeAllModals();
   const el = document.createElement('div');
   el.className = 'lightbox-overlay';
   el.id = 'lb-overlay';
@@ -1623,6 +1631,7 @@ function showLightbox(src, alt) {
 }
 
 function promptExamDate() {
+  closeAllModals();
   const current = getExamDate();
   const el = document.createElement('div');
   el.className = 'cmodal-overlay';
@@ -1651,6 +1660,7 @@ function showGlossary() {
   if (document.getElementById('gloss-overlay')) {
     document.getElementById('gloss-overlay').remove(); return;
   }
+  closeAllModals();
   const items = Object.entries(ACRONYMS).sort((a, b) => a[0].localeCompare(b[0])).map(([acr, def]) => {
     const dash = def.indexOf(' — ');
     const full = dash > -1 ? def.slice(0, dash) : def;
@@ -1736,6 +1746,7 @@ function showReadiness() {
   if (document.getElementById('ready-overlay')) {
     document.getElementById('ready-overlay').remove(); return;
   }
+  closeAllModals();
   const hist     = getHistory().filter(h => h.mode === '📚' || h.mode === '⏱');
   const el       = document.createElement('div');
   el.className   = 'ready-overlay';
@@ -1832,7 +1843,7 @@ function showReadiness() {
     <div class="ready-body">
       <div class="ready-score">
         <div class="ready-pct" style="color:${rColor}">${overall}%</div>
-        <div class="ready-label">Índice de Prontidão · ${hist.length} sessão${hist.length !== 1 ? 'ões' : ''} analisada${hist.length !== 1 ? 's' : ''}</div>
+        <div class="ready-label">Índice de Prontidão · ${hist.length === 1 ? '1 sessão analisada' : hist.length + ' sessões analisadas'}</div>
         <div class="ready-msg">${rMsg}</div>
       </div>
       ${statsHtml}
@@ -1850,6 +1861,7 @@ function showQStats() {
   if (document.getElementById('qstats-overlay')) {
     document.getElementById('qstats-overlay').remove(); return;
   }
+  closeAllModals();
   const el = document.createElement('div');
   el.className = 'gloss-overlay';
   el.id = 'qstats-overlay';
@@ -1881,7 +1893,7 @@ function showQStats() {
       <span class="gloss-htitle">📊 Stats por Questão</span>
       <button class="gloss-close" id="qstats-close" aria-label="Fechar">✕</button>
     </div>
-    <div class="gloss-count" style="padding:8px 14px 4px">${attempted.length} questão${attempted.length !== 1 ? 'ões' : ''} tentada${attempted.length !== 1 ? 's' : ''} · ordenadas por acerto ↑</div>
+    <div class="gloss-count" style="padding:8px 14px 4px">${attempted.length === 1 ? '1 questão tentada' : attempted.length + ' questões tentadas'} · ordenadas por acerto ↑</div>
     <div class="gloss-list">${rows}</div>
   </div>`;
 
