@@ -163,6 +163,17 @@ const TOPIC_COLORS = {
   'Roteamento':     '#D85A30',
   'Switching':      '#185FA5',
   'Troubleshooting':'#993556',
+  // Module 3 — ENSA
+  'OSPF':           '#2555B6',
+  'ACLs':           '#B55D23',
+  'WAN':            '#6E4DD3',
+  'Arquitetura':    '#30895D',
+  'NAT':            '#196C61',
+  'Segurança':      '#C72929',
+  'Gerência':       '#46761C',
+  'SDN/Cloud':      '#AF32C9',
+  'QoS':            '#86831F',
+  'Automação':      '#257A9C',
 };
 
 const MODE_INFO = {
