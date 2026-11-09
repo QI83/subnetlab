@@ -275,7 +275,9 @@ window.QUESTIONS_M3 = [
    3
   ],
   "sub": "Escolha 2 alternativas",
-  "why": "A ACL padrão deve ser aplicada o mais próximo possível do destino, no sentido outbound. Nesse cenário, aplica-se na subinterface R1 Gi0/1.12 no sentido outbound para filtrar o tráfego antes de sair."
+  "why": "A ACL padrão deve ser aplicada o mais próximo possível do destino, no sentido outbound. Nesse cenário, aplica-se na subinterface R1 Gi0/1.12 no sentido outbound para filtrar o tráfego antes de sair.",
+  "fig": "img/m3-p14.webp",
+  "figAlt": "Topologia com R1 e R2 ligados por serial, VLANs 10/11/12 à esquerda e 20/21/22 à direita"
  },
  {
   "id": 15,
@@ -338,7 +340,9 @@ window.QUESTIONS_M3 = [
    2
   ],
   "sub": "Escolha 2 alternativas",
-  "why": "A ACL estendida 105 deve ser aplicada perto da origem, na interface gi0/0 do R1 no sentido outbound, e conter uma ACE permitindo TCP da origem 10.0.70.23 para o destino 10.0.54.5 na porta 20 (FTP-data)."
+  "why": "A ACL estendida 105 deve ser aplicada perto da origem, na interface gi0/0 do R1 no sentido outbound, e conter uma ACE permitindo TCP da origem 10.0.70.23 para o destino 10.0.54.5 na porta 20 (FTP-data).",
+  "fig": "img/m3-p17.webp",
+  "figAlt": "Topologia com R1, R2, servidor FTP/Web e PCs nas sub-redes 10.0.55/24 e 10.0.70/25"
  },
  {
   "id": 18,
@@ -355,7 +359,9 @@ window.QUESTIONS_M3 = [
   ],
   "cor": 3,
   "sub": "A ACL 10 é removida da configuração de execução (running configuration).",
-  "why": "O comando no access-list 10 remove a ACL inteira da configuração em execução. Diferente de remover uma única ACE com 'no <número da ACE>', aqui a lista toda é apagada."
+  "why": "O comando no access-list 10 remove a ACL inteira da configuração em execução. Diferente de remover uma única ACE com 'no <número da ACE>', aqui a lista toda é apagada.",
+  "fig": "img/m3-p18.webp",
+  "figAlt": "CLI do R1 com ACL IPv4 padrão 10: permit host 192.168.25.16, deny rede 192.168.25.0"
  },
  {
   "id": 19,
@@ -406,7 +412,9 @@ window.QUESTIONS_M3 = [
   ],
   "cor": 3,
   "sub": "A sequência das ACEs está incorreta.",
-  "why": "A ACL 9 tem a sequência das ACEs na ordem errada: uma ACE de negação aparece antes de uma permissão que deveria vir primeiro, e o roteador processa as ACEs de cima para baixo, parando na primeira que casa."
+  "why": "A ACL 9 tem a sequência das ACEs na ordem errada: uma ACE de negação aparece antes de uma permissão que deveria vir primeiro, e o roteador processa as ACEs de cima para baixo, parando na primeira que casa.",
+  "fig": "img/m3-p21.webp",
+  "figAlt": "CLI CiscoVille: ACL 9 com permit/deny para redes 172.x e 192.168.1.0 aplicada em Fa0/1"
  },
  {
   "id": 22,
@@ -459,7 +467,9 @@ window.QUESTIONS_M3 = [
   ],
   "cor": 3,
   "sub": "209.165.200.225",
-  "why": "No NAT estático, o endereço global interno (o endereço público pelo qual o PC1 é visto na Internet) é o 209.165.200.225. É esse IP que os hosts externos usam para alcançar o PC1."
+  "why": "No NAT estático, o endereço global interno (o endereço público pelo qual o PC1 é visto na Internet) é o 209.165.200.225. É esse IP que os hosts externos usam para alcançar o PC1.",
+  "fig": "img/m3-p24.webp",
+  "figAlt": "NAT: PC1, S1, R1 e ISP com tabela de endereços inside local/global e outside local/global"
  },
  {
   "id": 25,
@@ -493,7 +503,9 @@ window.QUESTIONS_M3 = [
   ],
   "cor": 2,
   "sub": "A interface S0/0/0 deve ser configurada com o comando ip nat outside.",
-  "why": "Falta marcar a interface S0/0/0 como ip nat outside. Sem uma interface inside e outra outside definidas, o roteador não sabe qual tráfego traduzir e o NAT estático não funciona."
+  "why": "Falta marcar a interface S0/0/0 como ip nat outside. Sem uma interface inside e outra outside definidas, o roteador não sabe qual tráfego traduzir e o NAT estático não funciona.",
+  "fig": "img/m3-p26.webp",
+  "figAlt": "NAT estático com SW1, PC1, R1, Internet e servidor; CLI com ip nat inside source static"
  },
  {
   "id": 27,
