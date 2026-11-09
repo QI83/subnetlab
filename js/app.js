@@ -426,12 +426,19 @@ function getSpacedPool() {
   });
 }
 
-// Revisão de erros: questões erradas nas últimas sessões
+// Revisão de erros: questões erradas nas últimas sessões ou com c < a em qStats
 function getErrorPool() {
   const h = getHistory();
   const counts = {};
   h.slice(0, 15).forEach(entry => {
     (entry.wrongIds || []).forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+  });
+  // Also include any question that was attempted but not always correct per qStats
+  Q.forEach(q => {
+    const st = qStats[q.id];
+    if (st && st.a > 0 && st.c < st.a) {
+      counts[q.id] = counts[q.id] || 1;
+    }
   });
   return Q.map((_, i) => i).filter(i => counts[Q[i].id] > 0)
     .sort((a, b) => (counts[Q[b].id] || 0) - (counts[Q[a].id] || 0));
