@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SubnetLab — Protótipo de Ranking (Supabase)</title>
+<style>
+  :root {
+    --bg: #0F1117; --bg2: #1A1D27; --bg3: #22263A;
+    --border: #2E3348; --text: #E8EAF2; --text2: #9BA3C4; --text3: #6B7394;
+    --green: #1D9E75; --green-text: #5EE0A8; --red: #EF4444; --yellow: #F59E0B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    max-width: 680px; margin-inline: auto;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--text2); font-size: 13px; margin-bottom: 22px; }
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; margin-bottom: 16px;
+  }
+  .card h2 { font-size: 14px; margin: 0 0 12px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
+  input {
+    width: 100%; padding: 11px 12px; margin-bottom: 12px; font-size: 14px;
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 7px;
+    color: var(--text); font-family: inherit;
+  }
+  input:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+  button {
+    padding: 11px 18px; border-radius: 7px; border: 1px solid var(--green);
+    background: var(--green); color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit; min-height: 44px;
+  }
+  button:hover { filter: brightness(1.1); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.ghost { background: transparent; color: var(--text2); border-color: var(--border); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .status {
+    font-size: 13px; padding: 10px 12px; border-radius: 7px; margin-bottom: 14px;
+    background: var(--bg3); border-left: 3px solid var(--border); color: var(--text2);
+  }
+  .status.ok { border-left-color: var(--green); color: var(--green-text); }
+  .status.err { border-left-color: var(--red); color: #FCA5A5; }
+  .status.warn { border-left-color: var(--yellow); color: #FCD34D; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  td { padding: 9px 8px; border-bottom: 1px solid var(--bg3); }
+  tr:last-child td { border-bottom: none; }
+  .pos { width: 42px; color: var(--text3); font-variant-numeric: tabular-nums; }
+  .pos.gold { color: #FBBF24; font-weight: 700; }
+  .xp { text-align: right; font-variant-numeric: tabular-nums; color: var(--green-text); font-weight: 600; }
+  .me { background: rgba(93, 224, 168, .07); }
+  .empty { color: var(--text3); font-size: 13px; padding: 14px 0; text-align: center; }
+  .hint { font-size: 11.5px; color: var(--text3); line-height: 1.5; margin-top: 8px; }
+  code { background: var(--bg3); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<h1>🏆 Protótipo de Ranking</h1>
+<p class="sub">Teste do backend Supabase para o SubnetLab v2.0 · nada é gravado no app real</p>
+
+<div id="status" class="status">Cole a URL e a anon key do seu projeto Supabase para começar.</div>
+
+<div class="card">
+  <h2>1 · Conexão</h2>
+  <label for="url">Project URL</label>
+  <input id="url" placeholder="https://xxxxxxxx.supabase.co" autocomplete="off" spellcheck="false">
+  <label for="key">Anon public key</label>
+  <input id="key" placeholder="eyJhbGciOiJIUzI1NiIs..." autocomplete="off" spellcheck="false">
+  <div class="row">
+    <button id="btnConnect">Conectar</button>
+    <button id="btnSave" class="ghost">Salvar no navegador</button>
+  </div>
+  <p class="hint">A anon key é pública por design — a segurança vem das regras RLS no banco.
+  Fica salva só no seu <code>localStorage</code>.</p>
+</div>
+
+<div class="card">
+  <h2>2 · Seu perfil</h2>
+  <label for="nome">Seu nome (o que aparece no ranking)</label>
+  <input id="nome" placeholder="Ex.: Caique" maxlength="30" autocomplete="off">
+  <div class="row">
+    <button id="btnEntrar" disabled>Entrar / atualizar nome</button>
+    <button id="btnXp" class="ghost" disabled>+50 XP (teste)</button>
+    <button id="btnApagar" class="ghost" disabled>Apagar meus dados</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>3 · Ranking público</h2>
+  <div class="row" style="margin-bottom:12px">
+    <button id="btnRanking" class="ghost" disabled>Atualizar ranking</button>
+  </div>
+  <table>
+    <thead><tr><th class="pos">#</th><th>Nome</th><th class="xp">XP</th></tr></thead>
+    <tbody id="rankBody"><tr><td colspan="3" class="empty">Ranking ainda não carregado</td></tr></tbody>
+  </table>
+</div>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const statusEl = $('status');
+let sb = null, userId = null;
+
+function setStatus(msg, cls = '') {
+  statusEl.textContent = msg;
+  statusEl.className = 'status' + (cls ? ' ' + cls : '');
+}
+
+// Restaura credenciais salvas
+$('url').value = localStorage.getItem('proto_url') || '';
+$('key').value = localStorage.getItem('proto_key') || '';
+$('nome').value = localStorage.getItem('proto_nome') || '';
+
+$('btnSave').onclick = () => {
+  localStorage.setItem('proto_url', $('url').value.trim());
+  localStorage.setItem('proto_key', $('key').value.trim());
+  setStatus('Credenciais salvas neste navegador.', 'ok');
+};
+
+$('btnConnect').onclick = async () => {
+  const url = $('url').value.trim(), key = $('key').value.trim();
+  if (!url || !key) return setStatus('Preencha a URL e a anon key.', 'err');
+  setStatus('Conectando…');
+  try {
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    sb = createClient(url, key);
+
+    // Sessão existente?
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      userId = session.user.id;
+      setStatus('Conectado. Sessão anônima já existente.', 'ok');
+    } else {
+      setStatus('Conectado. Clique em "Entrar" para criar sua sessão anônima.', 'ok');
+    }
+    ['btnEntrar', 'btnRanking'].forEach(id => $(id).disabled = false);
+    if (userId) ['btnXp', 'btnApagar'].forEach(id => $(id).disabled = false);
+    carregarRanking();
+  } catch (e) {
+    setStatus('Falha ao conectar: ' + e.message, 'err');
+  }
+};
+
+$('btnEntrar').onclick = async () => {
+  const nome = $('nome').value.trim();
+  if (nome.length < 2) return setStatus('Nome precisa ter ao menos 2 caracteres.', 'err');
+  try {
+    if (!userId) {
+      const { data, error } = await sb.auth.signInAnonymously();
+      if (error) throw error;
+      userId = data.session.user.id;
+    }
+    const { error: e2 } = await sb.from('profiles').upsert({ id: userId, nome }, { onConflict: 'id' });
+    if (e2) throw e2;
+
+    localStorage.setItem('proto_nome', nome);
+    ['btnXp', 'btnApagar'].forEach(id => $(id).disabled = false);
+    setStatus(`Perfil salvo como "${nome}".`, 'ok');
+    carregarRanking();
+  } catch (e) {
+    setStatus('Erro ao salvar perfil: ' + e.message, 'err');
+  }
+};
+
+$('btnXp').onclick = async () => {
+  if (!userId) return;
+  try {
+    const { data, error } = await sb.from('profiles').select('xp').eq('id', userId).single();
+    if (error) throw error;
+    const { error: e2 } = await sb.from('profiles').update({ xp: (data?.xp || 0) + 50 }).eq('id', userId);
+    if (e2) throw e2;
+    setStatus('+50 XP adicionado.', 'ok');
+    carregarRanking();
+  } catch (e) {
+    setStatus('Erro ao somar XP: ' + e.message, 'err');
+  }
+};
+
+$('btnApagar').onclick = async () => {
+  if (!confirm('Apagar seu perfil e todo o progresso? Não dá para desfazer.')) return;
+  try {
+    const { error } = await sb.rpc('apagar_meu_perfil');
+    if (error) throw error;
+    await sb.auth.signOut();
+    userId = null;
+    ['btnXp', 'btnApagar'].forEach(id => $(id).disabled = true);
+    setStatus('Perfil apagado.', 'ok');
+    carregarRanking();
+  } catch (e) {
+    setStatus('Erro ao apagar: ' + e.message, 'err');
+  }
+};
+
+$('btnRanking').onclick = carregarRanking;
+
+async function carregarRanking() {
+  if (!sb) return;
+  const body = $('rankBody');
+  try {
+    const { data, error } = await sb.from('ranking').select('*').limit(50);
+    if (error) throw error;
+    if (!data || !data.length) {
+      body.innerHTML = '<tr><td colspan="3" class="empty">Ninguém no ranking ainda — entre e adicione XP.</td></tr>';
+      return;
+    }
+    body.innerHTML = data.map(r => {
+      const eu = r.nome === localStorage.getItem('proto_nome');
+      const pos = String(r.posicao);
+      return `<tr class="${eu ? 'me' : ''}">
+        <td class="pos ${r.posicao === 1 ? 'gold' : ''}">${r.posicao === 1 ? '🥇' : pos}</td>
+        <td>${escapeHtml(r.nome)}${eu ? ' <span style="color:var(--text3);font-size:11px">(você)</span>' : ''}</td>
+        <td class="xp">${r.xp}</td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    body.innerHTML = `<tr><td colspan="3" class="empty" style="color:#FCA5A5">Erro: ${escapeHtml(e.message)}</td></tr>`;
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>

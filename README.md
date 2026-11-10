@@ -48,6 +48,16 @@ reference/          simulador original (histórico)
 BRIEF.md            especificação técnica do projeto
 ```
 
+## Roadmap — v2.0 (ranking na nuvem)
+
+Hoje o progresso fica só no aparelho do aluno (localStorage). A **v2.0** adiciona perfil por nome e
+ranking público de XP, usando **Supabase** no plano gratuito.
+
+- Especificação completa e SQL: [`docs/V2-SUPABASE.md`](docs/V2-SUPABASE.md)
+- Protótipo para testar: [`prototype/ranking-demo.html`](prototype/ranking-demo.html)
+
+> Ainda **não integrado** ao app — é um protótipo isolado, para validar a ideia.
+
 ## Adicionar questões
 
 Crie `data/moduloN.js`:
