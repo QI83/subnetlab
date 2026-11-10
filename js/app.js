@@ -728,6 +728,7 @@ function finishQuiz() {
 // ── 10. RENDER ──────────────────────────────────────────────────────
 function render() {
   applyTheme();
+  stopCountdownTick();   // re-armado por bindStart quando a tela start renderizar
   const app = document.getElementById('app');
   if (!app) return;
 
@@ -909,37 +910,63 @@ function bindLogin() {
 }
 
 // ── TELA INICIAL ─────────────────────────────────────────────────────
+// Contador ao vivo (portado do projeto antigo)
+let cdTick = null;
+function stopCountdownTick() { if (cdTick) { clearInterval(cdTick); cdTick = null; } }
+
+function startCountdownTick() {
+  stopCountdownTick();
+  // Só arma se houver data e o contador estiver na tela (data futura)
+  if (!getExamDate() || !document.getElementById('cd-d')) return;
+  cdTick = setInterval(() => {
+    const elD = document.getElementById('cd-d');
+    if (!elD) { stopCountdownTick(); return; }
+    const diff = new Date(getExamDate() + 'T08:00:00') - new Date();
+    if (diff <= 0) { stopCountdownTick(); render(); return; }
+    elD.textContent = Math.floor(diff / 864e5);
+    document.getElementById('cd-h').textContent = String(Math.floor((diff % 864e5) / 36e5)).padStart(2, '0');
+    document.getElementById('cd-m').textContent = String(Math.floor((diff % 36e5) / 6e4)).padStart(2, '0');
+    document.getElementById('cd-s').textContent = String(Math.floor((diff % 6e4) / 1e3)).padStart(2, '0');
+  }, 1000);
+}
+
 function renderCountdown() {
   const dStr = getExamDate();
   if (!dStr) {
-    return `<div class="countdown-box" style="font-size:12px;color:var(--text3)">
-      📅 <span>Defina a data do exame para ver a contagem regressiva</span>
-      <button class="btn" id="cdSet" style="padding:4px 10px;font-size:11px;margin-left:auto">Definir</button>
+    return `<div class="countdown-box" style="justify-content:center;gap:12px">
+      <span style="font-size:12px;color:var(--text3)">📅 Nenhuma data de prova configurada.</span>
+      <button class="btn" id="cdSet" style="padding:4px 10px;font-size:11px;flex-shrink:0">Definir data</button>
     </div>`;
   }
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const exam  = new Date(dStr + 'T00:00:00');
-  const days  = Math.round((exam - today) / (1000 * 60 * 60 * 24));
-  if (days < 0) {
-    return `<div class="countdown-box">
-      <span style="font-size:12px;color:var(--text3)">📅 Data do exame já passou</span>
-      <button class="btn" id="cdEdit" style="padding:4px 10px;font-size:11px;margin-left:auto">Editar</button>
+  const examStr = new Date(dStr + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const diff = new Date(dStr + 'T08:00:00') - new Date();
+
+  if (diff <= 0) {
+    return `<div class="countdown-box" style="justify-content:space-between">
+      <span style="font-size:12px;color:var(--text3)">📅 Data <strong>${examStr}</strong> já passou.</span>
+      <button class="btn" id="cdEdit" style="padding:4px 10px;font-size:11px;flex-shrink:0">Nova data</button>
     </div>`;
   }
-  if (days === 0) {
-    return `<div class="countdown-box">
-      <span style="font-size:14px;color:var(--red-text);font-weight:600">⚠️ Hoje é o dia do exame! Boa sorte!</span>
-      <button class="btn" id="cdEdit" style="padding:4px 10px;font-size:11px;margin-left:auto">Editar</button>
-    </div>`;
-  }
-  const weeks   = Math.floor(days / 7);
-  const remDays = days % 7;
+
+  const days = Math.floor(diff / 864e5);
+  const hrs  = Math.floor((diff % 864e5) / 36e5);
+  const mins = Math.floor((diff % 36e5) / 6e4);
+  const secs = Math.floor((diff % 6e4) / 1e3);
+
   return `<div class="countdown-box">
-    <div class="cd-unit"><div class="cd-num">${days}</div><div class="cd-lbl">dias</div></div>
-    ${weeks > 0 ? `<span class="cd-sep">·</span><div class="cd-unit"><div class="cd-num">${weeks}</div><div class="cd-lbl">sem</div></div>
-    <div class="cd-unit"><div class="cd-num">${remDays}</div><div class="cd-lbl">dias</div></div>` : ''}
-    <div style="flex:1;font-size:12px;color:var(--text2)">até o exame</div>
-    <button class="btn" id="cdEdit" style="padding:4px 10px;font-size:11px" aria-label="Editar data do exame">Editar</button>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">⏳ Faltam para o exame (${examStr})</div>
+      <div style="display:flex;align-items:flex-end;gap:4px">
+        <div class="cd-unit"><div class="cd-num" id="cd-d">${days}</div><div class="cd-lbl">dias</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><div class="cd-num" id="cd-h">${String(hrs).padStart(2, '0')}</div><div class="cd-lbl">horas</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><div class="cd-num" id="cd-m">${String(mins).padStart(2, '0')}</div><div class="cd-lbl">min</div></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><div class="cd-num" id="cd-s">${String(secs).padStart(2, '0')}</div><div class="cd-lbl">seg</div></div>
+      </div>
+    </div>
+    <button class="btn" id="cdEdit" style="padding:4px 10px;font-size:11px;flex-shrink:0" aria-label="Alterar data do exame">✏️ Alterar</button>
   </div>`;
 }
 
@@ -1118,6 +1145,7 @@ function bindStart() {
 
   document.getElementById('cdSet')?.addEventListener('click', promptExamDate);
   document.getElementById('cdEdit')?.addEventListener('click', promptExamDate);
+  startCountdownTick();
 
   // Cards de modo
   document.querySelectorAll('.mode-card').forEach(card => {
