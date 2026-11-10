@@ -1,12 +1,14 @@
 # SubnetLab
 
+### ▶ **[Abrir o simulador → qi83.github.io/subnetlab](https://qi83.github.io/subnetlab/)**
+
 Simulador de estudos para o **CCNA** (Cisco Certified Network Associate) — feito para a turma do SENAI Vila Mariana.
 
 Treine para as provas do curso e para a certificação com questões em **português**, explicação da resposta e progresso salvo no seu aparelho.
 
 ## Como usar
 
-**Online:** abra o link do GitHub Pages (cola na turma → abre no navegador).
+**Online:** abra **https://qi83.github.io/subnetlab/** no navegador — no PC ou no celular.
 
 **Offline / no celular:** baixe o projeto, abra `index.html` no navegador e use o botão *Instalar* (PWA). Funciona sem internet depois da primeira abertura.
 
