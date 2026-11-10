@@ -786,36 +786,6 @@ body {
   .mode-grid { grid-template-columns: 1fr 1fr; }
 }
 
-/* ── Seletor de módulo ─────────────────────────────────────────── */
-.mod-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0 8px;
-}
-.mod-chip {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 8px 15px;
-  font-size: 12.5px;
-  color: var(--text2);
-  cursor: pointer;
-  min-height: 40px;
-  transition: background .15s, color .15s, border-color .15s;
-}
-.mod-chip:hover { border-color: var(--border2); color: var(--text); }
-.mod-chip.active {
-  background: var(--green);
-  border-color: var(--green);
-  color: #fff;
-  font-weight: 600;
-}
-.mod-chip:focus-visible {
-  outline: 2px solid var(--green-text);
-  outline-offset: 2px;
-}
-
 /* ── SPLASH ──────────────────────────────────────────────────────── */
 .splash-screen {
   position: fixed;

@@ -1023,22 +1023,12 @@ function renderStart() {
   `).join('');
 
   // Módulos disponíveis
-  const mods = availableMods();
   const modLabels = { 1: 'ITN', 2: 'SRWE', 3: 'ENSA' };
   const modInfo   = {
     1: 'Introdução às Redes',
     2: 'Switching, Routing e Wireless',
     3: 'Redes Empresariais'
   };
-  const modChips = mods.length > 1 ? `
-    <div class="mod-chips" role="tablist" aria-label="Selecionar módulo">
-      ${mods.map(m => {
-        const n = ALL.filter(q => q.mod === m).length;
-        const act = S.selectedMod === m;
-        return `<button class="mod-chip${act ? ' active' : ''}" role="tab" aria-selected="${act}" data-mod="${m}">Módulo ${m} — ${modLabels[m] || ''} · ${n}</button>`;
-      }).join('')}
-      <button class="mod-chip${S.selectedMod === 0 ? ' active' : ''}" role="tab" aria-selected="${S.selectedMod === 0}" data-mod="0">Todos · ${ALL.length}</button>
-    </div>` : '';
   const titleSub = S.selectedMod
     ? `Módulo ${S.selectedMod} — ${modLabels[S.selectedMod] || ''} · ${Q.length} questões`
     : `Todos os módulos · ${Q.length} questões`;
@@ -1064,7 +1054,6 @@ function renderStart() {
       </div>
     </div>
 
-    ${modChips}
     ${renderCountdown()}
     ${resumeBanner}
     ${lastResult}
@@ -1117,17 +1106,6 @@ function bindStart() {
 
   document.getElementById('searchBtn')?.addEventListener('click', () => { S.screen = 'search'; render(); });
   document.getElementById('glossBtn')?.addEventListener('click', showGlossary);
-  document.querySelectorAll('.mod-chip').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const m = parseInt(btn.dataset.mod, 10) || 0;
-      if (m === S.selectedMod) return;
-      S.selectedMod = m;
-      localStorage.setItem('sl_mod', String(m));
-      buildPool();
-      S.order = null;
-      render();
-    });
-  });
   document.getElementById('readyBtn')?.addEventListener('click', showReadiness);
   document.getElementById('statsBtn')?.addEventListener('click', showQStats);
   document.getElementById('exportBtn')?.addEventListener('click', exportData);
