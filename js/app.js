@@ -10,6 +10,8 @@
 let Q = [];
 let ALL = [];
 
+function qKey(q) { return q.mod + ':' + q.id; }
+
 function buildPool() {
   ALL = [];
   Object.keys(window)
@@ -291,10 +293,24 @@ function getHistory() {
   return JSON.parse(localStorage.getItem(KEY.history) || '[]');
 }
 
-function updateQStat(id, correct) {
-  if (!qStats[id]) qStats[id] = { a: 0, c: 0 };
-  qStats[id].a++;
-  if (correct) qStats[id].c++;
+function migrateQStats() {
+  let changed = false;
+  const fixed = {};
+  for (const [k, v] of Object.entries(qStats)) {
+    if (/^\d+$/.test(k)) { fixed['2:' + k] = v; changed = true; }
+    else { fixed[k] = v; }
+  }
+  if (changed) {
+    qStats = fixed;
+    localStorage.setItem(KEY.qstats, JSON.stringify(qStats));
+  }
+}
+
+function updateQStat(q, correct) {
+  const k = qKey(q);
+  if (!qStats[k]) qStats[k] = { a: 0, c: 0 };
+  qStats[k].a++;
+  if (correct) qStats[k].c++;
   localStorage.setItem(KEY.qstats, JSON.stringify(qStats));
 }
 
@@ -314,15 +330,17 @@ function exportData() {
     favs: [...favorites],
     dark: darkMode,
   };
+  const filename = `subnetlab_progresso_${new Date().toISOString().slice(0, 10)}.json`;
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url;
-  a.download = `subnetlab_progresso_${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 2000);
+  showAlert(`Backup exportado\n${filename}`);
 }
 
 function importData(file) {
@@ -334,7 +352,7 @@ function importData(file) {
       if (d.name)     saveStudent(d.name);
       if (d.examDate) saveExamDate(d.examDate);
       if (d.history)  localStorage.setItem(KEY.history, JSON.stringify(d.history));
-      if (d.qStats)   { qStats = d.qStats; localStorage.setItem(KEY.qstats, JSON.stringify(qStats)); }
+      if (d.qStats)   { qStats = d.qStats; migrateQStats(); localStorage.setItem(KEY.qstats, JSON.stringify(qStats)); }
       if (d.favs)     { favorites = new Set(d.favs); localStorage.setItem(KEY.favs, JSON.stringify(d.favs)); }
       if (typeof d.dark === 'boolean') {
         darkMode = d.dark;
@@ -420,7 +438,7 @@ function toggleTheme() {
 // Revisão espaçada: questões com accuracy < 70% ou nunca tentadas
 function getSpacedPool() {
   return Q.map((_, i) => i).filter(i => {
-    const st = qStats[Q[i].id];
+    const st = qStats[qKey(Q[i])];
     if (!st) return true; // nunca tentada
     return (st.c / st.a) < 0.7;
   });
@@ -435,7 +453,7 @@ function getErrorPool() {
   });
   // Also include any question that was attempted but not always correct per qStats
   Q.forEach(q => {
-    const st = qStats[q.id];
+    const st = qStats[qKey(q)];
     if (st && st.a > 0 && st.c < st.a) {
       counts[q.id] = counts[q.id] || 1;
     }
@@ -610,7 +628,7 @@ function applyScore(q, ok, _dispIdx) {
   if (!S.topicStats[tp]) S.topicStats[tp] = { c: 0, t: 0 };
   S.topicStats[tp].t++;
   if (ok) S.topicStats[tp].c++;
-  updateQStat(q.id, ok);
+  updateQStat(q, ok);
 
   // Animação flash
   const app = document.getElementById('app');
@@ -653,6 +671,26 @@ function nextQuestion() {
   saveProgress();
 }
 
+function buildHistoryEntry() {
+  const tot = S.correct + S.wrong;
+  const pct = tot > 0 ? Math.round(S.correct / tot * 100) : 0;
+  const wrongIds = S.wrongLog.map(w => w.q?.id).filter(Boolean);
+  return {
+    date:       dateLabel(),
+    pct,
+    correct:    S.correct,
+    wrong:      S.wrong,
+    total:      tot,
+    xp:         S.xp,
+    level:      getLvl(S.xp).n,
+    passed:     S.timerMode !== 'timed' || S.lives !== Infinity && S.lives > 0 || pct >= 70,
+    mode:       S.timerMode === 'timed' ? '⏱' : '📚',
+    topicStats: S.topicStats,
+    wrongIds,
+    startMode:  S.startMode,
+  };
+}
+
 function finishQuiz() {
   stopTimer();
   clearProgress();
@@ -670,21 +708,7 @@ function finishQuiz() {
   if (S.timerMode === 'timed') S.badges.push({ t: '⏱ Contra-relógio', bg: 'var(--blue-bg)', c: 'var(--blue-text)', bc: 'var(--blue)' });
 
   // Histórico
-  const wrongIds = S.wrongLog.map(w => w.q?.id).filter(Boolean);
-  saveHistory({
-    date:        dateLabel(),
-    pct,
-    correct:     S.correct,
-    wrong:       S.wrong,
-    total:       tot,
-    xp:          S.xp,
-    level:       getLvl(S.xp).n,
-    passed:      S.timerMode !== 'timed' || S.lives !== Infinity && S.lives > 0 || pct >= 70,
-    mode:        S.timerMode === 'timed' ? '⏱' : '📚',
-    topicStats:  S.topicStats,
-    wrongIds,
-    startMode:   S.startMode,
-  });
+  saveHistory(buildHistoryEntry());
 
   S.screen = 'result';
   render();
@@ -1222,6 +1246,8 @@ function bindQuiz() {
   document.getElementById('quitBtn')?.addEventListener('click', () => {
     showConfirm('Encerrar sessão?', 'Seu progresso atual será salvo.', () => {
       stopTimer();
+      if (S.correct + S.wrong > 0) saveHistory(buildHistoryEntry());
+      clearProgress();
       S.screen = 'start';
       render();
     });
@@ -1544,21 +1570,32 @@ function renderSearch() {
       }).join('')
     : q.length >= 2
       ? `<p style="color:var(--text2);font-size:13px">Nenhuma questão encontrada para "${esc(q)}"</p>`
-      : `<p style="color:var(--text3);font-size:12px">Digite ao menos 2 caracteres para buscar.</p>`;
+      : q.length === 1
+        ? `<p style="color:var(--yellow-text,#b45309);font-size:13px">Digite ao menos 2 caracteres.</p>`
+        : `<p style="color:var(--text3);font-size:12px">Digite ao menos 2 caracteres para buscar.</p>`;
 
   return `<div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
       <button class="btn" id="backFromSearch" style="padding:5px 12px;font-size:12px" aria-label="Voltar">← Voltar</button>
       <h2 style="font-size:16px;font-weight:700">🔍 Buscar</h2>
     </div>
-    <input class="search-box" id="searchInput" type="search" placeholder="Buscar por texto, tópico, resposta…"
-      value="${esc(S.searchQuery)}" autocomplete="off" aria-label="Campo de busca">
+    <div style="position:relative;display:flex;align-items:center;margin-bottom:0">
+      <input class="search-box" id="searchInput" type="search" placeholder="Buscar por texto, tópico, resposta…"
+        value="${esc(S.searchQuery)}" autocomplete="off" aria-label="Campo de busca"
+        style="flex:1;${S.searchQuery ? 'padding-right:44px' : ''}">
+      ${S.searchQuery ? `<button id="clearSearch" style="position:absolute;right:0;top:0;bottom:0;width:44px;min-width:44px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center" aria-label="Limpar busca">✕</button>` : ''}
+    </div>
     <div id="searchResults">${listHtml}</div>
   </div>`;
 }
 
 function bindSearch() {
   document.getElementById('backFromSearch')?.addEventListener('click', () => { S.screen = 'start'; render(); });
+
+  document.getElementById('clearSearch')?.addEventListener('click', () => {
+    S.searchQuery = '';
+    render();
+  });
 
   const inp = document.getElementById('searchInput');
   if (inp) {
@@ -1589,7 +1626,26 @@ function bindSearch() {
           }).join('')
         : q.length >= 2
           ? `<p style="color:var(--text2);font-size:13px">Nenhuma questão encontrada.</p>`
-          : `<p style="color:var(--text3);font-size:12px">Digite ao menos 2 caracteres.</p>`;
+          : q.length === 1
+            ? `<p style="color:var(--yellow-text,#b45309);font-size:13px">Digite ao menos 2 caracteres.</p>`
+            : `<p style="color:var(--text3);font-size:12px">Digite ao menos 2 caracteres para buscar.</p>`;
+
+      // Update clear button visibility
+      const clearBtn = document.getElementById('clearSearch');
+      if (S.searchQuery && !clearBtn) {
+        const wrapper = inp.parentElement;
+        const btn = document.createElement('button');
+        btn.id = 'clearSearch';
+        btn.setAttribute('aria-label', 'Limpar busca');
+        btn.style.cssText = 'position:absolute;right:0;top:0;bottom:0;width:44px;min-width:44px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center';
+        btn.textContent = '✕';
+        btn.addEventListener('click', () => { S.searchQuery = ''; render(); });
+        wrapper.appendChild(btn);
+        inp.style.paddingRight = '44px';
+      } else if (!S.searchQuery && clearBtn) {
+        clearBtn.remove();
+        inp.style.paddingRight = '';
+      }
 
       document.getElementById('searchResults').innerHTML = listHtml;
       bindSearchResults();
@@ -1915,16 +1971,16 @@ function showQStats() {
   el.className = 'gloss-overlay';
   el.id = 'qstats-overlay';
 
-  const attempted = Q.filter(q => qStats[q.id]);
+  const attempted = Q.filter(q => qStats[qKey(q)]);
   const rows = attempted.length
     ? attempted
         .sort((a, b) => {
-          const pa = qStats[a.id].c / qStats[a.id].a;
-          const pb = qStats[b.id].c / qStats[b.id].a;
+          const pa = qStats[qKey(a)].c / qStats[qKey(a)].a;
+          const pb = qStats[qKey(b)].c / qStats[qKey(b)].a;
           return pa - pb;
         })
         .map(q => {
-          const st  = qStats[q.id];
+          const st  = qStats[qKey(q)];
           const pct = Math.round(st.c / st.a * 100);
           const col = pct >= 80 ? '#1D9E75' : pct >= 50 ? '#BA7517' : '#A32D2D';
           return `<div class="qstat-row">
@@ -2001,6 +2057,7 @@ function registerSW() {
 
 // ── 18. INICIALIZAÇÃO ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  migrateQStats();
   buildPool();
 
   // Restaurar módulo salvo (se existir e for válido)
