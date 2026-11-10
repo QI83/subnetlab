@@ -971,7 +971,6 @@ function renderCountdown() {
 }
 
 function renderStart() {
-  const name    = getStudent() || 'Estudante';
   const hist    = getHistory();
   const saved   = loadProgress();
   const favCount = favorites.size;
@@ -1061,8 +1060,14 @@ function renderStart() {
     : `Todos os módulos · ${Q.length} questões`;
 
   return `<div class="start-wrap">
-    <div style="margin-bottom:6px">
-      <button class="btn" id="modulesBtn" style="padding:3px 10px;font-size:11px" aria-label="Voltar para módulos">← Módulos</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+      <button class="btn" id="modulesBtn" style="padding:3px 10px;font-size:11px" title="Voltar para a seleção de módulos" aria-label="Voltar para a seleção de módulos">← Módulos</button>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+        <button class="btn" id="searchBtn" style="padding:5px 11px;font-size:12px" title="Buscar questões" aria-label="Buscar questões">🔍</button>
+        <button class="btn" id="glossBtn"  style="padding:5px 11px;font-size:12px" title="Glossário de siglas" aria-label="Glossário de siglas">📖</button>
+        <button class="btn" id="readyBtn"  style="padding:5px 11px;font-size:12px" title="Relatório de prontidão" aria-label="Relatório de prontidão">🎯</button>
+        <button class="icon-btn theme-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">${darkMode ? '☀️' : '🌙'}</button>
+      </div>
     </div>
     <div class="start-topbar">
       <div>
@@ -1072,12 +1077,6 @@ function renderStart() {
             ${titleSub}
           </span>
         </h1>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-        <button class="btn" id="searchBtn" style="padding:5px 11px;font-size:12px" aria-label="Buscar questões">🔍</button>
-        <button class="btn" id="glossBtn"  style="padding:5px 11px;font-size:12px" aria-label="Glossário de siglas">📖</button>
-        <button class="btn" id="readyBtn"  style="padding:5px 11px;font-size:12px" aria-label="Relatório de prontidão">🎯</button>
-        <button class="icon-btn theme-btn" aria-label="Alternar tema">${darkMode ? '☀️' : '🌙'}</button>
       </div>
     </div>
 
@@ -1111,10 +1110,6 @@ function renderStart() {
     <button class="btn pri" id="startBtn" style="width:100%;font-size:16px;padding:15px;border-radius:var(--radius)">
       ▶ Iniciar${S.startMode === 'timed' ? ' Prova' : S.startMode === 'topic' && S.selectedTopic ? ' — ' + S.selectedTopic : ''}
     </button>
-
-    <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text3)">
-      Olá, ${esc(name)} · <button class="btn" id="changeName" style="padding:2px 8px;font-size:11px" aria-label="Alterar nome">Alterar nome</button>
-    </div>
   </div>`;
 }
 
@@ -1136,7 +1131,6 @@ function bindStart() {
   document.getElementById('readyBtn')?.addEventListener('click', showReadiness);
   document.getElementById('statsBtn')?.addEventListener('click', showQStats);
   document.getElementById('exportBtn')?.addEventListener('click', exportData);
-  document.getElementById('changeName')?.addEventListener('click', () => { S.screen = 'login'; render(); });
 
   document.getElementById('importFile')?.addEventListener('change', e => {
     const f = e.target.files[0];
