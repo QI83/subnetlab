@@ -28,7 +28,7 @@ Treine para as provas do curso e para a certificação com questões em **portug
 |---|---|---|
 | 1 | ITN — Introduction to Networks | 🚧 em breve |
 | 2 | SRWE — Switching, Routing and Wireless Essentials | ✅ 60 questões |
-| 3 | ENSA — Enterprise Networking, Security, and Automation | 🚧 em breve |
+| 3 | ENSA — Enterprise Networking, Security, and Automation | ✅ 55 questões (exame final) |
 | — | Certificação CCNA 200-301 | 🚧 em breve |
 
 ## Estrutura
@@ -39,6 +39,8 @@ css/styles.css      estilos
 js/app.js           lógica
 data/modulo2.js     questões do módulo 2 (window.QUESTIONS_M2)
 data/modulo2.json   mesma coisa em JSON (para scripts)
+data/modulo3.js     questões do módulo 3 (window.QUESTIONS_M3)
+data/modulo3.json   mesma coisa em JSON (para scripts)
 img/                figuras em WebP
 manifest.json       PWA
 sw.js               service worker (offline)
