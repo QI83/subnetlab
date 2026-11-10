@@ -25,6 +25,17 @@ function availableMods() {
   return [...new Set(ALL.map(q => q.mod))].sort((a, b) => a - b);
 }
 
+function modProgress(mod) {
+  const qs = mod ? ALL.filter(q => q.mod === mod) : ALL;
+  const seen = qs.filter(q => qStats[qKey(q)]).length;
+  return { seen, total: qs.length, pct: qs.length ? Math.round(seen / qs.length * 100) : 0 };
+}
+
+function nextAfterSplash() {
+  S.screen = getStudent() ? 'modules' : 'login';
+  render();
+}
+
 // ── 2. SIGLAS CCNA ──────────────────────────────────────────────────
 // Copiado de reference/CCNA_SIMULATOR.html
 const ACRONYMS = {
@@ -369,7 +380,7 @@ function importData(file) {
 
 // ── 6. ESTADO ───────────────────────────────────────────────────────
 let S = {
-  screen:        'login',  // login | start | quiz | result | review | history | search
+  screen:        'login',  // splash | login | modules | start | quiz | result | review | history | search
   startMode:     'free',   // free | timed | topic | errors | spaced
   selectedTopic: null,
   order:         [],       // índices em Q para a sessão atual
@@ -720,6 +731,8 @@ function render() {
   const app = document.getElementById('app');
   if (!app) return;
 
+  if (S.screen === 'splash')  { app.innerHTML = renderSplash();            bindSplash();  return; }
+  if (S.screen === 'modules') { app.innerHTML = renderModules();           bindModules(); return; }
   if (S.screen === 'login')   { app.innerHTML = renderLogin();             bindLogin();   return; }
   if (S.screen === 'start')   { app.innerHTML = renderStart();             bindStart();   return; }
   if (S.screen === 'quiz')    { app.innerHTML = renderQuiz();              bindQuiz();    return; }
@@ -727,6 +740,138 @@ function render() {
   if (S.screen === 'review')  { app.innerHTML = renderReview();            bindReview();  return; }
   if (S.screen === 'history') { app.innerHTML = renderHistory();           bindHistory(); return; }
   if (S.screen === 'search')  { app.innerHTML = renderSearch();            bindSearch();  return; }
+}
+
+// ── DEFINIÇÕES DOS MÓDULOS ────────────────────────────────────────────
+const MOD_DEFS = [
+  {
+    mod: 1,
+    icon: '🌐',
+    name: 'Introduction to Networks',
+    abbr: 'ITN',
+    desc: 'Fundamentos de redes, modelo OSI/TCP-IP, cabeçalho, protocolos básicos e configuração inicial de dispositivos Cisco.',
+  },
+  {
+    mod: 2,
+    icon: '🔀',
+    name: 'Switching, Routing & Wireless Essentials',
+    abbr: 'SRWE',
+    desc: 'VLANs, STP, EtherChannel, roteamento inter-VLAN, DHCPv4/v6, WLAN, segurança de Camada 2 e protocolos FHRP.',
+  },
+  {
+    mod: 3,
+    icon: '🏢',
+    name: 'Enterprise Networking, Security & Automation',
+    abbr: 'ENSA',
+    desc: 'OSPF, ACLs, NAT, QoS, gerenciamento de rede, segurança empresarial e automação com Python/Ansible.',
+  },
+  {
+    mod: 0,
+    icon: '🎯',
+    name: 'Revisão Completa',
+    abbr: 'Todos',
+    desc: 'Revisão geral com todas as questões — ideal para a prova de certificação CCNA 200-301.',
+  },
+];
+
+// ── SPLASH ────────────────────────────────────────────────────────────
+function renderSplash() {
+  return `<div class="splash-screen" id="splash-screen" role="main" aria-label="Carregando SubnetLab">
+    <div class="splash-logo">🐴</div>
+    <div class="splash-title">SubnetLab</div>
+    <div class="splash-pbar" aria-hidden="true">
+      <div class="splash-pfill"></div>
+    </div>
+  </div>`;
+}
+
+function bindSplash() {
+  const container = document.getElementById('splash-screen');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const duration = reduced ? 300 : 1500;
+  let done = false;
+  function advance() {
+    if (done) return;
+    done = true;
+    nextAfterSplash();
+  }
+  const timer = setTimeout(advance, duration);
+  if (container) {
+    container.addEventListener('click', () => { clearTimeout(timer); advance(); }, { once: true });
+  }
+}
+
+// ── TELA DE MÓDULOS ───────────────────────────────────────────────────
+function renderModules() {
+  const name = getStudent() || 'Estudante';
+  const availMods = availableMods();
+
+  const cards = MOD_DEFS.map(def => {
+    const isAvail = def.mod === 0 ? ALL.length > 0 : availMods.includes(def.mod);
+    const prog = modProgress(def.mod);
+
+    if (!isAvail) {
+      return `<div class="mod-card mod-card-disabled" aria-disabled="true" tabindex="-1">
+        <div class="mod-card-top">
+          <span class="mod-card-icon">${def.icon}</span>
+          <div class="mod-card-info">
+            <div class="mod-card-title">CCNA v7: ${esc(def.name)}</div>
+            <span class="mod-card-badge mod-card-soon">Em breve</span>
+          </div>
+        </div>
+        <p class="mod-card-desc">${esc(def.desc)}</p>
+      </div>`;
+    }
+
+    const { seen, total, pct } = prog;
+    return `<div class="mod-card" data-mod="${def.mod}" role="button" tabindex="0" aria-label="${esc('CCNA v7: ' + def.name)}">
+      <div class="mod-card-top">
+        <span class="mod-card-icon">${def.icon}</span>
+        <div class="mod-card-info">
+          <div class="mod-card-title">CCNA v7: ${esc(def.name)}</div>
+          <span class="mod-card-badge mod-card-avail">✓ Disponível · ${total} questões</span>
+        </div>
+      </div>
+      <p class="mod-card-desc">${esc(def.desc)}</p>
+      <div class="mod-card-progress-wrap">
+        <div class="mod-card-pbar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
+          <div class="mod-card-pfill" style="width:${pct}%"></div>
+        </div>
+        <span class="mod-card-ptext">${seen} de ${total} questões vistas · ${pct}%</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="modules-wrap">
+    <div class="modules-topbar">
+      <h1 class="modules-h">Módulos</h1>
+      <div class="modules-student">
+        <span>👤 ${esc(name)}</span>
+        <span class="modules-role">Estudante</span>
+        <button class="btn" id="modChangeName" style="padding:3px 10px;font-size:11px" aria-label="Alterar nome">Alterar</button>
+      </div>
+    </div>
+    <p class="modules-sub">Selecione o módulo do curso que está cursando.</p>
+    <div class="mod-list">${cards}</div>
+  </div>`;
+}
+
+function bindModules() {
+  document.querySelectorAll('.mod-card[data-mod]').forEach(card => {
+    const activate = () => {
+      const m = parseInt(card.dataset.mod, 10) || 0;
+      S.selectedMod = m;
+      localStorage.setItem('sl_mod', String(m));
+      buildPool();
+      S.screen = 'start';
+      render();
+    };
+    card.addEventListener('click', activate);
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+    });
+  });
+  document.getElementById('modChangeName')?.addEventListener('click', () => { S.screen = 'login'; render(); });
 }
 
 // ── LOGIN ────────────────────────────────────────────────────────────
@@ -755,7 +900,7 @@ function bindLogin() {
     const name = inp.value.trim();
     if (!name) { inp.focus(); inp.style.borderColor = 'var(--red)'; return; }
     saveStudent(name);
-    S.screen = 'start';
+    S.screen = 'modules';
     render();
   }
   btn.addEventListener('click', tryLogin);
@@ -899,6 +1044,9 @@ function renderStart() {
     : `Todos os módulos · ${Q.length} questões`;
 
   return `<div class="start-wrap">
+    <div style="margin-bottom:6px">
+      <button class="btn" id="modulesBtn" style="padding:3px 10px;font-size:11px" aria-label="Voltar para módulos">← Módulos</button>
+    </div>
     <div class="start-topbar">
       <div>
         <div class="module-label">CCNA v7 — Cisco Networking Academy</div>
@@ -956,6 +1104,8 @@ function renderStart() {
 
 function bindStart() {
   document.querySelector('.theme-btn')?.addEventListener('click', toggleTheme);
+
+  document.getElementById('modulesBtn')?.addEventListener('click', () => { S.screen = 'modules'; render(); });
 
   document.getElementById('startBtn')?.addEventListener('click', startQuiz);
 
@@ -2079,9 +2229,14 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // Determinar tela inicial
-  const name = getStudent();
-  S.screen = name ? 'start' : 'login';
+  // Determinar tela inicial (splash 1× por sessão via sessionStorage)
+  const splashSeen = sessionStorage.getItem('sl_splash_seen');
+  if (!splashSeen) {
+    sessionStorage.setItem('sl_splash_seen', '1');
+    S.screen = 'splash';
+  } else {
+    S.screen = getStudent() ? 'modules' : 'login';
+  }
 
   applyTheme();
   render();
