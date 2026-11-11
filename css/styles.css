@@ -154,6 +154,8 @@ body {
   overflow-x: auto;
   color: #A8D8A8;
   line-height: 1.6;
+  width: 100%;
+  box-sizing: border-box;
 }
 .qfig {
   background: var(--bg3);

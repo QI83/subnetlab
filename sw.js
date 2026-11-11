@@ -2,7 +2,7 @@
 // Estratégia: cache-first para assets estáticos, rede como fallback
 'use strict';
 
-const CACHE_NAME = 'subnetlab-v10';
+const CACHE_NAME = 'subnetlab-v11';
 
 const ASSETS = [
   '.',
@@ -11,7 +11,7 @@ const ASSETS = [
   'js/app.js',
   'data/modulo2.js',
   'data/modulo3.js',
-  'img/m3-q040.webp',
+  'img/m3-q048.webp',
   'img/m3-q049.webp',
   'img/m3-q075.webp',
   'img/m3-q076.webp',

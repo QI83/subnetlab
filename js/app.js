@@ -1218,16 +1218,13 @@ function renderQuizQuestion() {
   const qTextHtml = wrapAcronyms(esc(q.text));
 
   let figHtml = '';
-  if (q.fig) {
+  if (q.code) {
+    figHtml = `<pre class="qcode" aria-label="Tela de comandos da questão">${esc(q.code)}</pre>`;
+  } else if (q.fig) {
     figHtml = `<div class="qfig" id="qfig" role="button" tabindex="0" aria-label="Ver imagem em tamanho real">
       <img src="${esc(q.fig)}" alt="${esc(q.figAlt || 'Diagrama da questão')}" decoding="async" style="max-width:100%">
       <div class="qfig-caption">${esc(q.figAlt || 'Diagrama da questão')} · toque para ampliar</div>
     </div>`;
-  }
-
-  let codeHtml = '';
-  if (q.code) {
-    codeHtml = `<pre class="qcode" role="region" aria-label="Bloco de código">${esc(q.code)}</pre>`;
   }
 
   let optsHtml = '';
@@ -1258,7 +1255,6 @@ function renderQuizQuestion() {
     </div>
     <p class="qtext">${qTextHtml}</p>
     ${figHtml}
-    ${codeHtml}
   </div>
 
   <div class="opts" id="opts-wrap" role="${q.ty === 'single' ? 'radiogroup' : 'group'}" aria-label="Opções de resposta">
@@ -1594,14 +1590,13 @@ function renderReview() {
   </div>` : '';
 
   let figHtml = '';
-  if (q.fig) {
+  if (q.code) {
+    figHtml = `<pre class="qcode" aria-label="Tela de comandos da questão">${esc(q.code)}</pre>`;
+  } else if (q.fig) {
     figHtml = `<div class="qfig" id="rev-qfig" role="button" tabindex="0" aria-label="Ampliar imagem">
       <img src="${esc(q.fig)}" alt="${esc(q.figAlt || '')}" decoding="async" style="max-width:100%">
     </div>`;
   }
-
-  let codeHtml = '';
-  if (q.code) codeHtml = `<pre class="qcode">${esc(q.code)}</pre>`;
 
   return `<div>
     <div class="review-nav">
@@ -1617,7 +1612,6 @@ function renderReview() {
       </div>
       <p class="qtext">${wrapAcronyms(esc(q.text))}</p>
       ${figHtml}
-      ${codeHtml}
     </div>
 
     <div class="opts">${optsHtml}</div>

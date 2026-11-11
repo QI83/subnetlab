@@ -7,7 +7,7 @@ window.QUESTIONS_M3 = [
   "fonte": "curso",
   "tp": "OSPF",
   "ty": "single",
-  "text": "Que tipo de pacote OSPFv2 contém uma lista abreviada do LSDB de um roteador de envio e é usado pelo recebimento de roteadores para verificar o LSDB local?",
+  "text": "Que tipo de pacote OSPFv2 contém uma lista abreviada do LSDB de um roteador de envio e é usado pelos roteadores receptores para verificar o LSDB local?",
   "opts": [
    "solicitação de estado do link",
    "descrição do banco de dados",
@@ -24,7 +24,7 @@ window.QUESTIONS_M3 = [
   "fonte": "curso",
   "tp": "OSPF",
   "ty": "single",
-  "text": "Qual etapa no processo de roteamento de estado de link é descrita por um roteador que constrói um banco de dados de estado de link com base em LSAs recebidas?",
+  "text": "Qual etapa no processo de roteamento de estado de link é descrita por um roteador que constrói um banco de dados de estado de link com base em LSAs recebidos?",
   "opts": [
    "construindo a tabela de topologia",
    "declarar um vizinho inacessível",
@@ -213,7 +213,7 @@ window.QUESTIONS_M3 = [
   "text": "Que tipo de ameaça à segurança pode ser descrito como software que se conecta a outro programa para executar uma função indesejada específica?",
   "opts": [
    "worm",
-   "negação de serviço Cavalo de Tróia",
+   "Cavalo de Tróia de negação de serviço",
    "vírus",
    "cavalo de Tróia proxy"
   ],
@@ -231,7 +231,7 @@ window.QUESTIONS_M3 = [
   "opts": [
    "É a forma de malware mais facilmente detectada.",
    "É um malware que só pode ser distribuído pela Internet.",
-   "É um software que causa problemas irritando mas não problemas fatais de computador.",
+   "É um software que causa problemas irritantes, mas não problemas fatais de computador.",
    "Aparece como software útil, mas o código mal-intencionado está escondido nele."
   ],
   "cor": 3,
@@ -261,7 +261,7 @@ window.QUESTIONS_M3 = [
   "fonte": "curso",
   "tp": "ACLs",
   "ty": "multi",
-  "text": "Consulte a figura. As interfaces Gigabit em ambos os roteadores foram configuradas com os números de subinterface que correspondem aos números VLAN conectados a eles. Os computadores na VLAN 10 devem ser capazes de imprimir na impressora P1 na VLAN 12. Os PCs na VLAN 20 devem imprimir nas impressoras na VLAN 22. Qual interface e em qual direção você deve colocar uma ACL padrão que permita a impressão na P1 da VLAN 10, mas impeça os PCs na VLAN 20 de usar a impressora P1? (Escolha duas.)",
+  "text": "Consulte a figura. As interfaces Gigabit em ambos os roteadores foram configuradas com os números de subinterface que correspondem aos números de VLAN conectadas a eles. Os computadores na VLAN 10 devem ser capazes de imprimir na impressora P1 na VLAN 12. Os PCs na VLAN 20 devem imprimir nas impressoras na VLAN 22. Qual interface e em qual direção você deve colocar uma ACL padrão que permita a impressão na P1 da VLAN 10, mas impeça os PCs na VLAN 20 de usar a impressora P1? (Escolha duas.)",
   "opts": [
    "R2 S0/0/1",
    "R2 Gi0/1.20",
@@ -361,7 +361,8 @@ window.QUESTIONS_M3 = [
   "sub": "A ACL 10 é removida da configuração de execução (running configuration).",
   "why": "O comando no access-list 10 remove a ACL inteira da configuração em execução. Diferente de remover uma única ACE com 'no <número da ACE>', aqui a lista toda é apagada.",
   "fig": "img/m3-p18.webp",
-  "figAlt": "CLI do R1 com ACL IPv4 padrão 10: permit host 192.168.25.16, deny rede 192.168.25.0"
+  "figAlt": "CLI do R1 com ACL IPv4 padrão 10: permit host 192.168.25.16, deny rede 192.168.25.0",
+  "code": "R1# configure terminal\nEnter configuration commands, one per line.  End with CNTL/Z.\nR1(config)# access-list 10 permit host 192.168.25.16\nR1(config)# access-list 10 deny 192.168.25.0 0.0.0.255\nR1(config)# interface fastEthernet 0/1\nR1(config-if)# ip access-group 10 in\nR1(config-if)# end\nR1#\n\nR1# configure terminal\nEnter configuration commands, one per line.  End with CNTL/Z.\nR1(config)# no access-list 10\nR1(config)# end\nR1#"
  },
  {
   "id": 19,
@@ -403,7 +404,7 @@ window.QUESTIONS_M3 = [
   "fonte": "curso",
   "tp": "ACLs",
   "ty": "single",
-  "text": "Consulte a figura. Um administrador de rede configurou o ACL 9 como mostrado. Os usuários na rede 172.31.1.0/24 não podem encaminhar o tráfego através do roteador CiscoVille. Qual é a causa mais provável da falha de tráfego?",
+  "text": "Consulte a figura. Um administrador de rede configurou a ACL 9 como mostrado. Os usuários na rede 172.31.1.0/24 não podem encaminhar o tráfego através do roteador CiscoVille. Qual é a causa mais provável da falha de tráfego?",
   "opts": [
    "O número da porta para o tráfego não foi identificado com a palavra-chave eq.",
    "A instrução permit especifica uma máscara curinga incorreta.",
@@ -414,7 +415,8 @@ window.QUESTIONS_M3 = [
   "sub": "A sequência das ACEs está incorreta.",
   "why": "A ACL 9 tem a sequência das ACEs na ordem errada: uma ACE de negação aparece antes de uma permissão que deveria vir primeiro, e o roteador processa as ACEs de cima para baixo, parando na primeira que casa.",
   "fig": "img/m3-p21.webp",
-  "figAlt": "CLI CiscoVille: ACL 9 com permit/deny para redes 172.x e 192.168.1.0 aplicada em Fa0/1"
+  "figAlt": "CLI CiscoVille: ACL 9 com permit/deny para redes 172.x e 192.168.1.0 aplicada em Fa0/1",
+  "code": "CiscoVille#\nCiscoVille# configure terminal\nCiscoVille(config)# access-list 9 permit 172.29.0.0 0.0.0.255\nCiscoVille(config)# access-list 9 permit 172.30.0.0 0.0.0.255\nCiscoVille(config)# access-list 9 deny 172.31.0.0 0.0.255.255\nCiscoVille(config)# access-list 9 permit 172.31.1.0 0.0.0.255\nCiscoVille(config)# access-list 9 deny 192.168.1.0 0.0.0.255\nCiscoVille(config)# access-list 9 permit any\nCiscoVille(config)# interface fastethernet0/1\nCiscoVille(config-if)# ip access-group 9 in\nCiscoVille(config-if)# end"
  },
  {
   "id": 22,
@@ -450,7 +452,8 @@ window.QUESTIONS_M3 = [
   "sub": "R2# show ip nat statistics",
   "why": "O comando show ip nat statistics mostra o resumo das traduções: total de traduções ativas, hits, misses e o uso do pool. É o comando indicado para diagnosticar o NAT dinâmico.",
   "fig": "img/m3-q082.webp",
-  "figAlt": "Figura da questão 23 do exame final ENSA"
+  "figAlt": "Figura da questão 23 do exame final ENSA",
+  "code": "interface FastEthernet 0/0\n ip address 10.10.10.1 255.255.255.0\n ip nat inside\n no cdp enable\n hold-queue 32 in\n hold-queue 100 out\n!\ninterface FastEthernet 0/1\n ip address dhcp\n ip nat outside\n no cdp enable\n!\nip classless\nip http server\n!\nip nat inside source list 102 interface fastethernet 0/1 overload\naccess-list 102 permit ip  10.10.10.0  0.0.0.255  any\nno cdp run\n!"
  },
  {
   "id": 24,
@@ -481,7 +484,7 @@ window.QUESTIONS_M3 = [
   "opts": [
    "overloading",
    "estático",
-   "dinamico",
+   "dinâmico",
    "conversão do endereço de porta (PAT)"
   ],
   "cor": 1,
@@ -551,7 +554,7 @@ window.QUESTIONS_M3 = [
   "fonte": "curso",
   "tp": "WAN",
   "ty": "multi",
-  "text": "Quais três fatores relacionados ao tráfego relacionados influenciariam a seleção de um tipo de link de WAN específico? (Escolha três.)",
+  "text": "Quais três fatores relacionados ao tráfego influenciariam a seleção de um tipo de link de WAN específico? (Escolha três.)",
   "opts": [
    "confiabilidade",
    "custo do link",
@@ -653,7 +656,7 @@ window.QUESTIONS_M3 = [
   "text": "Que técnica de QoS retém os pacotes excedentes em uma fila separada para transmissão posterior?",
   "opts": [
    "enfileiramento",
-   "classificar",
+   "classificação",
    "shaping (modelagem)",
    "marcação"
   ],
@@ -689,7 +692,7 @@ window.QUESTIONS_M3 = [
    "policiamento",
    "weighted random early detection ou WRED (detecção inicial aleatória ponderada).",
    "marcação de tráfego",
-   "queda cauda",
+   "queda de cauda",
    "organização de tráfego"
   ],
   "cor": 2,
@@ -713,7 +716,8 @@ window.QUESTIONS_M3 = [
   "sub": "copy startup-config tftp",
   "why": "O comando copy startup-config tftp copia a configuração salva na NVRAM para um servidor TFTP. É o procedimento padrão de backup da configuração.",
   "fig": "img/m3-q075.webp",
-  "figAlt": "Figura da questão 37 do exame final ENSA"
+  "figAlt": "Figura da questão 37 do exame final ENSA",
+  "code": "Router# show version\nCisco IOS Software, 1841 Software (C1841-ADVIPSERVICESK9-M), Version 12.4(15)T1,\n RELEASE SOFTWARE (fc2)\nTechnical Support: http://www.cisco.com/techsupport\nCopyright (c) 1986-2007 by Cisco Systems, Inc.\nCompiled Wed 18-Jul-07 04:52 by pt_team\n\nROM: System Bootstrap, Version 12.3(8r)T8, RELEASE SOFTWARE (fc1)\n\nSystem returned to ROM by power-on\nSystem image file is \"flash:c1841-advipservicesk9-mz.124-15.T1.bin\"\n\n<output omitted>\n\nCisco 1841 (revision 5.0) with 114688K/16384K bytes of memory.\nProcessor board ID FTX0947Z18E\nM860 processor: part number 0, mask 49\n2 FastEthernet/IEEE 802.3 interface(s)\n191K bytes of NVRAM.\n63488K bytes of ATA CompactFlash (Read/Write)\n\nConfiguration register is 0x2102\n\nRouter#"
  },
  {
   "id": 38,
@@ -723,7 +727,7 @@ window.QUESTIONS_M3 = [
   "ty": "single",
   "text": "Por que um administrador de rede usaria o comando config-register 0x2102 em um dispositivo de rede Cisco?",
   "opts": [
-   "to monitor and manage network performance, find and solve network problems, and plan for network growth",
+   "para monitorar e gerenciar o desempenho da rede, localizar e resolver problemas de rede e planejar o crescimento da rede",
    "para garantir que o dispositivo carrega o arquivo de configuração de inicialização durante a inicialização",
    "para aprender nomes de dispositivos, versões IOS e o número e tipo de interfaces de dispositivos conectados",
    "para fazer backup da configuração em execução em uma unidade USB"
@@ -773,16 +777,16 @@ window.QUESTIONS_M3 = [
   "fonte": "curso",
   "tp": "Arquitetura",
   "ty": "single",
-  "text": "What is the port density of a switch?",
+  "text": "O que é a densidade de portas de um switch?",
   "opts": [
-   "the number of available ports on a switch",
+   "o número de portas disponíveis em um switch",
    "a taxa de transferência de uma porta",
    "a largura de banda combinada de todas as portas em um switch",
    "a largura de banda de uma porta"
   ],
   "cor": 0,
-  "sub": "the number of available ports on a switch",
-  "why": "A port density de um switch é o número de portas disponíveis nele. Não tem relação com a velocidade por porta nem com o tamanho da tabela MAC."
+  "sub": "o número de portas disponíveis em um switch",
+  "why": "A densidade de portas de um switch é o número de portas disponíveis nele. Não tem relação com a velocidade por porta nem com o tamanho da tabela MAC."
  },
  {
   "id": 42,
@@ -811,7 +815,7 @@ window.QUESTIONS_M3 = [
   "fonte": "curso",
   "tp": "Arquitetura",
   "ty": "single",
-  "text": "Qual é a função do ASICs em um switch de várias camadas?",
+  "text": "Qual é a função dos ASICs em um switch de várias camadas?",
   "opts": [
    "Eles fornecem energia a dispositivos como telefones IP e pontos de acesso sem fio por portas Ethernet.",
    "Eles otimizam o encaminhamento de pacotes de IP em um switch de várias camadas ao ignorar a CPU.",
@@ -896,7 +900,7 @@ window.QUESTIONS_M3 = [
   "fonte": "curso",
   "tp": "OSPF",
   "ty": "single",
-  "text": "Consulte a figura.Por que os roteadores R1 e R2 não conseguem estabelecer uma adjacência OSPF?",
+  "text": "Consulte a figura. Por que os roteadores R1 e R2 não conseguem estabelecer uma adjacência OSPF?",
   "opts": [
    "As interfaces seriais não estão na mesma área.",
    "Os valores de ID do roteador não são os mesmos em ambos os roteadores.",
@@ -906,8 +910,8 @@ window.QUESTIONS_M3 = [
   "cor": 0,
   "sub": "As interfaces seriais não estão na mesma área.",
   "why": "As interfaces seriais de R1 e R2 estão configuradas em áreas OSPF diferentes. OSPF só forma adjacência entre interfaces na mesma área — por isso a adjacência não estabelece.",
-  "fig": "img/m3-q040.webp",
-  "figAlt": "Figura da questão 48 do exame final ENSA"
+  "fig": "img/m3-q048.webp",
+  "figAlt": "Topologia OSPF: R2 na Area 0 e R1 na Area 1, com os blocos de configuração OSPF de cada roteador"
  },
  {
   "id": 49,
@@ -940,11 +944,11 @@ window.QUESTIONS_M3 = [
   "opts": [
    "A camada lombada pode ser implementada com switches Cisco Nexus 9500 conectados uns aos outros e aos switches de folha.",
    "Tudo é dois saltos de tudo o resto.",
-   "Os dispositivos CISCO APICs e todos os outros dispositivos da rede se conectam, fisicamente aos switches leaf.",
+   "Os dispositivos CISCO APICs e todos os outros dispositivos da rede se conectam fisicamente aos switches leaf.",
    "O controlador APIC manipula o caminho de dados diretamente."
   ],
   "cor": 2,
-  "sub": "Os dispositivos CISCO APICs e todos os outros dispositivos da rede se conectam, fisicamente aos",
+  "sub": "Os dispositivos CISCO APICs e todos os outros dispositivos da rede se conectam fisicamente aos",
   "why": "Na topologia spine-leaf de duas camadas, os APICs e todos os outros dispositivos da rede se conectam fisicamente aos leaf switches. Os spines conectam-se apenas aos leaves, formando a malha."
  },
  {
@@ -953,7 +957,7 @@ window.QUESTIONS_M3 = [
   "fonte": "curso",
   "tp": "SDN/Cloud",
   "ty": "single",
-  "text": "Qual tipo de Hypervisor é implementado quando um usuário com um notebook executando o sistema operacional do Mac instala uma instância de sistema opercionado do Windows virtual?",
+  "text": "Qual tipo de Hypervisor é implementado quando um usuário com um notebook executando o sistema operacional do Mac instala uma instância de sistema operacional do Windows virtual?",
   "opts": [
    "do banco de dados",
    "tipo 2",
@@ -1025,7 +1029,7 @@ window.QUESTIONS_M3 = [
   "ty": "single",
   "text": "Quando o formato de dados JSON está sendo usado, quais caracteres são usados para armazenar objetos?",
   "opts": [
-   "double colons : :",
+   "dois-pontos duplos : :",
    "suportes duplos []",
    "aspas duplas \"\"",
    "chaves duplas {}"
