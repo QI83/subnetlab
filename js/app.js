@@ -18,7 +18,15 @@ function buildPool() {
     .filter(k => /^QUESTIONS_M\d+$/.test(k))
     .sort()
     .forEach(k => ALL.push(...window[k]));
-  Q = S.selectedMod ? ALL.filter(q => q.mod === S.selectedMod) : ALL.slice();
+  if (S.selectedMod) {
+    let pool = ALL.filter(q => q.mod === S.selectedMod);
+    if (S.selectedMod === 4 && S.scope4 && S.scope4 !== 'all') {
+      pool = pool.filter(q => q.fonte === S.scope4);
+    }
+    Q = pool;
+  } else {
+    Q = ALL.slice();
+  }
 }
 
 function availableMods() {
@@ -150,6 +158,7 @@ const KEY = {
   history:  'sl_history',
   qstats:   'sl_qstats',
   examdate: 'sl_examdate',
+  scope4:   'sl_scope4',
 };
 
 const LEVELS = [
@@ -406,6 +415,7 @@ let S = {
   reviewIdx:     0,
   searchQuery:   '',
   selectedMod:   0,
+  scope4:        localStorage.getItem('sl_scope4') || 'all',
 };
 
 // ── 7. TIMER ────────────────────────────────────────────────────────
@@ -506,6 +516,8 @@ function startQuiz() {
     screen: 'quiz',
     startMode: mode,
     selectedTopic: S.selectedTopic,
+    selectedMod: S.selectedMod,
+    scope4: S.scope4,
     order,
     qi: 0,
     xp: 0,
@@ -767,6 +779,13 @@ const MOD_DEFS = [
     desc: 'OSPF, ACLs, NAT, QoS, gerenciamento de rede, segurança empresarial e automação com Python/Ansible.',
   },
   {
+    mod: 4,
+    icon: '🎓',
+    name: 'Preparação para a Certificação',
+    abbr: 'CERT',
+    desc: 'Exames finais dos três cursos do CCNA reunidos, mais o exame prático de certificação 200-301.',
+  },
+  {
     mod: 0,
     icon: '🎯',
     name: 'Revisão Completa',
@@ -881,6 +900,7 @@ function renderLogin() {
     <div class="login-logo">🌐</div>
     <h1 class="login-h">SubnetLab</h1>
     <p class="login-sub">Simulador CCNA v7 — Cisco Networking Academy<br>Digite seu nome para começar</p>
+    <img src="img/logo-subnetlab.webp" alt="SubnetLab" style="display:block;max-width:320px;width:100%;margin:16px auto">
     <div class="login-form">
       <input class="login-input" id="nameInput" type="text"
         placeholder="Seu nome" autocomplete="name" maxlength="40"
@@ -1049,15 +1069,31 @@ function renderStart() {
   `).join('');
 
   // Módulos disponíveis
-  const modLabels = { 1: 'ITN', 2: 'SRWE', 3: 'ENSA' };
+  const modLabels = { 1: 'ITN', 2: 'SRWE', 3: 'ENSA', 4: 'Preparação para Certificação' };
   const modInfo   = {
     1: 'Introdução às Redes',
     2: 'Switching, Routing e Wireless',
-    3: 'Redes Empresariais'
+    3: 'Redes Empresariais',
+    4: 'Preparação para Certificação',
   };
-  const titleSub = S.selectedMod
-    ? `Módulo ${S.selectedMod} — ${modLabels[S.selectedMod] || ''} · ${Q.length} questões`
-    : `Todos os módulos · ${Q.length} questões`;
+  const scope4Names = { ensa: 'ENSA', srwe: 'SRWE', cert: 'Exame 200-301' };
+  let titleSub;
+  if (S.selectedMod === 4 && S.scope4 && S.scope4 !== 'all') {
+    titleSub = `Módulo 4 — Preparação para Certificação · ${scope4Names[S.scope4]} · ${Q.length} questões`;
+  } else {
+    titleSub = S.selectedMod
+      ? `Módulo ${S.selectedMod} — ${modLabels[S.selectedMod] || ''} · ${Q.length} questões`
+      : `Todos os módulos · ${Q.length} questões`;
+  }
+
+  const scope4Html = S.selectedMod === 4 ? `
+    <div class="topic-sel" style="margin-top:8px;margin-bottom:0">
+      <div class="topic-chip${!S.scope4 || S.scope4 === 'all' ? ' sel-chip' : ''}" data-scope4="all" role="button" tabindex="0">Tudo do módulo</div>
+      <div class="topic-chip${S.scope4 === 'ensa' ? ' sel-chip' : ''}" data-scope4="ensa" role="button" tabindex="0">ENSA</div>
+      <div class="topic-chip${S.scope4 === 'srwe' ? ' sel-chip' : ''}" data-scope4="srwe" role="button" tabindex="0">SRWE</div>
+      <div class="topic-chip${S.scope4 === 'cert' ? ' sel-chip' : ''}" data-scope4="cert" role="button" tabindex="0">Exame 200-301</div>
+    </div>
+  ` : '';
 
   return `<div class="start-wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
@@ -1079,6 +1115,7 @@ function renderStart() {
         </h1>
       </div>
     </div>
+    ${scope4Html}
 
     ${renderCountdown()}
     ${resumeBanner}
@@ -1153,9 +1190,21 @@ function bindStart() {
   });
 
   // Chips de tópico
-  document.querySelectorAll('.topic-chip').forEach(chip => {
+  document.querySelectorAll('.topic-chip[data-tp]').forEach(chip => {
     const select = () => {
       S.selectedTopic = S.selectedTopic === chip.dataset.tp ? null : chip.dataset.tp;
+      render();
+    };
+    chip.addEventListener('click', select);
+    chip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } });
+  });
+
+  // Chips de escopo (módulo 4)
+  document.querySelectorAll('[data-scope4]').forEach(chip => {
+    const select = () => {
+      S.scope4 = chip.dataset.scope4;
+      localStorage.setItem(KEY.scope4, S.scope4);
+      buildPool();
       render();
     };
     chip.addEventListener('click', select);
