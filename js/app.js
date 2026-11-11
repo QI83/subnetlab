@@ -900,7 +900,6 @@ function renderLogin() {
     <div class="login-logo">🌐</div>
     <h1 class="login-h">SubnetLab</h1>
     <p class="login-sub">Simulador CCNA v7 — Cisco Networking Academy<br>Digite seu nome para começar</p>
-    <img src="img/logo-subnetlab.webp" alt="SubnetLab" style="display:block;max-width:320px;width:100%;margin:16px auto">
     <div class="login-form">
       <input class="login-input" id="nameInput" type="text"
         placeholder="Seu nome" autocomplete="name" maxlength="40"

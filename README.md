@@ -1,5 +1,13 @@
 # SubnetLab
 
+<p align="center">
+  <img src="img/logo-subnetlab.webp" alt="SubnetLab" width="520">
+</p>
+
+<img src="docs/apresentacao.gif" alt="Apresentação do SubnetLab" width="420">
+
+▶ **[Ver a apresentação em vídeo (MP4)](docs/apresentacao.mp4)**
+
 Simulador de estudos para o **CCNA** (Cisco Certified Network Associate) — feito para a turma do SENAI Vila Mariana.
 
 Treine para as provas do curso e para a certificação com questões em **português**, explicação da resposta e progresso salvo no seu aparelho.
@@ -29,7 +37,22 @@ Treine para as provas do curso e para a certificação com questões em **portug
 | 1 | ITN — Introduction to Networks | 🚧 em breve |
 | 2 | SRWE — Switching, Routing and Wireless Essentials | ✅ 60 questões |
 | 3 | ENSA — Enterprise Networking, Security, and Automation | ✅ 55 questões (exame final) |
-| — | Certificação CCNA 200-301 | 🚧 em breve |
+| 4 | **Preparação para a Certificação** | ✅ **175 questões** |
+
+### Módulo 4 — Preparação para a Certificação
+
+Reúne os exames finais dos cursos e o exame prático de certificação:
+
+| Escopo | Questões |
+|---|---|
+| ENSA (exame final do curso) | 55 |
+| SRWE (exame final do curso) | 60 |
+| **Exame 200-301** (exame prático de certificação) | 60 |
+| **Total do módulo** | **175** |
+
+Dentro do módulo há um seletor para estudar só o exame de certificação, só um curso, ou tudo junto.
+
+O exame de certificação cobre os **três cursos**: ITN (12 questões), SRWE (33) e ENSA (15).
 
 ## Estrutura
 
