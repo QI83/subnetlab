@@ -4,9 +4,6 @@
   <img src="img/logo-subnetlab.webp" alt="SubnetLab" width="520">
 </p>
 
-<img src="docs/apresentacao.gif" alt="Apresentação do SubnetLab" width="420">
-
-▶ **[Ver a apresentação em vídeo (MP4)](docs/apresentacao.mp4)**
 
 Simulador de estudos para o **CCNA** (Cisco Certified Network Associate) — feito para a turma do SENAI Vila Mariana.
 
