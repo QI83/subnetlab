@@ -21,11 +21,19 @@ Treine para as provas do curso e para a certificação com questões em **portug
 
 - **Quiz** com 3 tipos de questão: múltipla escolha, escolha múltipla e associação.
 - **Explicação da resposta correta** em toda questão — o objetivo é aprender, não só acertar.
-- **Modos**: estudo livre, prova cronometrada (sem feedback até o fim), por tópico, por módulo, revisão de erros e revisão espaçada.
+- **Modos**: estudo livre, prova cronometrada (sem feedback até o fim), por tópico, por módulo, revisão de erros e **revisão espaçada de verdade** (algoritmo SM-2).
+- **Certificado simbólico**: ao alcançar 70% ou mais no modo prova, o app emite um certificado com rank
+  (Mestre CCNA, Expert em Redes, CCNA Aprovado, Técnico de Redes), que pode ser baixado em PNG.
 - **Gamificação**: XP, níveis, medalhas, streak e sequência de acertos.
 - **Estatísticas** por tópico, por questão e por módulo, com relatório de prontidão.
 - **Glossário** de acrônimos (Cisco adora siglas) com tooltip.
 - **Progresso local** (localStorage) com exportar/importar — trocou de celular, não perdeu nada.
+
+### Revisão espaçada (SM-2)
+
+Cada questão guarda `intervalo`, `próxima revisão`, `facilidade` e `repetições`. Acertou, o intervalo
+cresce (1 dia → 6 dias → intervalo × facilidade); errou, volta para 1 dia. O card do modo mostra
+quantas questões estão vencidas hoje.
 
 ## Módulos
 
@@ -34,7 +42,7 @@ Treine para as provas do curso e para a certificação com questões em **portug
 | 1 | ITN — Introduction to Networks | 🚧 em breve |
 | 2 | SRWE — Switching, Routing and Wireless Essentials | ✅ 60 questões |
 | 3 | ENSA — Enterprise Networking, Security, and Automation | ✅ 55 questões (exame final) |
-| 4 | **Preparação para a Certificação** | ✅ **175 questões** |
+| 4 | **Preparação para a Certificação** | ✅ **205 questões** |
 
 ### Módulo 4 — Preparação para a Certificação
 
@@ -44,12 +52,12 @@ Reúne os exames finais dos cursos e o exame prático de certificação:
 |---|---|
 | ENSA (exame final do curso) | 55 |
 | SRWE (exame final do curso) | 60 |
-| **Exame 200-301** (exame prático de certificação) | 60 |
-| **Total do módulo** | **175** |
+| **Exame 200-301** (exame prático de certificação) | **90** |
+| **Total do módulo** | **205** |
 
-Dentro do módulo há um seletor para estudar só o exame de certificação, só um curso, ou tudo junto.
+Dentro do módulo há um seletor de escopo: **Tudo do módulo**, **ENSA**, **SRWE** ou **Exame 200-301**. A escolha fica salva entre sessões.
 
-O exame de certificação cobre os **três cursos**: ITN (12 questões), SRWE (33) e ENSA (15).
+O exame de certificação cobre os **três cursos**: SRWE (45 questões), ENSA (29) e ITN (16).
 
 ## Estrutura
 
@@ -61,22 +69,37 @@ data/modulo2.js     questões do módulo 2 (window.QUESTIONS_M2)
 data/modulo2.json   mesma coisa em JSON (para scripts)
 data/modulo3.js     questões do módulo 3 (window.QUESTIONS_M3)
 data/modulo3.json   mesma coisa em JSON (para scripts)
-img/                figuras em WebP
+data/modulo4.js     questões do módulo 4 (window.QUESTIONS_M4)
+img/                figuras em WebP, logo, ícones e favicon
 manifest.json       PWA
 sw.js               service worker (offline)
+docs/               especificação da v2.0 e mídia
+prototype/          protótipos isolados (não integrados ao app)
 reference/          simulador original (histórico)
 BRIEF.md            especificação técnica do projeto
 ```
 
 ## Roadmap — v2.0 (ranking na nuvem)
 
-Hoje o progresso fica só no aparelho do aluno (localStorage). A **v2.0** adiciona perfil por nome e
-ranking público de XP, usando **Supabase** no plano gratuito.
+> **Status: não implementado.** Nada está configurado ainda — não existe projeto no Supabase, e o
+> app não faz nenhuma chamada de rede. Tudo continua 100% local (`localStorage`).
 
-- Especificação completa e SQL: [`docs/V2-SUPABASE.md`](docs/V2-SUPABASE.md)
-- Protótipo para testar: [`prototype/ranking-demo.html`](prototype/ranking-demo.html)
+O que existe hoje é **material de planejamento**:
 
-> Ainda **não integrado** ao app — é um protótipo isolado, para validar a ideia.
+- [`docs/V2-SUPABASE.md`](docs/V2-SUPABASE.md) — a especificação: decisões de produto, o SQL das
+  tabelas (`profiles`, `progresso`), as regras de acesso (RLS), a view de ranking e o passo a passo
+  de configuração (~15 min). É um documento para seguir, não um recurso ativo.
+- [`prototype/ranking-demo.html`](prototype/ranking-demo.html) — uma página separada que **exige que
+  você crie um projeto no Supabase** e cole a URL e a chave nele para funcionar. Serve para testar a
+  ideia do ranking antes de integrar.
+
+### O que faltaria para a v2.0 existir
+
+1. Criar o projeto gratuito no Supabase e rodar o SQL do `docs/V2-SUPABASE.md`.
+2. Testar o protótipo apontando para esse projeto.
+3. Integrar no app: enviar o XP a cada sessão e exibir o ranking na tela de módulos.
+4. Decidir sobre LGPD: o ranking é público por nome, então precisa de consentimento e de uma forma
+   de o aluno apagar o próprio perfil.
 
 ## Adicionar questões
 
@@ -85,7 +108,8 @@ Crie `data/moduloN.js`:
 ```js
 window.QUESTIONS_M3 = [
   {
-    id: 1, mod: 3, fonte: "curso",   // ou "certificacao"
+    id: 1, mod: 3,
+    fonte: "curso",                   // M2/M3: "curso" | M4: "ensa" | "srwe" | "cert"
     tp: "OSPF",                       // tópico
     ty: "single",                     // single | multi | match
     text: "Enunciado em português.",
@@ -93,9 +117,9 @@ window.QUESTIONS_M3 = [
     cor: 1,                           // single: índice | multi: array de índices
     sub: "Resumo curto da resposta",
     why: "Explicação didática do porquê.",
-    fig: "img/m3-q01.webp",           // opcional
+    fig: "img/m3-q01.webp",           // opcional: figura original da fonte
     figAlt: "Descrição da figura",    // opcional
-    code: "comando\ncomando",         // opcional
+    code: "R1# show ip ospf\n...",    // opcional: tela CLI (só quando a figura é só comandos)
     pairs: [{ l: "lado A", r: "lado B" }]  // só para ty: "match"
   }
 ];
