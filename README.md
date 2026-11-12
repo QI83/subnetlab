@@ -42,18 +42,19 @@ quantas questões estão vencidas hoje.
 | 1 | ITN — Introduction to Networks | 🚧 em breve |
 | 2 | SRWE — Switching, Routing and Wireless Essentials | ✅ 60 questões |
 | 3 | ENSA — Enterprise Networking, Security, and Automation | ✅ 55 questões (exame final) |
-| 4 | **Preparação para a Certificação** | ✅ **205 questões** |
+| 4 | **Preparação para a Certificação** | ✅ **90 questões (Exame 200-301)** |
 
 ### Módulo 4 — Preparação para a Certificação
 
-Reúne os exames finais dos cursos e o exame prático de certificação:
+O número do módulo é o **exame de certificação (90 questões)**. As questões de ENSA e SRWE ficam
+disponíveis como material de apoio, no seletor de escopo:
 
 | Escopo | Questões |
 |---|---|
+| **Exame 200-301** (exame prático de certificação) | **90** |
 | ENSA (exame final do curso) | 55 |
 | SRWE (exame final do curso) | 60 |
-| **Exame 200-301** (exame prático de certificação) | **90** |
-| **Total do módulo** | **205** |
+| **Total de material disponível** | **205** |
 
 Dentro do módulo há um seletor de escopo: **Tudo do módulo**, **ENSA**, **SRWE** ou **Exame 200-301**. A escolha fica salva entre sessões.
 

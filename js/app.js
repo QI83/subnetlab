@@ -35,8 +35,11 @@ function availableMods() {
 
 function modProgress(mod) {
   const qs = mod ? ALL.filter(q => q.mod === mod) : ALL;
-  const seen = qs.filter(q => qStats[qKey(q)]).length;
-  return { seen, total: qs.length, pct: qs.length ? Math.round(seen / qs.length * 100) : 0 };
+  // No Módulo 4 o número que importa é o do Exame 200-301: as questões de ENSA e SRWE
+  // são material de apoio. Assim o card mostra 90, não as 205 acumuladas.
+  const ref = mod === 4 ? qs.filter(q => q.fonte === 'cert') : qs;
+  const seen = ref.filter(q => qStats[qKey(q)]).length;
+  return { seen, total: ref.length, pct: ref.length ? Math.round(seen / ref.length * 100) : 0 };
 }
 
 function nextAfterSplash() {
