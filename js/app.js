@@ -159,6 +159,7 @@ const KEY = {
   qstats:   'sl_qstats',
   examdate: 'sl_examdate',
   scope4:   'sl_scope4',
+  spaced:   'sl_spaced',
 };
 
 const LEVELS = [
@@ -252,10 +253,19 @@ function dateLabel() {
     + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
+// Data LOCAL no formato YYYY-MM-DD (toISOString usa UTC e adianta o dia à noite no Brasil)
+function hojeISO() {
+  const d = new Date();
+  return d.getFullYear() + '-'
+    + String(d.getMonth() + 1).padStart(2, '0') + '-'
+    + String(d.getDate()).padStart(2, '0');
+}
+
 // ── 5. PERSISTÊNCIA (somente localStorage) ──────────────────────────
 let darkMode  = localStorage.getItem(KEY.dark) !== 'false';
 let favorites = new Set(JSON.parse(localStorage.getItem(KEY.favs) || '[]'));
 let qStats    = JSON.parse(localStorage.getItem(KEY.qstats) || '{}');
+let spaced    = JSON.parse(localStorage.getItem(KEY.spaced) || '{}');
 
 function getStudent()     { return localStorage.getItem(KEY.name) || ''; }
 function saveStudent(n)   { localStorage.setItem(KEY.name, esc(n).slice(0, 40)); }
@@ -332,6 +342,28 @@ function updateQStat(q, correct) {
   qStats[k].a++;
   if (correct) qStats[k].c++;
   localStorage.setItem(KEY.qstats, JSON.stringify(qStats));
+}
+
+function updateSpaced(q, correct) {
+  const k = qKey(q);
+  const s = spaced[k] ? { ...spaced[k] } : { int: 1, due: hojeISO(), ease: 2.5, reps: 0 };
+  if (correct) {
+    s.reps += 1;
+    if (s.reps === 1)      s.int = 1;
+    else if (s.reps === 2) s.int = 6;
+    else                   s.int = Math.round(s.int * s.ease);
+    s.ease = Math.min(3.0, +(s.ease + 0.1).toFixed(2));
+  } else {
+    s.reps = 0;
+    s.int  = 1;
+    s.ease = Math.max(1.3, +(s.ease - 0.2).toFixed(2));
+  }
+  const d = new Date();
+  d.setDate(d.getDate() + s.int);
+  s.due = d.getFullYear() + '-'
+    + String(d.getMonth() + 1).padStart(2, '0') + '-'
+    + String(d.getDate()).padStart(2, '0');
+  spaced[k] = s;
 }
 
 function toggleFav(id) {
@@ -456,12 +488,12 @@ function toggleTheme() {
 }
 
 // ── 9. NÚCLEO DO QUIZ ────────────────────────────────────────────────
-// Revisão espaçada: questões com accuracy < 70% ou nunca tentadas
 function getSpacedPool() {
+  const hoje = hojeISO();
   return Q.map((_, i) => i).filter(i => {
-    const st = qStats[qKey(Q[i])];
-    if (!st) return true; // nunca tentada
-    return (st.c / st.a) < 0.7;
+    const s = spaced[qKey(Q[i])];
+    if (!s) return true;      // nunca revisada → entra
+    return s.due <= hoje;     // venceu → entra
   });
 }
 
@@ -499,7 +531,7 @@ function startQuiz() {
     if (!pool.length) { showAlert('Nenhum erro registrado ainda. Complete uma sessão primeiro!'); return; }
   } else if (mode === 'spaced') {
     pool = getSpacedPool();
-    if (!pool.length) { showAlert('🎉 Parabéns! Você dominou todas as questões!'); return; }
+    if (!pool.length) { showAlert('Nada para revisar hoje. Volte amanhã! ✓'); return; }
   } else {
     pool = [...Array(Q.length).keys()];
   }
@@ -535,6 +567,7 @@ function startQuiz() {
     optOrder: null,
     badges: [],
     wrongLog: [],
+    spacedLog: [],
     topicStats: {},
     timerMode: isTimed ? 'timed' : 'free',
     timerLeft: pool.length * 60,
@@ -652,6 +685,10 @@ function applyScore(q, ok, _dispIdx) {
   S.topicStats[tp].t++;
   if (ok) S.topicStats[tp].c++;
   updateQStat(q, ok);
+  if (S.startMode === 'spaced') {
+    if (!S.spacedLog) S.spacedLog = [];
+    S.spacedLog.push({ q, ok });
+  }
 
   // Animação flash
   const app = document.getElementById('app');
@@ -714,9 +751,20 @@ function buildHistoryEntry() {
   };
 }
 
+// Persiste o estado da revisão espaçada (chamada em qualquer saída do quiz)
+function persistSpaced() {
+  if (S.startMode === 'spaced' && S.spacedLog?.length) {
+    S.spacedLog.forEach(({ q, ok }) => updateSpaced(q, ok));
+    localStorage.setItem(KEY.spaced, JSON.stringify(spaced));
+    S.spacedLog = [];
+  }
+}
+
 function finishQuiz() {
   stopTimer();
   clearProgress();
+
+  persistSpaced();
 
   const tot = S.correct + S.wrong;
   const pct = tot > 0 ? Math.round(S.correct / tot * 100) : 0;
@@ -1058,14 +1106,21 @@ function renderStart() {
     </div>
   ` : '';
 
+  // Contador espaçada
+  const spacedDue = getSpacedPool().length;
+  const spacedSub = spacedDue > 0 ? `${spacedDue} para revisar hoje` : 'Tudo em dia ✓';
+
   // Cards de modo
-  const modeCards = Object.entries(MODE_INFO).map(([mode, info]) => `
+  const modeCards = Object.entries(MODE_INFO).map(([mode, info]) => {
+    const sub = mode === 'spaced' ? spacedSub : info.sub;
+    return `
     <div class="mode-card${S.startMode === mode ? ' sel-mode' : ''}" data-mode="${mode}" role="button" tabindex="0" aria-pressed="${S.startMode === mode}">
       <div class="mode-icon">${info.label.split(' ')[0]}</div>
       <div class="mode-title">${info.label.replace(/^[^\s]+ /, '')}</div>
-      <div class="mode-sub">${info.sub}</div>
+      <div class="mode-sub">${sub}</div>
     </div>
-  `).join('');
+    `;
+  }).join('');
 
   // Módulos disponíveis
   const modLabels = { 1: 'ITN', 2: 'SRWE', 3: 'ENSA', 4: 'Preparação para Certificação' };
@@ -1440,6 +1495,7 @@ function bindQuiz() {
   document.getElementById('quitBtn')?.addEventListener('click', () => {
     showConfirm('Encerrar sessão?', 'Seu progresso atual será salvo.', () => {
       stopTimer();
+      persistSpaced();
       if (S.correct + S.wrong > 0) saveHistory(buildHistoryEntry());
       clearProgress();
       S.screen = 'start';
@@ -1499,10 +1555,21 @@ function renderResult() {
   const tot    = S.correct + S.wrong;
   const pct    = tot > 0 ? Math.round(S.correct / tot * 100) : 0;
   const lv     = getLvl(S.xp);
-  const passed = pct >= 70 || (S.timerMode === 'timed' && S.lives !== Infinity && S.lives > 0);
+  // Aprovação é pela NOTA (>=70%), não por ainda ter vidas restantes
+  const passed = pct >= 70;
 
   const scoreColor = pct === 100 ? '#F5C842' : pct >= 90 ? '#5EE0A8' : pct >= 70 ? '#7AB8F5' : '#F08080';
   const certBorder = scoreColor + '88';
+
+  const isCert = S.timerMode === 'timed' && pct >= 70;
+  const certData = pct === 100 ? { rank: 'Mestre CCNA',    icon: '🏆', sub: 'Desempenho Perfeito!' }
+    : pct >= 90              ? { rank: 'Expert em Redes',  icon: '🌟', sub: 'Resultado excepcional!' }
+    : pct >= 80              ? { rank: 'CCNA Aprovado',    icon: '✅', sub: 'Pronto para o exame real!' }
+    :                          { rank: 'Técnico de Redes', icon: '📡', sub: 'Aprovado no limite!' };
+
+  const _modLabels = { 1: 'Módulo 1 — ITN', 2: 'Módulo 2 — SRWE', 3: 'Módulo 3 — ENSA', 4: 'Módulo 4 — Preparação para Certificação', 0: 'Revisão Completa' };
+  const modLabel = _modLabels[S.selectedMod] || 'SubnetLab';
+  const datePT   = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   const badgeHtml = S.badges.map(b =>
     `<span class="badge" style="background:${b.bg};color:${b.c};border-color:${b.bc}">${esc(b.t)}</span>`
@@ -1513,7 +1580,7 @@ function renderResult() {
     .map(([tp, { c, t }]) => ({ tp, pct: Math.round(c / t * 100), t }))
     .sort((a, b) => a.pct - b.pct);
 
-  const topicHtml = tpEntries.map(({ tp, pct: p, t }) => {
+  const topicHtml = tpEntries.map(({ tp, pct: p }) => {
     const col = p >= 80 ? '#1D9E75' : p >= 60 ? '#BA7517' : '#A32D2D';
     return `<div class="topic-row">
       <div class="topic-name" title="${esc(tp)}">${esc(tp)}</div>
@@ -1524,12 +1591,35 @@ function renderResult() {
 
   const name = getStudent() || 'Aluno';
 
-  return `<div class="res-wrap">
-    <div class="cert-wrap" id="certCard" style="border-color:${certBorder}">
-      <div class="cert-corner tl" style="border-color:${scoreColor}"></div>
-      <div class="cert-corner tr" style="border-color:${scoreColor}"></div>
-      <div class="cert-corner bl" style="border-color:${scoreColor}"></div>
-      <div class="cert-corner br" style="border-color:${scoreColor}"></div>
+  const certInner = isCert ? `
+      <div class="cert-top-label">${esc(modLabel)}</div>
+      <div class="cert-icon" style="color:${scoreColor}">${certData.icon}</div>
+      <div class="cert-title-sm">Certificado de Aprovação</div>
+      <div class="cert-student">${esc(name)}</div>
+      <div class="cert-rank" style="color:${scoreColor}">${esc(certData.rank)}</div>
+      <div class="cert-sub">${esc(certData.sub)} · ${esc(datePT)}</div>
+      <div class="cert-divider" style="border-color:${scoreColor}"></div>
+      <div class="cert-score-row">
+        <div class="cert-stat">
+          <div class="cert-stat-v" style="color:${scoreColor}">${pct}%</div>
+          <div class="cert-stat-l">Aproveitamento</div>
+        </div>
+        <div class="cert-seal" style="border-color:${scoreColor};box-shadow:0 0 18px ${scoreColor}44">
+          <div style="font-size:22px;line-height:1">${certData.icon}</div>
+          <div style="font-size:8px;font-weight:700;color:${scoreColor};letter-spacing:.04em;margin-top:3px">APROVADO</div>
+        </div>
+        <div class="cert-stat">
+          <div class="cert-stat-v" style="color:var(--green-text)">${S.correct}</div>
+          <div class="cert-stat-l">Acertos</div>
+        </div>
+      </div>
+      <div class="cert-stats-mini">
+        <span>✗ ${S.wrong} erros</span>
+        <span>🔥 Streak ${S.maxStreak}</span>
+        <span>⚡ ${S.xp} XP</span>
+        <span>· ⏱ ${formatTime((S.order.length * 60) - S.timerLeft)} gasto</span>
+      </div>
+  ` : `
       <div class="cert-top-label">SubnetLab · CCNA v7 SRWE</div>
       <div class="cert-icon">${pct === 100 ? '🏆' : pct >= 90 ? '🌟' : pct >= 70 ? '🎓' : '📚'}</div>
       <div class="cert-title-sm">Resultado do Simulado</div>
@@ -1556,7 +1646,17 @@ function renderResult() {
         <span>· ${S.order.length} questões</span>
         ${S.timerMode === 'timed' ? `<span>· ⏱ ${formatTime((S.order.length * 60) - S.timerLeft)} gasto</span>` : ''}
       </div>
+  `;
+
+  return `<div class="res-wrap">
+    <div class="cert-wrap" id="certCard" style="border-color:${certBorder}">
+      <div class="cert-corner tl" style="border-color:${scoreColor}"></div>
+      <div class="cert-corner tr" style="border-color:${scoreColor}"></div>
+      <div class="cert-corner bl" style="border-color:${scoreColor}"></div>
+      <div class="cert-corner br" style="border-color:${scoreColor}"></div>
+      ${certInner}
     </div>
+    ${isCert ? `<div style="text-align:center;margin:-8px 0 16px"><button class="btn" id="dlCertBtn" style="font-size:12px;padding:8px 18px">📥 Baixar certificado</button></div>` : ''}
 
     ${badgeHtml ? `<div class="badge-row" role="list" aria-label="Conquistas">${badgeHtml}</div>` : ''}
 
@@ -1585,11 +1685,127 @@ function bindResult() {
   document.getElementById('newGameBtn')?.addEventListener('click', () => {
     S.screen = 'start';
     render();
-    // Rolar ao topo
     window.scrollTo(0, 0);
   });
   document.getElementById('backFromResult')?.addEventListener('click', () => { S.screen = 'start'; render(); });
   document.getElementById('shareBtn')?.addEventListener('click', shareResult);
+  document.getElementById('dlCertBtn')?.addEventListener('click', downloadCertCanvas);
+}
+
+function downloadCertCanvas() {
+  const tot = S.correct + S.wrong;
+  const pct = tot > 0 ? Math.round(S.correct / tot * 100) : 0;
+  const certData = pct === 100 ? { rank: 'Mestre CCNA',    icon: '🏆', color: '#F5C842' }
+    : pct >= 90              ? { rank: 'Expert em Redes',  icon: '🌟', color: '#5EE0A8' }
+    : pct >= 80              ? { rank: 'CCNA Aprovado',    icon: '✅', color: '#7AB8F5' }
+    :                          { rank: 'Técnico de Redes', icon: '📡', color: '#A89DF5' };
+
+  const name     = getStudent() || 'Aluno';
+  const _mL      = { 1: 'Módulo 1 — ITN', 2: 'Módulo 2 — SRWE', 3: 'Módulo 3 — ENSA', 4: 'Módulo 4 — Preparação para Certificação', 0: 'Revisão Completa' };
+  const modLabel = _mL[S.selectedMod] || 'SubnetLab';
+  const datePT   = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  const W = 800, H = 500;
+  const cv  = document.createElement('canvas');
+  cv.width  = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+
+  // Fundo
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0,   '#12172B');
+  bg.addColorStop(0.5, '#1A1D2F');
+  bg.addColorStop(1,   '#12172B');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Borda
+  ctx.strokeStyle = certData.color + '88';
+  ctx.lineWidth   = 3;
+  ctx.strokeRect(10, 10, W - 20, H - 20);
+
+  // Cantos decorativos
+  const cs = 18;
+  ctx.strokeStyle = certData.color + '66';
+  ctx.lineWidth   = 2;
+  [[20, 20, 1, 1], [W-20, 20, -1, 1], [20, H-20, 1, -1], [W-20, H-20, -1, -1]].forEach(([x, y, dx, dy]) => {
+    ctx.beginPath();
+    ctx.moveTo(x + dx * cs, y);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x, y + dy * cs);
+    ctx.stroke();
+  });
+
+  ctx.textAlign = 'center';
+
+  // Rótulo superior
+  ctx.fillStyle = '#6B7399';
+  ctx.font      = '12px system-ui, sans-serif';
+  ctx.fillText('SubnetLab · CCNA v7 · Simulador de Certificação', W / 2, 52);
+
+  // Ícone
+  ctx.font = '52px system-ui, sans-serif';
+  ctx.fillText(certData.icon, W / 2, 120);
+
+  // Título
+  ctx.fillStyle = '#9BA3C4';
+  ctx.font      = '13px system-ui, sans-serif';
+  ctx.fillText('CERTIFICADO DE APROVAÇÃO', W / 2, 155);
+
+  // Nome
+  ctx.fillStyle = '#E8EAF6';
+  ctx.font      = 'bold 26px system-ui, sans-serif';
+  ctx.fillText(name, W / 2, 198);
+
+  // Rank
+  ctx.fillStyle = certData.color;
+  ctx.font      = 'bold 30px system-ui, sans-serif';
+  ctx.fillText(certData.rank, W / 2, 240);
+
+  // Módulo
+  ctx.fillStyle = '#9BA3C4';
+  ctx.font      = '13px system-ui, sans-serif';
+  ctx.fillText(modLabel, W / 2, 268);
+
+  // Divisor
+  ctx.strokeStyle = certData.color + '44';
+  ctx.lineWidth   = 1;
+  ctx.beginPath();
+  ctx.moveTo(W / 2 - 200, 285);
+  ctx.lineTo(W / 2 + 200, 285);
+  ctx.stroke();
+
+  // Stats
+  ctx.fillStyle = certData.color;
+  ctx.font      = 'bold 34px system-ui, sans-serif';
+  [[pct + '%', W / 2 - 150], [String(S.correct), W / 2], [String(S.wrong), W / 2 + 150]].forEach(([v, x]) => {
+    ctx.fillText(v, x, 335);
+  });
+  ctx.fillStyle = '#6B7399';
+  ctx.font      = '11px system-ui, sans-serif';
+  [['APROVEITAMENTO', W / 2 - 150], ['ACERTOS', W / 2], ['ERROS', W / 2 + 150]].forEach(([l, x]) => {
+    ctx.fillText(l, x, 353);
+  });
+
+  // Data
+  ctx.fillStyle = '#6B7399';
+  ctx.font      = '12px system-ui, sans-serif';
+  ctx.fillText(datePT, W / 2, 410);
+
+  // Marca d'água
+  ctx.fillStyle = '#3A3F5C';
+  ctx.font      = '11px system-ui, sans-serif';
+  ctx.fillText('SubnetLab', W / 2, 450);
+
+  try {
+    const a    = document.createElement('a');
+    a.download = `certificado_${name.replace(/\s+/g, '_')}_${hojeISO()}.png`;
+    a.href     = cv.toDataURL('image/png');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch {
+    showAlert('Não foi possível gerar o PNG. Tente capturar a tela manualmente.');
+  }
 }
 
 // ── REVISÃO ───────────────────────────────────────────────────────────

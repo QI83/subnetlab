@@ -344,7 +344,6 @@ body {
 
 /* ── CARDS DE MODO ───────────────────────────────────────────────── */
 .mode-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
-.mode-card:nth-child(5) { grid-column: 1 / -1; max-width: 50%; margin: 0 auto; }
 .mode-card {
   background: var(--bg2);
   border: 1.5px solid var(--border);
@@ -765,6 +764,14 @@ body {
 .settings-desc  { font-size: 11px; color: var(--text3); margin-top: 2px; }
 
 /* ── RESPONSIVIDADE ──────────────────────────────────────────────── */
+@media (min-width: 640px) {
+  .mode-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 639px) {
+  .mode-card:last-child { grid-column: 1 / -1; }
+}
+
 @media (max-width: 480px) {
   #app { padding: 10px 12px; }
   .start-h  { font-size: 19px; }
@@ -775,7 +782,6 @@ body {
   .hud      { gap: 4px; }
   .hc       { padding: 5px 8px; }
   .tgrid    { grid-template-columns: repeat(2, 1fr); }
-  .mode-grid { grid-template-columns: repeat(2, 1fr); }
   .match-select { width: 140px; min-width: 110px; }
   .cert-score-row { flex-wrap: wrap; }
   .cert-seal { width: 70px; height: 70px; }
@@ -785,7 +791,6 @@ body {
 @media (max-width: 360px) {
   .match-row { flex-direction: column; }
   .match-select { width: 100%; }
-  .mode-grid { grid-template-columns: 1fr 1fr; }
 }
 
 /* ── SPLASH ──────────────────────────────────────────────────────── */
