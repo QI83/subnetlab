@@ -3260,5 +3260,37 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 2,
   "why": "O LLQ (Low Latency Queuing) combina a prioridade estrita com o CBWFQ, criando uma fila de prioridade absoluta destinada ao tráfego sensível a atraso, como voz e vídeo. Pacotes nessa fila são sempre atendidos antes das demais filas, independentemente de outras classes, minimizando latência e jitter. O CBWFQ garante largura de banda mínima por classe, mas sem prioridade absoluta; o WFQ distribui a largura de banda de forma proporcional, sem garantias de baixa latência."
+ },
+ {
+  "id": 176,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Incompatibilidade duplex",
+  "ty": "single",
+  "text": "Um técnico está solucionando problemas de um dispositivo de rede e suspeita que pode haver uma incompatibilidade duplex. O que poderia causar uma incompatibilidade duplex?",
+  "opts": [
+   "configuração incorreta da interface",
+   "Falha de detecção automática do MDIX",
+   "interconexão de dispositivos diferentes",
+   "Corrupção de dados"
+  ],
+  "cor": 0,
+  "why": "Uma incompatibilidade duplex acontece quando um lado da conexão está em full-duplex e o outro em half-duplex. A causa típica é configuração manual errada da interface — velocidade ou duplex fixados em um lado e autonegociação no outro. Em casos raros pode ser falha de autonegociação. O sintoma engana porque a comunicação continua funcionando, só com lentidão, colisões e erros de CRC."
+ },
+ {
+  "id": 177,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Sub-redes IPv4",
+  "ty": "single",
+  "text": "Um administrador de redes está projetando um esquema de endereçamento IPv4 e exige essas sub-redes.\nUma sub-rede de 100 hosts\nDuas sub-redes de 80 hosts\nDuas sub-redes de 30 hosts\nQuatro sub-redes de 20 hosts\nQual combinação de sub-redes e máscaras fornecerá o plano de endereçamento recomendado para essas exigências?",
+  "opts": [
+   "Nove sub-redes de 126 hosts com uma máscara 255.255.255.128\nUma sub-rede de 126 hosts com uma máscara 255.255.255.192",
+   "Duas sub-redes de 80 hosts com uma máscara 255.255.255.224\nSeis sub-redes de 30 hosts com uma máscara 255.255.255.240",
+   "Três sub-redes de 126 hosts com uma máscara 255.255.255.128\nSeis sub-redes de 30 hosts com uma máscara 255.255.255.224",
+   "Três sub-redes de 126 hosts com uma máscara 255.255.255.192\nSeis sub-redes de 30 hosts com uma máscara 255.255.255.240"
+  ],
+  "cor": 2,
+  "why": "O critério é agrupar por capacidade, não por quantidade pedida. 100 hosts exige 7 bits de host: 2^7 = 128, menos 2 = 126 utilizáveis, máscara /25 (255.255.255.128). As duas redes de 80 também cabem em /25, somando 3 sub-redes de 126. Já 30 hosts exige 5 bits de host: 2^5 = 32, menos 2 = 30 utilizáveis, máscara /27 (255.255.255.224). As quatro redes de 20 cabem em /27, somando 6 sub-redes de 30. Total: 3 redes /25 mais 6 redes /27."
  }
 ];
