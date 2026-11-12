@@ -2,7 +2,7 @@
 // Estratégia: cache-first para assets estáticos, rede como fallback
 'use strict';
 
-const CACHE_NAME = 'subnetlab-v17';
+const CACHE_NAME = 'subnetlab-v18';
 
 const ASSETS = [
   '.',

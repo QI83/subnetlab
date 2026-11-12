@@ -46,17 +46,14 @@ quantas questões estão vencidas hoje.
 
 ### Módulo 4 — Preparação para a Certificação
 
-O número do módulo é o **exame de certificação (90 questões)**. As questões de ENSA e SRWE ficam
-disponíveis como material de apoio, no seletor de escopo:
+O número do módulo é o **exame de certificação (90 questões)**. As questões de ENSA e SRWE não se
+repetem aqui — elas já são os Módulos 3 e 2.
 
-| Escopo | Questões |
+| Seção da tela de módulos | Conteúdo |
 |---|---|
-| **Exame 200-301** (exame prático de certificação) | **90** |
-| ENSA (exame final do curso) | 55 |
-| SRWE (exame final do curso) | 60 |
-| **Total de material disponível** | **205** |
-
-Dentro do módulo há um seletor de escopo: **Tudo do módulo**, **ENSA**, **SRWE** ou **Exame 200-301**. A escolha fica salva entre sessões.
+| **Módulos do curso** | ITN (em breve), SRWE (60), ENSA (55) |
+| **Revisão completa** | as 320 questões de todos os módulos, sem filtro. No modo Prova, são sorteadas **60** questões; no modo Livre, aparecem todas |
+| **Certificação** | as 90 questões do exame 200-301 |
 
 O exame de certificação cobre os **três cursos**: SRWE (45 questões), ENSA (29) e ITN (16).
 

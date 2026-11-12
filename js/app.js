@@ -20,9 +20,9 @@ function buildPool() {
     .forEach(k => ALL.push(...window[k]));
   if (S.selectedMod) {
     let pool = ALL.filter(q => q.mod === S.selectedMod);
-    if (S.selectedMod === 4 && S.scope4 && S.scope4 !== 'all') {
-      pool = pool.filter(q => q.fonte === S.scope4);
-    }
+    // Módulo 4 = somente o exame de certificação. As questões de ENSA e SRWE
+    // já estão nos Módulos 3 e 2, então não se repetem aqui.
+    if (S.selectedMod === 4) pool = pool.filter(q => q.fonte === 'cert');
     Q = pool;
   } else {
     Q = ALL.slice();
@@ -161,7 +161,6 @@ const KEY = {
   history:  'sl_history',
   qstats:   'sl_qstats',
   examdate: 'sl_examdate',
-  scope4:   'sl_scope4',
   spaced:   'sl_spaced',
 };
 
@@ -450,7 +449,6 @@ let S = {
   reviewIdx:     0,
   searchQuery:   '',
   selectedMod:   0,
-  scope4:        localStorage.getItem('sl_scope4') || 'all',
 };
 
 // ── 7. TIMER ────────────────────────────────────────────────────────
@@ -537,6 +535,11 @@ function startQuiz() {
     if (!pool.length) { showAlert('Nada para revisar hoje. Volte amanhã! ✓'); return; }
   } else {
     pool = [...Array(Q.length).keys()];
+    // Revisão Completa (sem módulo escolhido): a Prova é uma amostra de 60 questões
+    // sorteadas do banco; o modo Livre continua apresentando todas, aleatoriamente.
+    if (mode === 'timed' && !S.selectedMod && pool.length > 60) {
+      pool = shuffle(pool).slice(0, 60);
+    }
   }
 
   if (!pool.length) { showAlert('Nenhuma questão disponível para este modo.'); return; }
@@ -552,7 +555,6 @@ function startQuiz() {
     startMode: mode,
     selectedTopic: S.selectedTopic,
     selectedMod: S.selectedMod,
-    scope4: S.scope4,
     order,
     qi: 0,
     xp: 0,
@@ -877,7 +879,7 @@ function renderModules() {
   const name = getStudent() || 'Estudante';
   const availMods = availableMods();
 
-  const cards = MOD_DEFS.map(def => {
+  const card = (def) => {
     const isAvail = def.mod === 0 ? ALL.length > 0 : availMods.includes(def.mod);
     const prog = modProgress(def.mod);
 
@@ -911,7 +913,21 @@ function renderModules() {
         <span class="mod-card-ptext">${seen} de ${total} questões vistas · ${pct}%</span>
       </div>
     </div>`;
-  }).join('');
+  };
+
+  const byMod = m => MOD_DEFS.find(d => d.mod === m);
+  const GRUPOS = [
+    { titulo: 'Módulos do curso',   sub: 'Conteúdo de cada curso do CCNA v7.',   mods: [1, 2, 3] },
+    { titulo: 'Revisão completa',   sub: 'Todo o banco de questões, sem filtro de curso.', mods: [0] },
+    { titulo: 'Certificação',       sub: 'Exame prático 200-301.',                mods: [4] },
+  ];
+
+  const secoes = GRUPOS.map(g => `
+    <div class="mod-section">
+      <p class="sec-hdr" style="margin-bottom:2px">${g.titulo}</p>
+      <p class="mod-section-sub">${g.sub}</p>
+      <div class="mod-list">${g.mods.map(m => byMod(m)).filter(Boolean).map(card).join('')}</div>
+    </div>`).join('');
 
   return `<div class="modules-wrap">
     <div class="modules-topbar">
@@ -923,7 +939,7 @@ function renderModules() {
       </div>
     </div>
     <p class="modules-sub">Selecione o módulo do curso que está cursando.</p>
-    <div class="mod-list">${cards}</div>
+    ${secoes}
   </div>`;
 }
 
@@ -1133,24 +1149,13 @@ function renderStart() {
     3: 'Redes Empresariais',
     4: 'Preparação para Certificação',
   };
-  const scope4Names = { ensa: 'ENSA', srwe: 'SRWE', cert: 'Exame 200-301' };
   let titleSub;
-  if (S.selectedMod === 4 && S.scope4 && S.scope4 !== 'all') {
-    titleSub = `Módulo 4 — Preparação para Certificação · ${scope4Names[S.scope4]} · ${Q.length} questões`;
-  } else {
-    titleSub = S.selectedMod
-      ? `Módulo ${S.selectedMod} — ${modLabels[S.selectedMod] || ''} · ${Q.length} questões`
-      : `Todos os módulos · ${Q.length} questões`;
-  }
+  titleSub = S.selectedMod
+    ? `Módulo ${S.selectedMod} — ${modLabels[S.selectedMod] || ''} · ${Q.length} questões`
+    : `Revisão Completa · ${Q.length} questões`;
 
-  const scope4Html = S.selectedMod === 4 ? `
-    <div class="topic-sel" style="margin-top:8px;margin-bottom:0">
-      <div class="topic-chip${!S.scope4 || S.scope4 === 'all' ? ' sel-chip' : ''}" data-scope4="all" role="button" tabindex="0">Tudo do módulo</div>
-      <div class="topic-chip${S.scope4 === 'ensa' ? ' sel-chip' : ''}" data-scope4="ensa" role="button" tabindex="0">ENSA</div>
-      <div class="topic-chip${S.scope4 === 'srwe' ? ' sel-chip' : ''}" data-scope4="srwe" role="button" tabindex="0">SRWE</div>
-      <div class="topic-chip${S.scope4 === 'cert' ? ' sel-chip' : ''}" data-scope4="cert" role="button" tabindex="0">Exame 200-301</div>
-    </div>
-  ` : '';
+  // Módulo 4 não tem seletor de escopo: aqui só entram as questões do exame 200-301.
+  // ENSA e SRWE já são módulos próprios na tela anterior.
 
   return `<div class="start-wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
@@ -1172,8 +1177,6 @@ function renderStart() {
         </h1>
       </div>
     </div>
-    ${scope4Html}
-
     ${renderCountdown()}
     ${resumeBanner}
     ${lastResult}
@@ -1184,13 +1187,14 @@ function renderStart() {
 
     ${evoHtml}
 
-    <p class="sec-hdr" style="margin-top:4px">Tópicos — ${S.selectedMod ? 'Módulo ' + S.selectedMod : 'Todos'}</p>
+    ${S.startMode === 'topic' ? '' : `
+    <p class="sec-hdr" style="margin-top:4px">Tópicos — ${S.selectedMod ? 'Módulo ' + S.selectedMod : 'Revisão Completa'}</p>
     <div class="tgrid">
       ${topics.map(t => `<div class="tpill">
         <span class="tdot" style="background:${topicColor(t)}"></span>
         <span style="font-size:11px">${esc(t)}</span>
       </div>`).join('')}
-    </div>
+    </div>`}
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
       <button class="btn" id="histBtnBottom" style="flex:1;min-width:100px" aria-label="Ver histórico">📋 Histórico</button>
@@ -1256,17 +1260,6 @@ function bindStart() {
     chip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } });
   });
 
-  // Chips de escopo (módulo 4)
-  document.querySelectorAll('[data-scope4]').forEach(chip => {
-    const select = () => {
-      S.scope4 = chip.dataset.scope4;
-      localStorage.setItem(KEY.scope4, S.scope4);
-      buildPool();
-      render();
-    };
-    chip.addEventListener('click', select);
-    chip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } });
-  });
 }
 
 // ── QUIZ ─────────────────────────────────────────────────────────────
