@@ -3292,5 +3292,497 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 2,
   "why": "O critério é agrupar por capacidade, não por quantidade pedida. 100 hosts exige 7 bits de host: 2^7 = 128, menos 2 = 126 utilizáveis, máscara /25 (255.255.255.128). As duas redes de 80 também cabem em /25, somando 3 sub-redes de 126. Já 30 hosts exige 5 bits de host: 2^5 = 32, menos 2 = 30 utilizáveis, máscara /27 (255.255.255.224). As quatro redes de 20 cabem em /27, somando 6 sub-redes de 30. Total: 3 redes /25 mais 6 redes /27."
+ },
+ {
+  "id": 178,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Nuvem (tipos)",
+  "ty": "single",
+  "text": "Uma empresa farmacêutica deseja contratar os serviços de um provedor de nuvem para armazenar dados de funcionários e aplicativos específicos da empresa com segurança de acesso rigorosa. Qual tipo de nuvem seria o mais apropriado para esse cenário?",
+  "opts": [
+   "nuvem pública",
+   "nuvem híbrida",
+   "nuvem comunitária",
+   "nuvem privada"
+  ],
+  "cor": 3,
+  "why": "A nuvem privada é destinada a uma organização ou entidade específica, como o governo. Pode ser montada na rede privada da própria empresa — embora seja cara de construir e manter — ou gerenciada por uma organização externa com segurança de acesso rigorosa. Nuvem pública é compartilhada; híbrida combina as duas; comunitária é dividida entre organizações com interesses comuns."
+ },
+ {
+  "id": 179,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "PoE (Power over Ethernet)",
+  "ty": "single",
+  "text": "Um administrador de rede está considerando se os recursos PoE são necessários em uma instalação de rede específica. Qual opção fornece informações válidas sobre PoE?",
+  "opts": [
+   "Qualquer porta de switch pode ser configurada com comandos IOS para funcionar como uma porta PoE.",
+   "PoE permite que o switch forneça energia a um dispositivo através da rede elétrica existente.",
+   "O recurso de passagem PoE é suportado somente pelo modelo de switch compacto Cisco Catalyst 3560-C Series ou superior.",
+   "Ele pode ser usado por telefones IP, permitindo que eles sejam instalados em qualquer lugar onde haja um cabo Ethernet."
+  ],
+  "cor": 3,
+  "why": "O PoE entrega energia ao dispositivo pelo próprio cabo Ethernet, não pela rede elétrica. Isso permite instalar telefones IP e pontos de acesso sem fio em qualquer lugar onde haja um cabo de rede, sem precisar de tomada. Só portas específicas do switch suportam PoE — não qualquer porta por comando IOS. O pass-through PoE é suportado pelos compactos Catalyst 2960-C e 3560-C."
+ },
+ {
+  "id": 180,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "TCP/UDP (portas e encapsulamento)",
+  "ty": "multi",
+  "text": "Os dados estão sendo enviados de um PC de origem para um servidor de destino. Quais são as três afirmativas que descrevem corretamente a função TCP ou UDP nessa situação? (Escolha três.)",
+  "opts": [
+   "O processo do TCP em execução no PC seleciona aleatoriamente a porta de destino ao estabelecer uma sessão com o servidor.",
+   "O número da porta de origem do TCP identifica o host de envio da rede.",
+   "O campo de porta de origem identifica o aplicativo ou serviço atual responsável por manusear os dados que retornam para o PC.",
+   "O TCP é o protocolo que deve ser usado quando uma função exigir a diminuição dos custos da rede.",
+   "O número de porta de destino do UDP identifica o aplicativo ou o serviço do servidor responsável por manusear os dados.",
+   "Os segmentos UDP são encapsulados em pacotes IP para que possam ser transportados pela Internet."
+  ],
+  "cor": [
+   2,
+   4,
+   5
+  ],
+  "sub": "Escolha as alternativas corretas",
+  "why": "As portas de camada 4 identificam o aplicativo ou serviço que vai tratar os dados. A porta de origem é escolhida pelo dispositivo que envia e será a porta de destino quando a resposta voltar. Os segmentos da camada 4 são encapsulados em pacotes IP. Quem identifica o host é o endereço IP, não a porta. A porta de destino é definida pelo serviço procurado, não sorteada. E é o UDP, não o TCP, que serve quando se quer menor sobrecarga."
+ },
+ {
+  "id": 181,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "WLAN (função do AP)",
+  "ty": "single",
+  "text": "Qual recurso ou função um AP fornece em uma LAN sem fio?",
+  "opts": [
+   "Um AP é mais fácil de configurar e configurar do que os extensores de alcance Wi-Fi.",
+   "Um dispositivo sem fio deve ser associado a um AP para ter acesso a recursos de rede.",
+   "Um cliente sem fio pode se conectar a mais de um ponto de acesso por vez.",
+   "Cada AP anuncia um ou mais SSIDs e um usuário pode optar por se conectar ao SSID mais próximo."
+  ],
+  "cor": 1,
+  "why": "O cliente sem fio usa a placa de rede para descobrir APs próximos que anunciam SSID; em seguida tenta se associar e se autenticar. Só depois de associado é que ele acessa os recursos da rede. Extensores de alcance são fáceis de configurar, mas o AP dedicado é a solução melhor. Um cliente não se conecta a mais de um AP ao mesmo tempo, e o SSID não indica proximidade física."
+ },
+ {
+  "id": 182,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Modelo hierárquico (três camadas)",
+  "ty": "single",
+  "text": "Um engenheiro de rede está projetando uma rede comutada sem fronteiras de forma hierárquica. Que diretriz pode fazer com que o engenheiro implemente um modelo de camada de três camadas?",
+  "opts": [
+   "A camada de acesso fornece agregação de domínios de difusão da Camada 2.",
+   "O isolamento de falhas é um dos objetivos principais da camada de distribuição.",
+   "A camada principal fornece serviços diferenciados para várias classes de aplicativos de serviço na borda da rede.",
+   "Os switches L2 da camada de acesso se conectam aos switches L3 da camada de distribuição, que implementam roteamento, qualidade de serviço e segurança."
+  ],
+  "cor": 3,
+  "why": "A camada de acesso é a borda da rede, onde o tráfego entra e sai. Os switches de acesso se conectam aos switches da camada de distribuição, e são estes que implementam as tecnologias de base da rede: roteamento, qualidade de serviço e segurança. Por isso a separação entre acesso L2 e distribuição L3 justifica o modelo de três camadas."
+ },
+ {
+  "id": 183,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "WLC (EtherChannel e trunk)",
+  "ty": "multi",
+  "text": "Em uma rede sem fio baseada em controlador, um dispositivo Cisco WLC tem quatro portas conectadas a um switch para formar um pacote. Este pacote fornece balanceamento de carga e redundância. Quais duas configurações devem ser executadas nas quatro portas de switch que se conectam ao WLC? (Escolha duas.)",
+  "opts": [
+   "VLAN nativa",
+   "EtherChannel",
+   "modo de entroncamento",
+   "VLAN padrão",
+   "LACP"
+  ],
+  "cor": [
+   1,
+   2
+  ],
+  "sub": "Escolha as alternativas corretas",
+  "why": "Todas as portas do switch ligadas ao WLC precisam estar em modo trunk e agrupadas com EtherChannel. O trunk carrega as várias VLANs das WLANs e o EtherChannel forma o enlace lógico único que dá balanceamento de carga e redundância. O WLC não suporta PAgP nem LACP para esse agrupamento — ele usa LAG."
+ },
+ {
+  "id": 184,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "WLC (servidor RADIUS)",
+  "ty": "single",
+  "text": "Um administrador de rede está configurando uma WLAN com WPA2 Enterprise em uma WLC Cisco 3500 Series. As autenticações de cliente serão tratadas por um servidor RADIUS. Qual guia o administrador deve usar para adicionar as informações do servidor RADIUS?",
+  "opts": [
+   "SEGURANÇA",
+   "GERENCIAMENTO",
+   "WLANs",
+   "SEM FIO"
+  ],
+  "cor": 0,
+  "why": "Na WLC, o servidor RADIUS fica na guia SEGURANÇA: SECURITY > RADIUS > Authentication, e depois em New... para cadastrar o servidor. A guia GERENCIAMENTO é usada para SNMP e trap receivers; WLANs define as redes sem fio; SEM FIO trata de rádio, antenas e canais."
+ },
+ {
+  "id": 185,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "VLAN padrão e nativa",
+  "ty": "single",
+  "text": "Um administrador emite o comando show vlan brief em um switch Cisco e a saída mostra que todas as portas estão atribuídas atualmente à VLAN padrão. O que se pode concluir?",
+  "opts": [
+   "Todo o tráfego de dados do usuário será separado e protegido de outros usuários.",
+   "O switch não pode ser gerenciado remotamente usando Telnet ou SSH até que uma VLAN de gerenciamento seja criada.",
+   "O tráfego de controle da camada 2 não está associado a nenhuma VLAN.",
+   "Há um risco de segurança porque a VLAN de gerenciamento e a VLAN nativa são as mesmas."
+  ],
+  "cor": 3,
+  "why": "Se todas as portas estão na VLAN 1 (padrão), nenhuma VLAN nativa foi atribuída explicitamente e não há outras VLANs ativas. Logo, a VLAN nativa acabou sendo a mesma da VLAN de gerenciamento — o que é considerado risco de segurança. Por padrão, todo o tráfego de controle da camada 2 já está associado à VLAN 1."
+ },
+ {
+  "id": 186,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "VLAN nativa",
+  "ty": "single",
+  "text": "Qual é a finalidade de se configurar a VLAN nativa separada das VLANs de dados?",
+  "opts": [
+   "A segurança dos quadros de gerenciamento transportados na VLAN nativa pode ser aumentada.",
+   "A VLAN nativa serve somente para transportar o tráfego de gerenciamento da VLAN.",
+   "A VLAN nativa serve para os roteadores e switches trocarem suas informações de gerenciamento, por isso ela deve ser diferente das VLANs de dados.",
+   "Uma VLAN separada deve ser utilizada para transportar quadros não marcados de maneira a evitar a contenção da largura de banda nas VLANs de dados."
+  ],
+  "cor": 3,
+  "why": "Quando uma porta trunk recebe quadros sem marcação (incomum em redes bem projetadas), ela os encaminha para a VLAN nativa. Movendo a VLAN nativa para fora das VLANs de dados, esses quadros não marcados não disputam largura de banda com o tráfego de dados. A VLAN nativa não foi criada para transportar tráfego de gerenciamento — ela existe por compatibilidade com cenários de LAN legados."
+ },
+ {
+  "id": 187,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Tabela de roteamento (gateway de último recurso)",
+  "ty": "single",
+  "text": "Qual atributo em um roteador Cisco permite o encaminhamento de tráfego para o qual não haja rota específica?",
+  "opts": [
+   "O gateway do último recurso",
+   "interface de saída",
+   "origem da rota",
+   "endereços do próximo salto"
+  ],
+  "cor": 0,
+  "why": "Uma rota estática padrão funciona como gateway de último recurso: encaminha o tráfego de destino desconhecido para um próximo salto ou interface de saída. As outras opções são apenas campos da tabela de roteamento — o próximo salto e a interface de saída dizem para onde mandar o pacote já roteado, e a origem da rota indica de onde a rota foi aprendida."
+ },
+ {
+  "id": 188,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "FHRP (VRRP, HSRP, GLBP)",
+  "ty": "match",
+  "text": "Combine os protocolos FHRP com a descrição apropriada.",
+  "pairs": [
+   {
+    "l": "VRRP",
+    "r": "um FHRP de padrão aberto que fornece redundância com o uso de roteadores mestres virtuais e um ou mais backups"
+   },
+   {
+    "l": "HSRP",
+    "r": "FHRP proprietário da Cisco que fornece redundância através do uso de um dispositivo ativo e dispositivo em espera"
+   },
+   {
+    "l": "GLBP",
+    "r": "FHRP proprietário da Cisco que fornece compartilhamento de carga, além de redundância"
+   }
+  ],
+  "why": "VRRP é padrão aberto (RFC) e usa o conceito de roteador mestre com backups. HSRP é proprietário da Cisco e trabalha com um roteador ativo e um em espera (standby). GLBP também é da Cisco, mas vai além da redundância: distribui o tráfego entre vários roteadores, fazendo balanceamento de carga."
+ },
+ {
+  "id": 189,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "OSPF (router-id)",
+  "ty": "single",
+  "text": "Qual é a prática recomendada da Cisco para configurar um roteador habilitado para OSPF para que cada roteador possa ser facilmente identificado ao solucionar problemas de roteamento?",
+  "opts": [
+   "Use o endereço IP mais alto atribuído a uma interface ativa que participa do processo de roteamento.",
+   "Use o endereço IP de interface ativa mais alto configurado no roteador.",
+   "Configure um valor usando o comando router-id.",
+   "Use uma interface de loopback configurada com o endereço IP mais alto no roteador."
+  ],
+  "cor": 2,
+  "why": "O router ID identifica unicamente o roteador no domínio OSPF. Ele pode ser atribuído automaticamente (IP mais alto de uma interface, ou de uma loopback) ou definido manualmente com o comando router-id. A Cisco recomenda o router-id explícito porque ele não muda quando uma interface cai — o que facilita a identificação durante o troubleshooting."
+ },
+ {
+  "id": 190,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "IPv6 (roteamento)",
+  "ty": "single",
+  "text": "Um engenheiro de rede foi solicitado a preparar um roteador e garantir que ele possa rotear pacotes IPv6. Qual comando o engenheiro de rede deve garantir que foi inserido no roteador?",
+  "opts": [
+   "rota ipv6",
+   "ipv6 enable",
+   "ipv6 address",
+   "roteamento unicast-ipv6"
+  ],
+  "cor": 3,
+  "why": "O comando ipv6 unicast-routing habilita o roteamento IPv6 no roteador. Sem ele, o equipamento tem endereços IPv6 nas interfaces mas não encaminha pacotes entre redes. O ipv6 enable ativa IPv6 numa interface; o ipv6 address atribui endereço; o ipv6 route cria rota estática — nenhum deles liga o roteamento globalmente."
+ },
+ {
+  "id": 191,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Syslog (níveis de severidade)",
+  "ty": "single",
+  "text": "Um engenheiro de rede está configurando um switch Cisco quando essa mensagem é exibida.\n%LINK-3-UPDOWN: Interface Port-Channel1, estado alterado para cima\nQual é o nível de gravidade do Syslog desta mensagem?",
+  "opts": [
+   "Erro",
+   "Informativo",
+   "Notificação",
+   "Alerta"
+  ],
+  "cor": 0,
+  "why": "O número 3 logo após o nome do recurso (%LINK-3-UPDOWN) é o nível de severidade do Syslog. A escala vai de 0 a 7: 0 emergência, 1 alerta, 2 crítico, 3 erro, 4 aviso, 5 notificação, 6 informativo, 7 depuração. Portanto nível 3 = erro."
+ },
+ {
+  "id": 192,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "QoS (categorias de ferramentas)",
+  "ty": "multi",
+  "text": "Quais são as três categorias de ferramentas que podem ser usadas em redes IP para implementar QoS? (Escolha três.)",
+  "opts": [
+   "gestão de congestionamentos",
+   "classificação e marcação",
+   "serviços integrados",
+   "melhor esforço",
+   "serviços diferenciados",
+   "congestion avoidance (prevenção de congestionamento)"
+  ],
+  "cor": [
+   0,
+   1,
+   5
+  ],
+  "sub": "Escolha as alternativas corretas",
+  "why": "As três categorias de ferramentas de QoS são classificação e marcação, gerenciamento de congestionamento e prevenção de congestionamento. Melhor esforço é o modelo padrão de encaminhamento e não oferece QoS. Serviços integrados e serviços diferenciados são modelos de aplicação de QoS, não categorias de ferramentas."
+ },
+ {
+  "id": 193,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "FTP (modelo cliente-servidor)",
+  "ty": "single",
+  "text": "Em comunicações de rede de computadores qual processo de transferência de dados o protocolo de camada de aplicativo FTP usa?",
+  "opts": [
+   "servidor cliente",
+   "bloco de mensagens do servidor",
+   "Gnutella",
+   "peer-to-peer"
+  ],
+  "cor": 0,
+  "why": "O FTP usa o processo cliente-servidor: o cliente inicia a conexão e o servidor responde. Gnutella é um protocolo peer-to-peer. Bloco de mensagens do servidor (SMB) é um protocolo para compartilhar recursos de rede estruturados."
+ },
+ {
+  "id": 194,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Ameaças de segurança (spyware)",
+  "ty": "single",
+  "text": "O que é uma ameaça de spyware?",
+  "opts": [
+   "As informações privadas são capturadas da rede de uma organização.",
+   "Uma pessoa mal-intencionada ataca dispositivos de usuário ou recursos de rede.",
+   "As credenciais de login de um usuário são roubadas e usadas para acessar dados privados.",
+   "O software instalado em um dispositivo de usuário coleta secretamente informações sobre o usuário."
+  ],
+  "cor": 3,
+  "why": "Spyware é um tipo de software instalado no dispositivo do usuário que coleta informações sobre ele às escondidas. Capturar informações privadas da rede de uma organização é interceptação de dados; roubar credenciais de login é roubo de identidade; e o ataque direto de uma pessoa mal-intencionada a dispositivos ou recursos é outra categoria de ameaça."
+ },
+ {
+  "id": 195,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "AAA (RADIUS e TACACS+)",
+  "ty": "multi",
+  "text": "Quais dois protocolos são usados para fornecer a autenticação baseada em servidor AAA? (Escolha duas.)",
+  "opts": [
+   "SSH",
+   "SNMP",
+   "RADIUS",
+   "TACACS+",
+   "802.1x"
+  ],
+  "cor": [
+   2,
+   3
+  ],
+  "sub": "Escolha as alternativas corretas",
+  "why": "A autenticação AAA baseada em servidor usa um servidor externo TACACS+ ou RADIUS para manter o banco de usuários e senhas. Quando o cliente se conecta a um dispositivo com AAA habilitado, o dispositivo consulta esses servidores para autenticar. SSH é acesso remoto, SNMP é gerenciamento e 802.1x é o padrão de controle de acesso por porta — nenhum dos três é o protocolo de servidor AAA."
+ },
+ {
+  "id": 196,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Segurança de porta (err-disabled)",
+  "ty": "single",
+  "text": "Um administrador que está solucionando problemas de conectividade em um switch percebeu que uma porta do switch que estava configurada como segurança de porta na verdade estava com um estado desativado por erro. Após verificar a causa da violação, como o administrador deve reativar a porta sem interromper as operações de rede?",
+  "opts": [
+   "Emita o comando shutdown seguido por um comando no shutdown na interface.",
+   "Emitir o comando no switchport port-security e, em seguida, reativar a segurança de porta.",
+   "Emitir o comando no switchport port-security violation shutdown na interface.",
+   "Reinicializar o switch."
+  ],
+  "cor": 0,
+  "why": "Para tirar a porta do estado err-disabled, entra-se no modo de configuração da interface e aplica-se shutdown, depois no shutdown. Isso reinicia o estado da porta sem reiniciar o switch nem remover a configuração de port security. Reiniciar o switch derrubaria toda a rede; remover a port security abriria mão da proteção."
+ },
+ {
+  "id": 197,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Segurança (IPS)",
+  "ty": "single",
+  "text": "Qual solução de segurança identifica ameaças recebidas e impede que elas entrem na rede corporativa?",
+  "opts": [
+   "sistemas de prevenção de intrusões",
+   "filtragem de firewall",
+   "redes privadas virtuais",
+   "sistemas de controle de acesso"
+  ],
+  "cor": 0,
+  "why": "Os sistemas de prevenção de intrusões (IPS) identificam ameaças de propagação rápida — como ataques zero-day — e as bloqueiam antes que entrem na rede corporativa. Firewalls filtram grandes volumes de tráfego com granularidade, as ACLs filtram por endereço IP e aplicação, e as VPNs dão acesso remoto seguro. Nenhum deles tem o papel de detectar e impedir a intrusão."
+ },
+ {
+  "id": 198,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Automação (Ansible)",
+  "ty": "single",
+  "text": "Um programador está usando o Ansible como a ferramenta de gerenciamento de configuração. Qual termo é usado para descrever um conjunto de instruções para execução?",
+  "opts": [
+   "Pilar",
+   "Guia de atividades",
+   "Cookbook",
+   "Manifesto"
+  ],
+  "cor": 1,
+  "why": "No Ansible, o conjunto de instruções a executar se chama Playbook — traduzido na plataforma como guia de atividades. Pilar é conceito do SaltStack, Cookbook é do Chef e Manifesto é do Puppet."
+ },
+ {
+  "id": 199,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Automação (Python vs Ruby)",
+  "ty": "multi",
+  "text": "Quais são as duas ferramentas de gerenciamento de configuração desenvolvidas usando Python? (Escolha duas.)",
+  "opts": [
+   "SaltStack",
+   "Puppet",
+   "Chef",
+   "NETCONF",
+   "Ansible"
+  ],
+  "cor": [
+   0,
+   4
+  ],
+  "sub": "Escolha as alternativas corretas",
+  "why": "Ansible e SaltStack são ferramentas de gerenciamento de configuração desenvolvidas em Python. Chef e Puppet são desenvolvidas em Ruby, que costuma ser considerada mais difícil de aprender que Python. O NETCONF não é ferramenta de gerenciamento de configuração — é um protocolo de gerenciamento de rede."
+ },
+ {
+  "id": 200,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Cisco DNA Center (Assurance)",
+  "ty": "single",
+  "text": "Um administrador de rede está usando o Cisco DNA Center para monitorar a integridade da rede e solucionar problemas de rede. Qual área o administrador deve usar para executar essas tarefas?",
+  "opts": [
+   "POLÍTICA",
+   "PROVISÃO",
+   "GARANTIA",
+   "PLATAFORMA"
+  ],
+  "cor": 2,
+  "why": "No Cisco DNA Center, a área GARANTIA (Assurance) é a que monitora a saúde da rede, mostra métricas dos dispositivos e clientes e serve para troubleshooting. PROVISÃO é para implantar configuração nos dispositivos; POLÍTICA define regras de acesso e intenção; PLATAFORMA cuida da administração do próprio sistema, integrações e APIs."
+ },
+ {
+  "id": 201,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "API RESTful (consulta)",
+  "ty": "multi",
+  "text": "Quais são os três componentes usados na parte de consulta de uma solicitação típica de API RESTful? (Escolha três.)",
+  "opts": [
+   "parâmetros",
+   "formatar",
+   "protocolo",
+   "recursos",
+   "Servidor de API",
+   "chave"
+  ],
+  "cor": [
+   0,
+   1,
+   5
+  ],
+  "sub": "Escolha as alternativas corretas",
+  "why": "A parte de consulta de uma solicitação RESTful especifica o formato dos dados e a informação que o cliente está pedindo. Ela pode conter: formato (JSON, YAML, XML), chave (para autenticar a origem da solicitação) e parâmetros (para enviar informações relativas à consulta). Protocolo, recursos e servidor de API fazem parte da URI, não da query."
+ },
+ {
+  "id": 202,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Ataques de LAN (DHCP)",
+  "ty": "single",
+  "text": "Qual ataque de LAN envolve um servidor não autorizado conectado à rede, fornecendo parâmetros de configuração IP falsos para clientes legítimos?",
+  "opts": [
+   "Ataque de privação do DHCP",
+   "ataque de falsificação de endereço",
+   "Ataques ARP",
+   "Ataque STP"
+  ],
+  "cor": 0,
+  "why": "Um servidor DHCP não autorizado (rogue) conectado à rede responde aos clientes antes do servidor legítimo e entrega parâmetros falsos: gateway errado, DNS malicioso ou IP inválido. Isso permite ataque man-in-the-middle ou negação de serviço. Na plataforma em português esse ataque aparece como ataque de privação do DHCP; tecnicamente o nome correto em inglês é DHCP spoofing (falsificação de DHCP) — privação (starvation) é o outro ataque, que esgota o pool de endereços."
+ },
+ {
+  "id": 203,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "QoS (FIFO)",
+  "ty": "single",
+  "text": "Qual termo descreve um método de enfileiramento padrão em que os pacotes são enviados de uma interface na ordem em que chegam?",
+  "opts": [
+   "first-in, first-out (FIFO)",
+   "low latency queuing (LLQ)",
+   "weighted fair queuing (WFQ)",
+   "organização de tráfego",
+   "weighted random early detection ou WRED (detecção inicial aleatória ponderada)."
+  ],
+  "cor": 0,
+  "why": "FIFO (first-in, first-out) é o método de enfileiramento padrão: o primeiro pacote que chega é o primeiro que sai, sem qualquer priorização. LLQ e WFQ aplicam prioridade e pesos; WRED descarta pacotes antes do congestionamento; e organização de tráfego (traffic shaping) controla a taxa de saída."
+ },
+ {
+  "id": 204,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Tabela de endereços MAC (porta diferente)",
+  "ty": "single",
+  "text": "Que ação ocorre quando o endereço MAC de origem de um quadro que entra em um switch aparece na tabela de endereços MAC associada a uma porta diferente?",
+  "opts": [
+   "O switch substitui a entrada antiga e usa a porta mais atual.",
+   "O switch atualiza o temporizador de atualização para a entrada.",
+   "O switch encaminha o quadro para fora da porta especificada.",
+   "O switch expurga toda a tabela de endereços MAC."
+  ],
+  "cor": 0,
+  "why": "Se o switch recebe um quadro cujo MAC de origem já está na tabela mas associado a OUTRA porta, ele entende que o dispositivo mudou de lugar: substitui a entrada antiga pela porta atual e atualiza o temporizador. CUIDADO: se o MAC está na MESMA porta, a ação é apenas atualizar o temporizador, sem trocar a porta."
+ },
+ {
+  "id": 205,
+  "mod": 4,
+  "fonte": "cert",
+  "tp": "Rota estática IPv6 (host /128)",
+  "ty": "single",
+  "text": "Que característica completa a seguinte afirmação?\nQuando uma rota estática IPv6 é configurada e o tráfego deve ser direcionado para um servidor específico, a rota estática requer...",
+  "opts": [
+   "uma rota de host de destino com um prefixo /128.",
+   "o tipo e o número da interface.",
+   "o comando \"show ipv6 route static\".",
+   "uma distância administrativa de 2."
+  ],
+  "cor": 0,
+  "why": "Para enviar tráfego a UM servidor específico, a rota precisa apontar para aquele endereço único: uma rota de host, com prefixo /128 em IPv6 (o equivalente ao /32 do IPv4). CUIDADO: quando o próximo salto é um endereço link-local, a exigência é outra — informar o tipo e o número da interface."
  }
 ];
