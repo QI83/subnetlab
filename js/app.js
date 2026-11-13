@@ -209,6 +209,14 @@ const MODE_INFO = {
   spaced: { label: '🔁 Revisão Espaçada', sub: 'Questões não dominadas' },
 };
 
+const TOPIC_AREAS = {
+  'Switching':               ['Switching', 'VLANs', 'STP', 'EtherChannel', 'Inter-VLAN', 'Tabela MAC'],
+  'Roteamento':              ['Roteamento', 'OSPF', 'FHRP', 'DHCPv4', 'DHCPv6'],
+  'Segurança':               ['Segurança', 'Segurança L2', 'ACLs', 'NAT'],
+  'WLAN e WAN':              ['WLAN', 'WAN', 'QoS'],
+  'Arquitetura e automação': ['Arquitetura', 'Gerência', 'SDN/Cloud', 'Automação'],
+};
+
 // ── 4. UTILITÁRIOS ──────────────────────────────────────────────────
 function shuffle(arr) {
   const a = [...arr];
@@ -292,6 +300,7 @@ function saveProgress() {
     timerLeft: S.timerLeft,
     startMode: S.startMode,
     selectedTopic: S.selectedTopic,
+    planIds: S.planIds || [],
   };
   localStorage.setItem(KEY.progress, JSON.stringify(snap));
 }
@@ -424,7 +433,7 @@ function importData(file) {
 // ── 6. ESTADO ───────────────────────────────────────────────────────
 let S = {
   screen:        'login',  // splash | login | modules | start | quiz | result | review | history | search
-  startMode:     'free',   // free | timed | topic | errors | spaced
+  startMode:     'free',   // free | timed | topic | errors | spaced | plan
   selectedTopic: null,
   order:         [],       // índices em Q para a sessão atual
   qi:            0,        // índice corrente em order
@@ -449,6 +458,7 @@ let S = {
   reviewIdx:     0,
   searchQuery:   '',
   selectedMod:   0,
+  planIds:       [],       // índices do plano corrente (persistido para resumeQuiz)
 };
 
 // ── 7. TIMER ────────────────────────────────────────────────────────
@@ -516,6 +526,64 @@ function getErrorPool() {
     .sort((a, b) => (counts[Q[b].id] || 0) - (counts[Q[a].id] || 0));
 }
 
+function getPlan() {
+  const target = Math.min(25, Q.length);
+  const used   = new Set();
+  const partes = [];
+
+  // Parte 1: tópicos fracos (até 10 questões)
+  const tpAcc = {};
+  Q.forEach(q => {
+    const st = qStats[qKey(q)];
+    if (!st) return;
+    if (!tpAcc[q.tp]) tpAcc[q.tp] = { c: 0, a: 0 };
+    tpAcc[q.tp].c += st.c;
+    tpAcc[q.tp].a += st.a;
+  });
+  const weakTopics = Object.entries(tpAcc)
+    .filter(([, { c, a }]) => a >= 2 && c / a < 0.6)
+    .sort(([, a1], [, b1]) => a1.c / a1.a - b1.c / b1.a);
+
+  if (weakTopics.length) {
+    const weakSet = new Set(weakTopics.map(([tp]) => tp));
+    const weakQs  = Q.map((_, i) => i).filter(i => weakSet.has(Q[i].tp) && qStats[qKey(Q[i])]);
+    const taken   = weakQs.slice(0, 10);
+    if (taken.length) {
+      taken.forEach(i => used.add(qKey(Q[i])));
+      const worstTp  = weakTopics[0][0];
+      const worstPct = Math.round(weakTopics[0][1].c / weakTopics[0][1].a * 100);
+      partes.push({ motivo: `${taken.length} de ${worstTp} — ${worstPct}% de acerto`, qtd: taken.length, ids: taken });
+    }
+  }
+
+  // Parte 2: revisão espaçada vencida (até 8 questões)
+  const hoje      = hojeISO();
+  const spacedDue = Q.map((_, i) => i).filter(i => {
+    const k = qKey(Q[i]);
+    const s = spaced[k];
+    return s && s.due <= hoje && !used.has(k);
+  });
+  const spacedTaken = spacedDue.slice(0, 8);
+  if (spacedTaken.length) {
+    spacedTaken.forEach(i => used.add(qKey(Q[i])));
+    partes.push({ motivo: `${spacedTaken.length} para revisar hoje`, qtd: spacedTaken.length, ids: spacedTaken });
+  }
+
+  // Parte 3: nunca tentadas (completa até o alvo)
+  const remaining = target - partes.reduce((s, p) => s + p.qtd, 0);
+  if (remaining > 0) {
+    const newQs   = shuffle(Q.map((_, i) => i).filter(i => !qStats[qKey(Q[i])] && !used.has(qKey(Q[i]))));
+    const newTaken = newQs.slice(0, remaining);
+    if (newTaken.length) {
+      partes.push({ motivo: `${newTaken.length} questões novas`, qtd: newTaken.length, ids: newTaken });
+    }
+  }
+
+  if (!partes.length) return { total: 0, partes: [], ids: [] };
+  const ids = partes.flatMap(p => p.ids);
+  return { total: ids.length, partes, ids };
+}
+
 function startQuiz() {
   stopTimer();
   const mode = S.startMode;
@@ -533,6 +601,9 @@ function startQuiz() {
   } else if (mode === 'spaced') {
     pool = getSpacedPool();
     if (!pool.length) { showAlert('Nada para revisar hoje. Volte amanhã! ✓'); return; }
+  } else if (mode === 'plan') {
+    pool = S.planIds && S.planIds.length ? S.planIds.slice() : getPlan().ids;
+    if (!pool.length) { showAlert('Nada pendente no plano de hoje. ✓'); return; }
   } else {
     pool = [...Array(Q.length).keys()];
     // Revisão Completa (sem módulo escolhido): a Prova é uma amostra de 60 questões
@@ -578,6 +649,7 @@ function startQuiz() {
     timerLeft: pool.length * 60,
     reviewIdx: 0,
     searchQuery: '',
+    planIds: mode === 'plan' ? pool.slice() : [],
   };
 
   if (isTimed) startTimer();
@@ -1056,11 +1128,28 @@ function renderCountdown() {
   </div>`;
 }
 
+function renderPlanCard() {
+  const plan = getPlan();
+  if (!plan.total) return '';
+  const mins  = Math.ceil(plan.total * 0.7);
+  const linhas = plan.partes.map(p => `<li class="plan-item">• ${esc(p.motivo)}</li>`).join('');
+  return `<div class="plan-card">
+    <div class="plan-header">
+      <span class="plan-title">🎯 Plano de hoje</span>
+      <span class="plan-time">~${mins} min</span>
+    </div>
+    <ul class="plan-list">${linhas}</ul>
+    <button class="btn pri" id="planBtn" style="width:100%;margin-top:12px">▶ Começar plano</button>
+  </div>`;
+}
+
 function renderStart() {
   const hist    = getHistory();
   const saved   = loadProgress();
   const favCount = favorites.size;
-  const topics  = [...new Set(Q.map(q => q.tp))].sort();
+  // Os tópicos vêm do pool REAL (Q), não de todas as questões do módulo: no M4
+  // o pool é só o recorte 'cert', e listar tópicos de ENSA/SRWE abriria sessão vazia.
+  const topics = [...new Set(Q.map(q => q.tp))].sort();
 
   // Evolução por tópico
   let evoHtml = '';
@@ -1116,14 +1205,27 @@ function renderStart() {
   </div>` : '';
 
   // Chips de tópico (para modo Por Tópico)
-  const topicChips = S.startMode === 'topic' ? `
-    <p class="sec-hdr" style="margin-top:0">Escolha o tópico:</p>
-    <div class="topic-sel">
-      ${topics.map(t => `<div class="topic-chip${S.selectedTopic === t ? ' sel-chip' : ''}" data-tp="${esc(t)}" role="button" tabindex="0">
+  const topicChips = S.startMode === 'topic' ? (() => {
+    const chipHtml = t => `<div class="topic-chip${S.selectedTopic === t ? ' sel-chip' : ''}" data-tp="${esc(t)}" role="button" tabindex="0">
         <span class="topic-dot" style="background:${topicColor(t)}"></span>${esc(t)}
-      </div>`).join('')}
-    </div>
-  ` : '';
+      </div>`;
+    if (topics.length <= 12) {
+      return `<p class="sec-hdr" style="margin-top:0">Escolha o tópico:</p>
+    <div class="topic-sel">${topics.map(chipHtml).join('')}</div>`;
+    }
+    const assigned = new Set();
+    let inner = '';
+    for (const [area, areaTopics] of Object.entries(TOPIC_AREAS)) {
+      const present = areaTopics.filter(t => topics.includes(t));
+      if (!present.length) continue;
+      present.forEach(t => assigned.add(t));
+      inner += `<div class="topic-area-hdr">${esc(area)}</div>${present.map(chipHtml).join('')}`;
+    }
+    const others = topics.filter(t => !assigned.has(t));
+    if (others.length) inner += `<div class="topic-area-hdr">Outros</div>${others.map(chipHtml).join('')}`;
+    return `<p class="sec-hdr" style="margin-top:0">Escolha o tópico:</p>
+    <div class="topic-sel">${inner}</div>`;
+  })() : '';
 
   // Contador espaçada
   const spacedDue = getSpacedPool().length;
@@ -1180,6 +1282,7 @@ function renderStart() {
     ${renderCountdown()}
     ${resumeBanner}
     ${lastResult}
+    ${renderPlanCard()}
 
     <p class="sec-hdr">Modo de Estudo</p>
     <div class="mode-grid">${modeCards}</div>
@@ -1217,6 +1320,12 @@ function bindStart() {
   document.getElementById('modulesBtn')?.addEventListener('click', () => { S.screen = 'modules'; render(); });
 
   document.getElementById('startBtn')?.addEventListener('click', startQuiz);
+
+  document.getElementById('planBtn')?.addEventListener('click', () => {
+    S.startMode = 'plan';
+    S.planIds   = [];
+    startQuiz();
+  });
 
   document.getElementById('resumeBtn')?.addEventListener('click', resumeQuiz);
   document.getElementById('discardBtn')?.addEventListener('click', () => { clearProgress(); render(); });

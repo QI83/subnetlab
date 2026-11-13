@@ -1855,7 +1855,7 @@ window.QUESTIONS_M4 = [
   "id": 98,
   "mod": 4,
   "fonte": "srwe",
-  "tp": "Troubleshooting",
+  "tp": "Gerência",
   "ty": "match",
   "text": "Faça a correspondência entre o estado do link e o status exibido pelos comandos show interface / show ip interface.",
   "pairs": [
@@ -2179,7 +2179,7 @@ window.QUESTIONS_M4 = [
   "id": 114,
   "mod": 4,
   "fonte": "srwe",
-  "tp": "Troubleshooting",
+  "tp": "Gerência",
   "ty": "single",
   "text": "Um administrador observa que um grande número de pacotes está sendo descartado em um dos roteadores de filial. O que deve ser verificado primeiramente?",
   "opts": [
@@ -2213,7 +2213,7 @@ window.QUESTIONS_M4 = [
   "id": 116,
   "mod": 4,
   "fonte": "cert",
-  "tp": "IPv6 GUA",
+  "tp": "Arquitetura",
   "ty": "single",
   "text": "Um instrutor está revisando as respostas dos alunos em um exame de termo anterior para se preparar para uma palestra sobre IPv6. Qual seria um bom ponto para o instrutor fazer ao explicar um GUA IPv6 (endereço unicast global)?",
   "opts": [
@@ -2229,7 +2229,7 @@ window.QUESTIONS_M4 = [
   "id": 117,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Buffer de memória em switch",
+  "tp": "Switching",
   "ty": "single",
   "text": "Um técnico está revisando um relatório de lentidão durante os períodos de pico de tráfego e está analisando o desempenho de um switch específico. O que o técnico deve estar ciente sobre o buffer de memória em um switch?",
   "opts": [
@@ -2245,7 +2245,7 @@ window.QUESTIONS_M4 = [
   "id": 118,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Largura de banda e throughput",
+  "tp": "Arquitetura",
   "ty": "single",
   "text": "Como são calculadas as transmissões de dados de rede?",
   "opts": [
@@ -2261,7 +2261,7 @@ window.QUESTIONS_M4 = [
   "id": 119,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Controle de acesso ao meio (CSMA/CD, CSMA/CA)",
+  "tp": "Arquitetura",
   "ty": "single",
   "text": "Os alunos de uma aula de rede de dados estão revisando materiais em preparação para um questionário. Qual instrução descreve a operação de um método de controle de acesso para mídia de rede compartilhada?",
   "opts": [
@@ -2277,7 +2277,7 @@ window.QUESTIONS_M4 = [
   "id": 120,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Canais WLAN 2,4 GHz",
+  "tp": "WLAN",
   "ty": "multi",
   "text": "Um administrador precisa implementar uma WLAN de 2,4 GHz que exija vários APs. Quais são as características dos canais de 2,4 GHz? (Escolha duas.)",
   "opts": [
@@ -2298,7 +2298,7 @@ window.QUESTIONS_M4 = [
   "id": 121,
   "mod": 4,
   "fonte": "cert",
-  "tp": "IPv6 multicast",
+  "tp": "Arquitetura",
   "ty": "single",
   "text": "Um grupo de técnicos de rede está discutindo processos de multicast IPv6. O que é um recurso de um tipo de endereço multicast IPv6 que deve ser discutido?",
   "opts": [
@@ -2314,7 +2314,7 @@ window.QUESTIONS_M4 = [
   "id": 122,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Virtualização",
+  "tp": "SDN/Cloud",
   "ty": "multi",
   "text": "Quais são os dois benefícios de usar a virtualização? (Escolha duas.)",
   "opts": [
@@ -2335,7 +2335,7 @@ window.QUESTIONS_M4 = [
   "id": 123,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Padrões WLAN 802.11",
+  "tp": "WLAN",
   "ty": "single",
   "text": "Um técnico precisa adicionar um novo dispositivo sem fio a uma pequena WLAN. A WLAN é uma mistura de dispositivos antigos e recentes 802.11b e 802.11g. Que escolha de novo dispositivo daria mais interoperabilidade para o crescimento presente e futuro ?",
   "opts": [
@@ -2351,7 +2351,7 @@ window.QUESTIONS_M4 = [
   "id": 124,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Infraestrutura de rede (LAN/WAN/Internet)",
+  "tp": "Arquitetura",
   "ty": "single",
   "text": "Um engenheiro de rede está dando um tour pelo centro de operações de rede da empresa para uma classe universitária. O engenheiro está tentando descrever como uma WAN e conectividade com a Internet se relacionam com a infraestrutura de rede. Qual declaração descreve corretamente a infra-estrutura de rede e a comunicação de rede?",
   "opts": [
@@ -2367,7 +2367,7 @@ window.QUESTIONS_M4 = [
   "id": 125,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Meios físicos de rede (fibra óptica)",
+  "tp": "Arquitetura",
   "ty": "single",
   "text": "Dois recém-formados de redes de uma faculdade local acabaram de ser contratados por uma empresa de comunicação para trabalhar em vários projetos de cabeamento de rede em todo o estado. Por que a empresa consideraria o uso de cabeamento de fibra óptica em redes de longo curso?",
   "opts": [
@@ -2383,7 +2383,7 @@ window.QUESTIONS_M4 = [
   "id": 126,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Conectividade com a Internet (DSL, cabo, satélite)",
+  "tp": "Arquitetura",
   "ty": "multi",
   "text": "Quais duas instruções descrevem uma opção de conectividade baseada na Internet? (Escolha duas.)",
   "opts": [
@@ -2404,7 +2404,7 @@ window.QUESTIONS_M4 = [
   "id": 127,
   "mod": 4,
   "fonte": "cert",
-  "tp": "WLAN (Access Point autônomo)",
+  "tp": "WLAN",
   "ty": "single",
   "text": "Ao configurar uma LAN sem fio, a qual categoria pertence um roteador sem fio doméstico?",
   "opts": [
@@ -2420,7 +2420,7 @@ window.QUESTIONS_M4 = [
   "id": 128,
   "mod": 4,
   "fonte": "cert",
-  "tp": "STP (portas designadas)",
+  "tp": "STP",
   "ty": "multi",
   "text": "Considere a figura. Todos os switches exibidos são switches Cisco 2960 com a mesma prioridade padrão e operando na mesma largura de banda. Três portas serão designadas como portas de STP. Quais? (Escolha três.)",
   "opts": [
@@ -2445,7 +2445,7 @@ window.QUESTIONS_M4 = [
   "id": 129,
   "mod": 4,
   "fonte": "cert",
-  "tp": "STP (PortFast)",
+  "tp": "STP",
   "ty": "single",
   "text": "O que é um benefício do PortFast configurado em uma porta de switch Cisco?",
   "opts": [
@@ -2461,7 +2461,7 @@ window.QUESTIONS_M4 = [
   "id": 130,
   "mod": 4,
   "fonte": "cert",
-  "tp": "VLAN (dados e voz)",
+  "tp": "VLANs",
   "ty": "single",
   "text": "Qual característica descreve como as VLANs de dados ou de voz são configuradas em uma rede?",
   "opts": [
@@ -2477,7 +2477,7 @@ window.QUESTIONS_M4 = [
   "id": 131,
   "mod": 4,
   "fonte": "cert",
-  "tp": "EtherChannel (PAgP/LACP)",
+  "tp": "EtherChannel",
   "ty": "single",
   "text": "Considere a figura. Um administrador de rede está verificando a configuração do switch S1. Que protocolo foi executado para agrupar portas físicas no link lógico?",
   "opts": [
@@ -2495,7 +2495,7 @@ window.QUESTIONS_M4 = [
   "id": 132,
   "mod": 4,
   "fonte": "cert",
-  "tp": "VLAN/Trunk",
+  "tp": "VLANs",
   "ty": "single",
   "text": "Consulte a figura. Um administrador de redes está verificando a porta e as atribuições de VLAN no switch S2 e percebe que as interfaces Gi0/1 e Gi0/2 não estão incluídas na saída. Por que as interfaces estão faltando na saída?",
   "opts": [
@@ -2534,7 +2534,7 @@ window.QUESTIONS_M4 = [
   "id": 134,
   "mod": 4,
   "fonte": "cert",
-  "tp": "WLAN/FlexConnect",
+  "tp": "WLAN",
   "ty": "multi",
   "text": "Uma empresa implanta APs FlexConnect no escritório remoto e usa CAPWAP para permitir que uma WLC em seu escritório da sede corporativa gerencie WLANs no escritório remoto. Um dia, o administrador de rede no escritório remoto observa que os APs FlexConnect estão operando no modo autônomo. Quais duas funções esses APs podem executar nesse modo? (Escolha duas.)",
   "opts": [
@@ -2555,7 +2555,7 @@ window.QUESTIONS_M4 = [
   "id": 135,
   "mod": 4,
   "fonte": "cert",
-  "tp": "WLAN/WLC",
+  "tp": "WLAN",
   "ty": "single",
   "text": "Em uma rede sem fio baseada em controlador, o dispositivo WLC pode ter várias portas conectadas a um switch para formar um pacote que fornece balanceamento de carga e redundância. Qual protocolo suporta o pacote de portas entre um Cisco WLC e um Cisco Switch?",
   "opts": [
@@ -2571,7 +2571,7 @@ window.QUESTIONS_M4 = [
   "id": 136,
   "mod": 4,
   "fonte": "cert",
-  "tp": "LLDP",
+  "tp": "Switching",
   "ty": "single",
   "text": "Consulte a figura. Um administrador de rede usa o comando show lldp neighbors para exibir informações sobre os dispositivos vizinhos. O que pode ser determinado com base nas informações recebidas?",
   "opts": [
@@ -2609,7 +2609,7 @@ window.QUESTIONS_M4 = [
   "id": 138,
   "mod": 4,
   "fonte": "cert",
-  "tp": "VLAN",
+  "tp": "VLANs",
   "ty": "single",
   "text": "Consulte a figura. Um técnico de rede usa o comando show vlan para verificar a configuração da VLAN. Com base na saída, qual porta deve ser atribuída à VLAN nativa?",
   "opts": [
@@ -2627,7 +2627,7 @@ window.QUESTIONS_M4 = [
   "id": 139,
   "mod": 4,
   "fonte": "cert",
-  "tp": "OSPF/Roteamento",
+  "tp": "OSPF",
   "ty": "single",
   "text": "Um engenheiro de rede está examinando configurações de roteador Cisco em uma rede de Internet. Considere a seguinte entrada da tabela de roteamento\n\nO 10.0.4.0/24 [110/50] via 10.0.3.2, 00:24:22, Serial0/1/1\n\nQual é a distância administrativa dessa rota?",
   "opts": [
@@ -2643,7 +2643,7 @@ window.QUESTIONS_M4 = [
   "id": 140,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Rota estática IPv6",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "Ao criar uma rota estática IPv6, quando devem ser especificados um endereço do próximo salto IPv6 e uma interface?",
   "opts": [
@@ -2659,7 +2659,7 @@ window.QUESTIONS_M4 = [
   "id": 141,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Rota estática flutuante",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "O que caracteriza uma rota estática flutuante?",
   "opts": [
@@ -2675,7 +2675,7 @@ window.QUESTIONS_M4 = [
   "id": 142,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Rota estática IPv6",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "Considere a seguinte rota estática configurada em um roteador Cisco:\nrota ipv6 2001:db8:acad:4::/64 2001:db8:acad:3::2\nQue rede remota é especificada nesta rota?",
   "opts": [
@@ -2691,7 +2691,7 @@ window.QUESTIONS_M4 = [
   "id": 143,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Distância administrativa",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "Quando duas ou mais rotas para o mesmo destino são aprendidas a partir de protocolos de roteamento diferentes, o que um roteador usa para escolher entre as rotas?",
   "opts": [
@@ -2707,7 +2707,7 @@ window.QUESTIONS_M4 = [
   "id": 144,
   "mod": 4,
   "fonte": "cert",
-  "tp": "OSPF DR/BDR",
+  "tp": "OSPF",
   "ty": "single",
   "text": "Em uma rede OSPF quando as eleições de DR e BDR são necessárias?",
   "opts": [
@@ -2723,7 +2723,7 @@ window.QUESTIONS_M4 = [
   "id": 145,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Tabela de roteamento",
+  "tp": "Roteamento",
   "ty": "match",
   "text": "Considere a figura. Faça a correspondência dos pacotes com o endereço IP destino com as interfaces de saída no roteador.",
   "opts": [
@@ -2780,7 +2780,7 @@ window.QUESTIONS_M4 = [
   "id": 147,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Tabela de roteamento",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "Um engenheiro de rede que examina a configuração de um roteador Cisco vê uma entrada de rede em uma tabela de roteamento listada com um código O. Que tipo de rota é essa?",
   "opts": [
@@ -2796,7 +2796,7 @@ window.QUESTIONS_M4 = [
   "id": 148,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Rota estática de host",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "O que define uma rota de host em um roteador Cisco?",
   "opts": [
@@ -2828,7 +2828,7 @@ window.QUESTIONS_M4 = [
   "id": 150,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Tabela de roteamento",
+  "tp": "Roteamento",
   "ty": "multi",
   "text": "Consulte a figura. Os pacotes que se destinam a duas redes exigem que o roteador execute uma pesquisa recursiva? (Escolha duas.)",
   "opts": [
@@ -2852,7 +2852,7 @@ window.QUESTIONS_M4 = [
   "id": 151,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Tabela de roteamento",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "Um engenheiro de rede está examinando a tabela de roteamento de um roteador Cisco. Considere a seguinte entrada da tabela de roteamento:\nS 10.2.2.0/30 [1/0] via 10.1.1.2, 00:00:13, Serial0/0/0\n\nQual é o significado do Serial0/0/0?",
   "opts": [
@@ -2868,7 +2868,7 @@ window.QUESTIONS_M4 = [
   "id": 152,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Rota estática",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "A tabela de roteamento de um roteador Cisco tem quatro rotas estáticas para a rede 10.0.0.0. Qual rota é a melhor correspondência para um pacote que entra no roteador com um destino de 10.16.0.10?",
   "opts": [
@@ -2884,7 +2884,7 @@ window.QUESTIONS_M4 = [
   "id": 153,
   "mod": 4,
   "fonte": "cert",
-  "tp": "DHCP relay",
+  "tp": "DHCPv4",
   "ty": "single",
   "text": "Um engenheiro de rede está configurando um roteador Cisco como um reencaminhamento DHCP. Ao emitir o comando ip helper-address no modo de configuração da interface qual endereço IPv4 é adicionado ao comando?",
   "opts": [
@@ -2900,7 +2900,7 @@ window.QUESTIONS_M4 = [
   "id": 154,
   "mod": 4,
   "fonte": "cert",
-  "tp": "DHCP cliente",
+  "tp": "DHCPv4",
   "ty": "single",
   "text": "Um engenheiro de rede está examinando a configuração de um roteador e percebe que a interface Gi0/0 foi configurada com o comando ip address dhcp . Qual instrução descreve a condição de endereço IP desta interface?",
   "opts": [
@@ -2916,7 +2916,7 @@ window.QUESTIONS_M4 = [
   "id": 155,
   "mod": 4,
   "fonte": "cert",
-  "tp": "SNMP",
+  "tp": "Gerência",
   "ty": "single",
   "text": "Um engenheiro de rede está usando o software gerenciador SNMP para monitorar e gerenciar o desempenho da rede. Além de sondar dispositivos de rede em intervalos de tempo regulares, o engenheiro está configurando os dispositivos para gerar mensagens que informam o gerenciador SNMP sobre eventos especificados. Que tipo de mensagem está configurado nos dispositivos que lhes permite enviar mensagens não solicitadas?",
   "opts": [
@@ -2949,7 +2949,7 @@ window.QUESTIONS_M4 = [
   "id": 157,
   "mod": 4,
   "fonte": "cert",
-  "tp": "NTP",
+  "tp": "Gerência",
   "ty": "single",
   "text": "Um engenheiro de rede deseja sincronizar a hora de um roteador com um servidor NTP no endereço IPv4 209.165.200.225.A interface de saída do roteador é configurada com um endereço IPv4 de 192.168.212.11. Qual comando de configuração global deve ser usado para configurar o servidor NTP como a fonte de tempo para este roteador?",
   "opts": [
@@ -2965,7 +2965,7 @@ window.QUESTIONS_M4 = [
   "id": 158,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Segurança de porta (802.1X)",
+  "tp": "Segurança",
   "ty": "single",
   "text": "Qual protocolo define a autenticação baseada em porta para restringir os hosts não autorizados na conexão à LAN por portas de switch acessíveis publicamente?",
   "opts": [
@@ -2981,7 +2981,7 @@ window.QUESTIONS_M4 = [
   "id": 159,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Segurança WLAN",
+  "tp": "WLAN",
   "ty": "single",
   "text": "Um engenheiro de rede sem fio está implementando equipamentos sem fio atualizados dentro da empresa. Qual declaração descreve um protocolo de segurança sem fio?",
   "opts": [
@@ -2997,7 +2997,7 @@ window.QUESTIONS_M4 = [
   "id": 160,
   "mod": 4,
   "fonte": "cert",
-  "tp": "ACL",
+  "tp": "ACLs",
   "ty": "single",
   "text": "Consulte a figura. Qual configuração de lista de acesso no roteador R1 impedirá que o tráfego da LAN 192.168.2.0 atinja a LAN restrita enquanto permite o tráfego de qualquer outra LAN?",
   "opts": [
@@ -3015,7 +3015,7 @@ window.QUESTIONS_M4 = [
   "id": 161,
   "mod": 4,
   "fonte": "cert",
-  "tp": "ACL",
+  "tp": "ACLs",
   "ty": "single",
   "text": "Consulte a figura. Um administrador de rede precisa adicionar uma ACE à ACL TRAFFIC-CONTROL, que negará o tráfego de IP da sub-rede 172.23.16.0/20. Qual será a ACE responsável por cumprir esta exigência?",
   "opts": [
@@ -3033,7 +3033,7 @@ window.QUESTIONS_M4 = [
   "id": 162,
   "mod": 4,
   "fonte": "cert",
-  "tp": "ACL",
+  "tp": "ACLs",
   "ty": "single",
   "text": "Qual é a ACE que permitirá tráfego de hosts exclusivamente na sub-rede 192.168.8.0/22?",
   "opts": [
@@ -3049,7 +3049,7 @@ window.QUESTIONS_M4 = [
   "id": 163,
   "mod": 4,
   "fonte": "cert",
-  "tp": "VPN",
+  "tp": "Segurança",
   "ty": "single",
   "text": "Um funcionário que viaja constantemente para trabalhar precisa acessar a rede da empresa remotamente. Qual mecanismo de segurança oferece uma conexão segura?",
   "opts": [
@@ -3065,7 +3065,7 @@ window.QUESTIONS_M4 = [
   "id": 164,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Ameaças de segurança",
+  "tp": "Segurança",
   "ty": "single",
   "text": "Um funcionário está fazendo login em uma conta da empresa e outro funcionário está de tal forma para ver o ID da conta e a senha. Que tipo de ameaça é essa?",
   "opts": [
@@ -3081,7 +3081,7 @@ window.QUESTIONS_M4 = [
   "id": 165,
   "mod": 4,
   "fonte": "cert",
-  "tp": "DHCP Snooping",
+  "tp": "Segurança",
   "ty": "single",
   "text": "Consulte a figura. Qual interface no switch S1 precisa ser configurada como uma porta confiável de snooping de DHCP para ajudar a mitigar ataques de spoofing de DHCP?",
   "opts": [
@@ -3099,7 +3099,7 @@ window.QUESTIONS_M4 = [
   "id": 166,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Redes baseadas em intenção (IBN)",
+  "tp": "SDN/Cloud",
   "ty": "single",
   "text": "Qual função do sistema de rede baseado em intenção da Cisco (IBNS) permite que os operadores de rede expressem o comportamento esperado de rede que melhor dará suporte à intenção de negócios?",
   "opts": [
@@ -3115,7 +3115,7 @@ window.QUESTIONS_M4 = [
   "id": 167,
   "mod": 4,
   "fonte": "cert",
-  "tp": "API REST",
+  "tp": "Automação",
   "ty": "single",
   "text": "O que é uma característica da API REST?",
   "opts": [
@@ -3131,7 +3131,7 @@ window.QUESTIONS_M4 = [
   "id": 168,
   "mod": 4,
   "fonte": "cert",
-  "tp": "YAML",
+  "tp": "Automação",
   "ty": "single",
   "text": "Consulte a figura. O que o símbolo de hífen (–) indica na estrutura de dados YAML?",
   "opts": [
@@ -3149,7 +3149,7 @@ window.QUESTIONS_M4 = [
   "id": 169,
   "mod": 4,
   "fonte": "cert",
-  "tp": "URL/URI",
+  "tp": "Automação",
   "ty": "single",
   "text": "Um usuário está lendo um livro do site https://www.books-info.com/author50/book1.html#page150. Qual termo é usado para descrever o componente www.books-info.com/author50/book1.html?",
   "opts": [
@@ -3166,7 +3166,7 @@ window.QUESTIONS_M4 = [
   "id": 170,
   "mod": 4,
   "fonte": "cert",
-  "tp": "JSON",
+  "tp": "Automação",
   "ty": "single",
   "text": "Consulte a figura. Na representação de dados JSON exibida, qual símbolo deve ser usado para substituir o ponto de interrogação nas linhas 2 e 15?",
   "opts": [
@@ -3184,7 +3184,7 @@ window.QUESTIONS_M4 = [
   "id": 171,
   "mod": 4,
   "fonte": "cert",
-  "tp": "API REST",
+  "tp": "Automação",
   "ty": "single",
   "text": "Qual é uma restrição de arquitetura à qual um verdadeiro serviço da web RESTful API deve aderir?",
   "opts": [
@@ -3200,7 +3200,7 @@ window.QUESTIONS_M4 = [
   "id": 172,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Tabela de endereços MAC",
+  "tp": "Tabela MAC",
   "ty": "single",
   "text": "Que ação ocorre quando o endereço MAC de origem de um quadro que entra em um switch está na tabela de endereços MAC?",
   "opts": [
@@ -3216,7 +3216,7 @@ window.QUESTIONS_M4 = [
   "id": 173,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Segurança de switch / VLAN hopping",
+  "tp": "Segurança",
   "ty": "single",
   "text": "Qual ataque de LAN permite que o tráfego de uma VLAN seja visto por outra VLAN sem a ajuda de um roteador?",
   "opts": [
@@ -3232,7 +3232,7 @@ window.QUESTIONS_M4 = [
   "id": 174,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Rota estática IPv6",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "Que característica completa a seguinte afirmação?\nQuando uma rota estática IPv6 é configurada, o uso de um endereço de link local como um endereço de próximo salto requer a inserção...",
   "opts": [
@@ -3265,7 +3265,7 @@ window.QUESTIONS_M4 = [
   "id": 176,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Incompatibilidade duplex",
+  "tp": "Switching",
   "ty": "single",
   "text": "Um técnico está solucionando problemas de um dispositivo de rede e suspeita que pode haver uma incompatibilidade duplex. O que poderia causar uma incompatibilidade duplex?",
   "opts": [
@@ -3281,7 +3281,7 @@ window.QUESTIONS_M4 = [
   "id": 177,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Sub-redes IPv4",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "Um administrador de redes está projetando um esquema de endereçamento IPv4 e exige essas sub-redes.\nUma sub-rede de 100 hosts\nDuas sub-redes de 80 hosts\nDuas sub-redes de 30 hosts\nQuatro sub-redes de 20 hosts\nQual combinação de sub-redes e máscaras fornecerá o plano de endereçamento recomendado para essas exigências?",
   "opts": [
@@ -3297,7 +3297,7 @@ window.QUESTIONS_M4 = [
   "id": 178,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Nuvem (tipos)",
+  "tp": "SDN/Cloud",
   "ty": "single",
   "text": "Uma empresa farmacêutica deseja contratar os serviços de um provedor de nuvem para armazenar dados de funcionários e aplicativos específicos da empresa com segurança de acesso rigorosa. Qual tipo de nuvem seria o mais apropriado para esse cenário?",
   "opts": [
@@ -3313,7 +3313,7 @@ window.QUESTIONS_M4 = [
   "id": 179,
   "mod": 4,
   "fonte": "cert",
-  "tp": "PoE (Power over Ethernet)",
+  "tp": "Switching",
   "ty": "single",
   "text": "Um administrador de rede está considerando se os recursos PoE são necessários em uma instalação de rede específica. Qual opção fornece informações válidas sobre PoE?",
   "opts": [
@@ -3329,7 +3329,7 @@ window.QUESTIONS_M4 = [
   "id": 180,
   "mod": 4,
   "fonte": "cert",
-  "tp": "TCP/UDP (portas e encapsulamento)",
+  "tp": "Arquitetura",
   "ty": "multi",
   "text": "Os dados estão sendo enviados de um PC de origem para um servidor de destino. Quais são as três afirmativas que descrevem corretamente a função TCP ou UDP nessa situação? (Escolha três.)",
   "opts": [
@@ -3352,7 +3352,7 @@ window.QUESTIONS_M4 = [
   "id": 181,
   "mod": 4,
   "fonte": "cert",
-  "tp": "WLAN (função do AP)",
+  "tp": "WLAN",
   "ty": "single",
   "text": "Qual recurso ou função um AP fornece em uma LAN sem fio?",
   "opts": [
@@ -3368,7 +3368,7 @@ window.QUESTIONS_M4 = [
   "id": 182,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Modelo hierárquico (três camadas)",
+  "tp": "Arquitetura",
   "ty": "single",
   "text": "Um engenheiro de rede está projetando uma rede comutada sem fronteiras de forma hierárquica. Que diretriz pode fazer com que o engenheiro implemente um modelo de camada de três camadas?",
   "opts": [
@@ -3384,7 +3384,7 @@ window.QUESTIONS_M4 = [
   "id": 183,
   "mod": 4,
   "fonte": "cert",
-  "tp": "WLC (EtherChannel e trunk)",
+  "tp": "WLAN",
   "ty": "multi",
   "text": "Em uma rede sem fio baseada em controlador, um dispositivo Cisco WLC tem quatro portas conectadas a um switch para formar um pacote. Este pacote fornece balanceamento de carga e redundância. Quais duas configurações devem ser executadas nas quatro portas de switch que se conectam ao WLC? (Escolha duas.)",
   "opts": [
@@ -3405,7 +3405,7 @@ window.QUESTIONS_M4 = [
   "id": 184,
   "mod": 4,
   "fonte": "cert",
-  "tp": "WLC (servidor RADIUS)",
+  "tp": "WLAN",
   "ty": "single",
   "text": "Um administrador de rede está configurando uma WLAN com WPA2 Enterprise em uma WLC Cisco 3500 Series. As autenticações de cliente serão tratadas por um servidor RADIUS. Qual guia o administrador deve usar para adicionar as informações do servidor RADIUS?",
   "opts": [
@@ -3421,7 +3421,7 @@ window.QUESTIONS_M4 = [
   "id": 185,
   "mod": 4,
   "fonte": "cert",
-  "tp": "VLAN padrão e nativa",
+  "tp": "VLANs",
   "ty": "single",
   "text": "Um administrador emite o comando show vlan brief em um switch Cisco e a saída mostra que todas as portas estão atribuídas atualmente à VLAN padrão. O que se pode concluir?",
   "opts": [
@@ -3437,7 +3437,7 @@ window.QUESTIONS_M4 = [
   "id": 186,
   "mod": 4,
   "fonte": "cert",
-  "tp": "VLAN nativa",
+  "tp": "VLANs",
   "ty": "single",
   "text": "Qual é a finalidade de se configurar a VLAN nativa separada das VLANs de dados?",
   "opts": [
@@ -3453,7 +3453,7 @@ window.QUESTIONS_M4 = [
   "id": 187,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Tabela de roteamento (gateway de último recurso)",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "Qual atributo em um roteador Cisco permite o encaminhamento de tráfego para o qual não haja rota específica?",
   "opts": [
@@ -3469,7 +3469,7 @@ window.QUESTIONS_M4 = [
   "id": 188,
   "mod": 4,
   "fonte": "cert",
-  "tp": "FHRP (VRRP, HSRP, GLBP)",
+  "tp": "FHRP",
   "ty": "match",
   "text": "Combine os protocolos FHRP com a descrição apropriada.",
   "pairs": [
@@ -3492,7 +3492,7 @@ window.QUESTIONS_M4 = [
   "id": 189,
   "mod": 4,
   "fonte": "cert",
-  "tp": "OSPF (router-id)",
+  "tp": "OSPF",
   "ty": "single",
   "text": "Qual é a prática recomendada da Cisco para configurar um roteador habilitado para OSPF para que cada roteador possa ser facilmente identificado ao solucionar problemas de roteamento?",
   "opts": [
@@ -3508,7 +3508,7 @@ window.QUESTIONS_M4 = [
   "id": 190,
   "mod": 4,
   "fonte": "cert",
-  "tp": "IPv6 (roteamento)",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "Um engenheiro de rede foi solicitado a preparar um roteador e garantir que ele possa rotear pacotes IPv6. Qual comando o engenheiro de rede deve garantir que foi inserido no roteador?",
   "opts": [
@@ -3524,7 +3524,7 @@ window.QUESTIONS_M4 = [
   "id": 191,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Syslog (níveis de severidade)",
+  "tp": "Gerência",
   "ty": "single",
   "text": "Um engenheiro de rede está configurando um switch Cisco quando essa mensagem é exibida.\n%LINK-3-UPDOWN: Interface Port-Channel1, estado alterado para cima\nQual é o nível de gravidade do Syslog desta mensagem?",
   "opts": [
@@ -3540,7 +3540,7 @@ window.QUESTIONS_M4 = [
   "id": 192,
   "mod": 4,
   "fonte": "cert",
-  "tp": "QoS (categorias de ferramentas)",
+  "tp": "QoS",
   "ty": "multi",
   "text": "Quais são as três categorias de ferramentas que podem ser usadas em redes IP para implementar QoS? (Escolha três.)",
   "opts": [
@@ -3563,7 +3563,7 @@ window.QUESTIONS_M4 = [
   "id": 193,
   "mod": 4,
   "fonte": "cert",
-  "tp": "FTP (modelo cliente-servidor)",
+  "tp": "Arquitetura",
   "ty": "single",
   "text": "Em comunicações de rede de computadores qual processo de transferência de dados o protocolo de camada de aplicativo FTP usa?",
   "opts": [
@@ -3579,7 +3579,7 @@ window.QUESTIONS_M4 = [
   "id": 194,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Ameaças de segurança (spyware)",
+  "tp": "Segurança",
   "ty": "single",
   "text": "O que é uma ameaça de spyware?",
   "opts": [
@@ -3595,7 +3595,7 @@ window.QUESTIONS_M4 = [
   "id": 195,
   "mod": 4,
   "fonte": "cert",
-  "tp": "AAA (RADIUS e TACACS+)",
+  "tp": "Segurança",
   "ty": "multi",
   "text": "Quais dois protocolos são usados para fornecer a autenticação baseada em servidor AAA? (Escolha duas.)",
   "opts": [
@@ -3616,7 +3616,7 @@ window.QUESTIONS_M4 = [
   "id": 196,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Segurança de porta (err-disabled)",
+  "tp": "Segurança",
   "ty": "single",
   "text": "Um administrador que está solucionando problemas de conectividade em um switch percebeu que uma porta do switch que estava configurada como segurança de porta na verdade estava com um estado desativado por erro. Após verificar a causa da violação, como o administrador deve reativar a porta sem interromper as operações de rede?",
   "opts": [
@@ -3632,7 +3632,7 @@ window.QUESTIONS_M4 = [
   "id": 197,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Segurança (IPS)",
+  "tp": "Segurança",
   "ty": "single",
   "text": "Qual solução de segurança identifica ameaças recebidas e impede que elas entrem na rede corporativa?",
   "opts": [
@@ -3648,7 +3648,7 @@ window.QUESTIONS_M4 = [
   "id": 198,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Automação (Ansible)",
+  "tp": "Automação",
   "ty": "single",
   "text": "Um programador está usando o Ansible como a ferramenta de gerenciamento de configuração. Qual termo é usado para descrever um conjunto de instruções para execução?",
   "opts": [
@@ -3664,7 +3664,7 @@ window.QUESTIONS_M4 = [
   "id": 199,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Automação (Python vs Ruby)",
+  "tp": "Automação",
   "ty": "multi",
   "text": "Quais são as duas ferramentas de gerenciamento de configuração desenvolvidas usando Python? (Escolha duas.)",
   "opts": [
@@ -3685,7 +3685,7 @@ window.QUESTIONS_M4 = [
   "id": 200,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Cisco DNA Center (Assurance)",
+  "tp": "SDN/Cloud",
   "ty": "single",
   "text": "Um administrador de rede está usando o Cisco DNA Center para monitorar a integridade da rede e solucionar problemas de rede. Qual área o administrador deve usar para executar essas tarefas?",
   "opts": [
@@ -3701,7 +3701,7 @@ window.QUESTIONS_M4 = [
   "id": 201,
   "mod": 4,
   "fonte": "cert",
-  "tp": "API RESTful (consulta)",
+  "tp": "Automação",
   "ty": "multi",
   "text": "Quais são os três componentes usados na parte de consulta de uma solicitação típica de API RESTful? (Escolha três.)",
   "opts": [
@@ -3724,7 +3724,7 @@ window.QUESTIONS_M4 = [
   "id": 202,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Ataques de LAN (DHCP)",
+  "tp": "Segurança",
   "ty": "single",
   "text": "Qual ataque de LAN envolve um servidor não autorizado conectado à rede, fornecendo parâmetros de configuração IP falsos para clientes legítimos?",
   "opts": [
@@ -3740,7 +3740,7 @@ window.QUESTIONS_M4 = [
   "id": 203,
   "mod": 4,
   "fonte": "cert",
-  "tp": "QoS (FIFO)",
+  "tp": "QoS",
   "ty": "single",
   "text": "Qual termo descreve um método de enfileiramento padrão em que os pacotes são enviados de uma interface na ordem em que chegam?",
   "opts": [
@@ -3757,7 +3757,7 @@ window.QUESTIONS_M4 = [
   "id": 204,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Tabela de endereços MAC (porta diferente)",
+  "tp": "Tabela MAC",
   "ty": "single",
   "text": "Que ação ocorre quando o endereço MAC de origem de um quadro que entra em um switch aparece na tabela de endereços MAC associada a uma porta diferente?",
   "opts": [
@@ -3773,7 +3773,7 @@ window.QUESTIONS_M4 = [
   "id": 205,
   "mod": 4,
   "fonte": "cert",
-  "tp": "Rota estática IPv6 (host /128)",
+  "tp": "Roteamento",
   "ty": "single",
   "text": "Que característica completa a seguinte afirmação?\nQuando uma rota estática IPv6 é configurada e o tráfego deve ser direcionado para um servidor específico, a rota estática requer...",
   "opts": [
