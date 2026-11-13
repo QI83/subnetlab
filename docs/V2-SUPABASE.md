@@ -1,216 +1,243 @@
-# SubnetLab v2.0 — Ranking e perfis na nuvem
+# SubnetLab v2.0 — Progresso na nuvem com código de acesso
 
-> **Status:** especificação + protótipo. **Não** integrado ao app ainda.
-> Decisões fechadas com o Caique (09/11/2026).
+> **Status:** especificação aprovada. Integração ao app **ainda não implementada**.
+> Decisão de produto fechada com o Caique em 13/11/2026.
 
-## Decisões de produto
+## A decisão: código de acesso, não login
 
-| Tema | Decisão |
-|---|---|
-| Login | **Apenas o nome** (auth anônima). E-mail fica para depois, quando o app estiver mais estruturado — aí vira recuperação de conta |
-| Ranking | **Público**: nome + XP, ordenado por XP |
-| Escopo atual | Protótipo funcional + esta documentação. Integração ao app **depois** |
-| Provedor | **Supabase** (free tier) |
-
-## Por que Supabase
-
-| Critério | Supabase |
-|---|---|
-| Custo | US$ 0 (free tier permanente) |
-| Banco | PostgreSQL (SQL de verdade — ranking é um `ORDER BY`) |
-| Auth | Anônima nativa (`signInAnonymously`) — nenhum cadastro para o aluno |
-| Privacidade | Row Level Security: cada aluno só lê/escreve o próprio progresso |
-| Limites | 500 MB · 50.000 usuários/mês · requisições ilimitadas |
-| Integração | `supabase-js` via CDN — funciona no GitHub Pages sem build |
-
-**Dimensionamento:** 55 questões × 100 alunos × ~200 bytes ≈ **1 MB**. O teto de 500 MB atende com folga de duas ordens de grandeza.
-
-## Arquitetura
+O aluno **não cria conta**. Na primeira vez que abre o app, ele recebe um código:
 
 ```
-SubnetLab (GitHub Pages, estático)
-        │  localStorage = fonte de verdade offline
-        │  supabase-js (CDN) quando há rede
-        ▼
-Supabase
-  ├── auth (anônima)         → user_id sem senha
-  ├── profiles               → nome, xp
-  ├── progresso              → user_id, mod, question_id, acertos, tentativas
-  └── ranking (VIEW)         → nome, xp, posicao  (leitura pública)
+7K4X-M9P2-QW3E-RT5Y
 ```
 
-O app continua funcionando **offline**. A sincronização é um "empurrão" oportunista: quando há rede, o que está no `localStorage` sobe para o Supabase.
+- No dia a dia ele **não digita nada** — o código fica salvo no aparelho.
+- Em outro celular ou computador: *"Já estudo aqui"* → digita o código → o progresso vem.
+- O app insiste, na primeira vez, para ele **salvar o código** (copiar, compartilhar no próprio
+  WhatsApp ou baixar um arquivo).
 
-## Passo a passo do setup (uma vez, ~15 min)
+### Por que não auth anônima (a versão anterior desta spec)
 
-1. Criar conta em https://supabase.com (GitHub login serve).
-2. **New project** — nome `subnetlab`, região `South America (São Paulo)`, senha do banco (guarde).
-3. Em **SQL Editor**, rodar o script completo abaixo.
-4. Em **Authentication → Providers**, habilitar **Anonymous sign-ins**.
-5. Em **Project Settings → API**, copiar:
-   - `Project URL` → ex. `https://xxxxx.supabase.co`
-   - `anon public` key → chave pública (pode ir no frontend; a segurança vem do RLS)
+A auth anônima do Supabase é mais simples, mas amarra o progresso ao `localStorage` do aparelho:
+trocou de celular, limpou o navegador, ou abriu o computador da escola → **progresso perdido**, e o
+aluno só descobre quando é tarde. O código de acesso resolve isso sem pedir e-mail, senha ou qualquer
+dado pessoal.
+
+### Segurança
+
+| Item | Decisão |
+|---|---|
+| Entropia | 16 caracteres em alfabeto de 32 (sem `I`, `O`, `0`, `1`) = **80 bits** |
+| O servidor guarda | Apenas o **SHA-256** do código (`code_hash`), nunca o código em si |
+| Quem tem o código | Acessa o progresso daquele aluno — é o modelo "chave de recuperação" |
+| Dado sensível | **Nenhum**: apelido + estatísticas de quiz. Sem e-mail, telefone, CPF ou senha |
+| LGPD | `delete_me()` apaga tudo; aviso na primeira execução |
+
+O ranking é público (nome + XP) — é o preço de um ranking entre colegas. O progresso individual
+**nunca** é exposto.
+
+## Passo a passo no painel do Supabase
+
+O projeto já foi criado. Faltam três coisas:
+
+### 1. Rodar o SQL
+
+**SQL Editor** → *New query* → colar o script completo abaixo → **Run**.
+
+Deve aparecer "Success. No rows returned".
+
+### 2. Pegar as credenciais
+
+**Project Settings** (engrenagem) → **API** → *Project URL* e *API Keys*:
+
+| Campo no painel | O que é | Pode ir no site? |
+|---|---|---|
+| `Project URL` | `https://xxxxx.supabase.co` | ✅ sim |
+| `anon` / `public` | chave pública | ✅ sim (a segurança vem das policies) |
+| `service_role` / `secret` | chave mestra | ❌ **NUNCA** — dá acesso total ao banco |
+
+### 3. Me mandar a URL e a anon key
+
+Com esses dois valores eu integro o app. **Não** mande a `service_role`.
 
 ## SQL completo
 
 ```sql
 -- ─────────────────────────────────────────────────────────────
--- 1. PERFIS (nome + XP). Id = id do usuário anônimo.
+-- 0. pgcrypto (digest/sha256). No Supabase já vem em `extensions`.
 -- ─────────────────────────────────────────────────────────────
-create table if not exists public.profiles (
-  id         uuid primary key references auth.users(id) on delete cascade,
-  nome       text not null check (char_length(nome) between 2 and 30),
-  xp         integer not null default 0 check (xp >= 0),
-  criado_em  timestamptz not null default now()
+create extension if not exists pgcrypto;
+
+-- ─────────────────────────────────────────────────────────────
+-- 1. ALUNOS — um registro por código de acesso
+--    A chave primária é o HASH do código, não o código.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.alunos (
+  code_hash      text primary key,
+  nome           text not null check (char_length(nome) between 2 and 30),
+  xp             integer not null default 0 check (xp >= 0),
+  dados          jsonb not null default '{}'::jsonb,
+  criado_em      timestamptz not null default now(),
+  atualizado_em  timestamptz not null default now()
 );
 
 -- ─────────────────────────────────────────────────────────────
--- 2. PROGRESSO por questão (mesma chave composta do app: mod:id)
+-- 2. RLS LIGADO E SEM POLICY = ninguém acessa a tabela direto
+--    pela API pública. Todo acesso passa pelas funções abaixo.
 -- ─────────────────────────────────────────────────────────────
-create table if not exists public.progresso (
-  user_id        uuid not null references public.profiles(id) on delete cascade,
-  mod            integer not null,
-  question_id    integer not null,
-  acertos        integer not null default 0,
-  tentativas     integer not null default 0,
-  atualizado_em  timestamptz not null default now(),
-  primary key (user_id, mod, question_id)
-);
+alter table public.alunos enable row level security;
 
 -- ─────────────────────────────────────────────────────────────
--- 3. RLS — cada usuário só toca no que é seu
+-- 3. GRAVAR / ATUALIZAR o progresso
+--    p_dados = { qStats, spaced, history }  (o mesmo JSON do export)
 -- ─────────────────────────────────────────────────────────────
-alter table public.profiles  enable row level security;
-alter table public.progresso enable row level security;
+create or replace function public.sync_put(
+  p_code  text,
+  p_nome  text,
+  p_xp    integer,
+  p_dados jsonb
+) returns void
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+declare
+  h text;
+begin
+  if p_code is null or char_length(regexp_replace(p_code, '[^A-Za-z0-9]', '', 'g')) < 16 then
+    raise exception 'codigo_invalido';
+  end if;
+  if p_nome is null or char_length(trim(p_nome)) < 2 then
+    raise exception 'nome_invalido';
+  end if;
 
-drop policy if exists "profiles_select_own" on public.profiles;
-create policy "profiles_select_own" on public.profiles
-  for select using (auth.uid() = id);
+  h := encode(digest(upper(regexp_replace(p_code, '[^A-Za-z0-9]', '', 'g')), 'sha256'), 'hex');
 
-drop policy if exists "profiles_insert_own" on public.profiles;
-create policy "profiles_insert_own" on public.profiles
-  for insert with check (auth.uid() = id);
-
-drop policy if exists "profiles_update_own" on public.profiles;
-create policy "profiles_update_own" on public.profiles
-  for update using (auth.uid() = id);
-
-drop policy if exists "progresso_all_own" on public.progresso;
-create policy "progresso_all_own" on public.progresso
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  insert into public.alunos (code_hash, nome, xp, dados)
+  values (h, trim(p_nome), greatest(coalesce(p_xp, 0), 0), coalesce(p_dados, '{}'::jsonb))
+  on conflict (code_hash) do update
+    set nome          = excluded.nome,
+        xp            = excluded.xp,
+        dados         = excluded.dados,
+        atualizado_em = now();
+end;
+$$;
 
 -- ─────────────────────────────────────────────────────────────
--- 4. RANKING — view pública, só nome + XP + posição
---    (nunca expõe o progresso individual)
+-- 4. LER o progresso a partir do código
+-- ─────────────────────────────────────────────────────────────
+create or replace function public.sync_get(p_code text)
+returns table (nome text, xp integer, dados jsonb, atualizado_em timestamptz)
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+declare
+  h text;
+begin
+  if p_code is null or char_length(regexp_replace(p_code, '[^A-Za-z0-9]', '', 'g')) < 16 then
+    return;  -- código curto: não devolve nada (não vaza se existe ou não)
+  end if;
+
+  h := encode(digest(upper(regexp_replace(p_code, '[^A-Za-z0-9]', '', 'g')), 'sha256'), 'hex');
+
+  return query
+    select a.nome, a.xp, a.dados, a.atualizado_em
+    from public.alunos a
+    where a.code_hash = h;
+end;
+$$;
+
+-- ─────────────────────────────────────────────────────────────
+-- 5. RANKING — só nome + XP + posição. Nunca o progresso.
 -- ─────────────────────────────────────────────────────────────
 create or replace view public.ranking as
   select
     nome,
     xp,
     row_number() over (order by xp desc, nome asc) as posicao
-  from public.profiles
+  from public.alunos
   where xp > 0;
 
-grant select on public.ranking to anon, authenticated;
-
 -- ─────────────────────────────────────────────────────────────
--- 5. LIMPEZA de perfil (direito ao esquecimento — LGPD)
---    Chamar via RPC:  select public.apagar_meu_perfil();
+-- 6. APAGAR TUDO (direito ao esquecimento — LGPD)
 -- ─────────────────────────────────────────────────────────────
-create or replace function public.apagar_meu_perfil()
+create or replace function public.sync_delete(p_code text)
 returns void
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
+declare
+  h text;
 begin
-  delete from public.profiles where id = auth.uid();  -- cascade apaga progresso
+  if p_code is null or char_length(regexp_replace(p_code, '[^A-Za-z0-9]', '', 'g')) < 16 then
+    return;
+  end if;
+  h := encode(digest(upper(regexp_replace(p_code, '[^A-Za-z0-9]', '', 'g')), 'sha256'), 'hex');
+  delete from public.alunos where code_hash = h;
 end;
 $$;
 
-grant execute on function public.apagar_meu_perfil() to authenticated, anon;
+-- ─────────────────────────────────────────────────────────────
+-- 7. PERMISSÕES — só o necessário, e só pelas funções
+-- ─────────────────────────────────────────────────────────────
+revoke all on public.alunos from anon, authenticated;
+grant execute on function public.sync_put(text, text, integer, jsonb) to anon;
+grant execute on function public.sync_get(text)                      to anon;
+grant execute on function public.sync_delete(text)                   to anon;
+grant select on public.ranking to anon;
+
+-- ─────────────────────────────────────────────────────────────
+-- 8. ÍNDICE para o ranking (ORDER BY xp DESC)
+-- ─────────────────────────────────────────────────────────────
+create index if not exists alunos_xp_idx on public.alunos (xp desc);
 ```
 
-## Código de integração (para depois)
+## Geração do código no cliente (sem dependência)
 
-```html
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+```js
+const ALFA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 32 chars, sem I O 0 1
 
-const sb = createClient('https://SEU-PROJETO.supabase.co', 'SUA_ANON_KEY');
-
-// 1. Entrar (anônimo) — o token fica salvo no navegador
-async function entrar(nome) {
-  let { data: { session } } = await sb.auth.getSession();
-  if (!session) {
-    const { data, error } = await sb.auth.signInAnonymously();
-    if (error) throw error;
-    session = data.session;
-  }
-  await sb.from('profiles').upsert({
-    id: session.user.id,
-    nome,
-  }, { onConflict: 'id' });
-  return session.user.id;
+function gerarCodigo() {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  let s = '';
+  for (const b of bytes) s += ALFA[b % 32];      // 16 chars = 80 bits
+  return s.match(/.{4}/g).join('-');              // 7K4X-M9P2-QW3E-RT5Y
 }
 
-// 2. Subir o progresso (uma linha por questão)
-async function sincronizar(uid, qStats) {
-  const linhas = Object.entries(qStats).map(([chave, v]) => {
-    const [mod, question_id] = chave.split(':').map(Number); // "3:12"
-    return { user_id: uid, mod, question_id, acertos: v.c, tentativas: v.a };
-  });
-  if (linhas.length) {
-    await sb.from('progresso').upsert(linhas, { onConflict: 'user_id,mod,question_id' });
-  }
-}
-
-// 3. Ranking
-async function ranking() {
-  const { data } = await sb.from('ranking').select('*').limit(50);
-  return data;
-}
-</script>
+const normalizar = c => String(c).toUpperCase().replace(/[^A-Z0-9]/g, '');
 ```
 
-## Pontos de atenção (não ignorar)
+`b % 32` sobre bytes uniformes é enviesado por no máximo 1/256 — irrelevante aqui, mas se quiser
+zero viés use `crypto.getRandomValues(new Uint32Array(16))` e `% 32` sobre 32 bits.
 
-### 1. Ranking é "de confiança", não "à prova de fraude"
-O XP vem do navegador. Um aluno com conhecimento técnico pode forjar a requisição.
-Para o contexto de turma, é aceitável. Se um dia precisar de ranking sério, a solução é
-uma **Edge Function** que valida as respostas no servidor (o cliente envia só `question_id` +
-`answer_index`, e o servidor confere contra o gabarito e calcula o XP).
+## Integração no app (quando implementar)
 
-### 2. LGPD
-Nome + progresso é dado pessoal. Obrigatório:
-- aviso claro na primeira execução (o que é coletado e por quê);
-- botão **"apagar meus dados"** → `select public.apagar_meu_perfil()`;
-- como a turma pode ter menores, o aviso deve ser compreensível por eles.
+- `localStorage['sl_code']` guarda o código no aparelho. **É a única chave fora do `sl_*` padrão
+  que precisa sobreviver** — se ela sumir, o aluno perde a ligação com o servidor.
+- O sync é **oportunista**: `localStorage` manda, o Supabase é espelho. Tentar em três momentos —
+  ao abrir o app, ao terminar uma sessão e no evento `online`. Nunca bloquear o quiz esperando rede.
+- Subir `{ qStats, spaced, history }` — o mesmo objeto do export. Não subir o nome do aparelho nem
+  qualquer metadado de navegador.
+- Conflito: **o servidor não sobrescreve o local** no `pull`. Na primeira vinculação, o app pergunta:
+  "usar o progresso deste aparelho ou o da nuvem?" e faz a união das questões (maior `a`, maior `c`).
 
-### 3. Offline-first
-Nada de bloquear o quiz esperando rede. O `localStorage` manda; o Supabase é espelho.
-Fila simples: tentar sincronizar ao abrir o app, ao terminar uma sessão e no evento `online`.
+## Pontos de atenção
 
-### 4. Free tier pausa por inatividade
-Projeto sem uso por ~1 semana é pausado (reativa com 1 clique). Irrelevante com uso de turma.
-
-### 5. Conta anônima não migra de celular
-Sem e-mail, trocar de aparelho = perder o perfil. É o trade-off aceito nesta versão.
-**v2.1:** adicionar e-mail (magic link) e vincular a conta anônima existente
-(`supabase.auth.updateUser({ email })`).
+1. **Ranking é de confiança, não à prova de fraude.** O XP vem do navegador. Para a turma, aceitável.
+   Se precisar de rigor: Edge Function que valida as respostas contra o gabarito no servidor.
+2. **Free tier pausa por inatividade** (~1 semana). Reativa com 1 clique. Irrelevante com uso de turma.
+3. **A anon key é pública por design.** Quem protege é o RLS + as funções `security definer`.
+   Nunca colocar a `service_role` no frontend.
+4. **`code_hash` é a chave.** Se alguém obtiver o banco, não obtém os códigos (só os hashes).
+   Mas 80 bits com SHA-256 sem salt é atacável só por força bruta — inviável para um código aleatório.
 
 ## Roadmap
 
 | Versão | Conteúdo |
 |---|---|
 | **v1 (atual)** | 100% local, export/import manual |
-| **v2.0 (esta spec)** | Perfil por nome, ranking público de XP, sincronização oportunista |
-| **v2.1** | E-mail (magic link) + recuperação de conta + migração do perfil anônimo |
-| **v2.2** | Ranking por turma (campo `turma` no perfil), filtros |
-| **v3** | XP validado no servidor (Edge Function) + estatísticas agregadas da turma |
-
-## Protótipo
-
-`prototype/ranking-demo.html` — página isolada que você abre no navegador, cola a URL e a
-anon key do seu projeto Supabase, e testa: entrar com nome, ganhar XP, ver o ranking.
-Serve para validar a ideia antes de tocar no app.
+| **v2.0 (esta spec)** | Código de acesso, sincronização oportunista, ranking público de XP |
+| **v2.1** | Ranking por turma (campo `turma`), filtros e pódio da semana |
+| **v2.2** | XP validado no servidor (Edge Function) + estatísticas agregadas da turma |

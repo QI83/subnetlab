@@ -164,6 +164,32 @@ const KEY = {
   spaced:   'sl_spaced',
 };
 
+// ── CÓDIGO DE ACESSO ────────────────────────────────────────────────
+const ALFA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // 32 chars, sem I O 0 1
+
+function gerarCodigo() {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  let s = '';
+  for (const b of bytes) s += ALFA[b % 32];
+  return s.match(/.{4}/g).join('-');
+}
+
+function getCode() { return localStorage.getItem('sl_code') || ''; }
+
+function ensureCode() {
+  let c = getCode();
+  if (!c) {
+    c = gerarCodigo();
+    localStorage.setItem('sl_code', c);
+    localStorage.setItem('sl_code_seen', ''); // marcador: ainda não confirmou que guardou
+  }
+  return c;
+}
+
+function normalizarCodigo(c) {
+  return String(c).toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
 const LEVELS = [
   { n: 'Novato',       min: 0,   max: 60  },
   { n: 'Trainee',      min: 60,  max: 150 },
@@ -1008,6 +1034,7 @@ function renderModules() {
         <span>👤 ${esc(name)}</span>
         <span class="modules-role">Estudante</span>
         <button class="btn" id="modChangeName" style="padding:3px 10px;font-size:11px" aria-label="Alterar nome">Alterar</button>
+        <button class="btn" id="modMyCode" style="padding:3px 10px;font-size:11px" title="Meu código de acesso" aria-label="Meu código de acesso">🔑</button>
       </div>
     </div>
     <p class="modules-sub">Selecione o módulo do curso que está cursando.</p>
@@ -1031,6 +1058,7 @@ function bindModules() {
     });
   });
   document.getElementById('modChangeName')?.addEventListener('click', () => { S.screen = 'login'; render(); });
+  document.getElementById('modMyCode')?.addEventListener('click', () => showCodigoModal(false));
 }
 
 // ── LOGIN ────────────────────────────────────────────────────────────
@@ -1044,6 +1072,15 @@ function renderLogin() {
         placeholder="Seu nome" autocomplete="name" maxlength="40"
         value="${esc(getStudent())}" aria-label="Seu nome">
       <button class="btn pri" id="loginBtn" style="font-size:15px;padding:14px">Continuar →</button>
+    </div>
+    <div style="margin-top:12px;text-align:center">
+      <button id="linkCodeBtn" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:4px 8px;text-decoration:underline">Já estudo em outro aparelho</button>
+    </div>
+    <div id="link-code-section" style="display:none;margin-top:12px">
+      <input class="login-input" id="codeInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX"
+        autocomplete="off" maxlength="24" aria-label="Código de acesso"
+        style="margin-bottom:8px;text-align:center;letter-spacing:1px;font-family:monospace">
+      <button class="btn" id="linkBtn" style="width:100%;font-size:14px;padding:10px">Vincular</button>
     </div>
     <div style="margin-top:20px">
       <button class="icon-btn theme-btn" aria-label="Alternar tema">${darkMode ? '☀️' : '🌙'}</button>
@@ -1059,12 +1096,52 @@ function bindLogin() {
     const name = inp.value.trim();
     if (!name) { inp.focus(); inp.style.borderColor = 'var(--red)'; return; }
     saveStudent(name);
-    S.screen = 'modules';
-    render();
+    ensureCode();
+    if (localStorage.getItem('sl_code_seen') === '') {
+      showCodigoModal(true);
+    } else {
+      S.screen = 'modules';
+      render();
+    }
   }
   btn.addEventListener('click', tryLogin);
   inp.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
   if (!inp.value) inp.focus();
+
+  // Link "Já estudo em outro aparelho"
+  document.getElementById('linkCodeBtn')?.addEventListener('click', () => {
+    const sec = document.getElementById('link-code-section');
+    if (!sec) return;
+    const visible = sec.style.display !== 'none';
+    sec.style.display = visible ? 'none' : 'block';
+    if (!visible) document.getElementById('codeInput')?.focus();
+  });
+
+  document.getElementById('linkBtn')?.addEventListener('click', () => {
+    const raw = (document.getElementById('codeInput')?.value || '').trim();
+    vincularCodigo(raw);
+  });
+
+  document.getElementById('codeInput')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const raw = e.target.value.trim();
+      vincularCodigo(raw);
+    }
+  });
+}
+
+function vincularCodigo(codigoDigitado) {
+  const normalizado = normalizarCodigo(codigoDigitado);
+  if (normalizado.length !== 16) {
+    showAlert('Código inválido — deve ter 16 caracteres.');
+    return;
+  }
+  if (normalizado === normalizarCodigo(getCode())) {
+    showAlert('Este já é o código deste aparelho.');
+    return;
+  }
+  // sync_get(normalizado) — será implementado na integração com Supabase (V2)
+  showAlert('A busca na nuvem ainda não está disponível. Quando estiver, este código trará seu progresso.');
 }
 
 // ── TELA INICIAL ─────────────────────────────────────────────────────
@@ -2233,6 +2310,115 @@ function showConfirm(title, msg, onOk) {
   el.querySelector('#confOk').onclick    = () => { el.remove(); onOk(); };
   el.querySelector('#confCancel').onclick = () => el.remove();
   el.addEventListener('click', e => { if (e.target === el) el.remove(); });
+}
+
+function copyFallback(text, btn) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = '✓ Copiado';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    }
+  } catch { showAlert('Não foi possível copiar automaticamente.'); }
+  document.body.removeChild(ta);
+}
+
+function showCodigoModal(allowSetSeen) {
+  if (document.getElementById('code-modal-overlay')) return;
+  const codigo = getCode();
+  const dataStr = new Date().toLocaleDateString('pt-BR');
+  const shareUrl = 'https://qi83.github.io/subnetlab/';
+  const shareText = `Meu código de acesso do SubnetLab: ${codigo}\nGuarde para recuperar meu progresso em outro aparelho.\n${shareUrl}`;
+
+  const el = document.createElement('div');
+  el.className = 'code-modal-overlay';
+  el.id = 'code-modal-overlay';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-modal', 'true');
+  el.setAttribute('aria-label', 'Seu código de acesso');
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;box-sizing:border-box';
+
+  el.innerHTML = `<div class="cmodal" style="max-width:360px;width:100%">
+    <div class="cmodal-title" style="font-size:17px">🔑 Seu código de acesso</div>
+    <div style="text-align:center;margin:16px 0">
+      <div style="font-size:22px;font-weight:700;letter-spacing:2px;padding:12px 8px;background:var(--bg2);border-radius:8px;font-family:monospace;color:var(--blue-text)">${esc(codigo)}</div>
+    </div>
+    <div class="cmodal-msg" style="margin-bottom:16px;font-size:13px">
+      Guarde este código. É com ele que você recupera todo o seu progresso em outro celular ou computador — sem senha, sem e-mail, sem cadastro.<br><br>
+      <strong>Se perder o código, não conseguimos recuperar seu histórico.</strong>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <button class="btn" id="code-copy" style="flex:1" aria-label="Copiar código">📋 Copiar</button>
+      <button class="btn" id="code-share" style="flex:1" aria-label="Compartilhar código">📤 Compartilhar</button>
+    </div>
+    <div style="margin-bottom:16px">
+      <button class="btn" id="code-save" style="width:100%" aria-label="Salvar código em arquivo">⬇️ Salvar em arquivo</button>
+    </div>
+    <div>
+      <button class="btn pri" id="code-seen" style="width:100%;font-size:14px;padding:12px" aria-label="Já guardei meu código">Já guardei meu código</button>
+    </div>
+  </div>`;
+
+  document.body.appendChild(el);
+  setTimeout(() => el.querySelector('#code-copy').focus(), 50);
+
+  el.querySelector('#code-copy').onclick = () => {
+    const btn = el.querySelector('#code-copy');
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(codigo)
+        .then(() => { btn.textContent = '✓ Copiado'; setTimeout(() => { btn.textContent = '📋 Copiar'; }, 2000); })
+        .catch(() => copyFallback(codigo, btn));
+    } else {
+      copyFallback(codigo, btn);
+    }
+  };
+
+  el.querySelector('#code-share').onclick = () => {
+    const btn = el.querySelector('#code-share');
+    if (navigator.canShare && navigator.canShare({ text: shareText })) {
+      navigator.share({ title: 'SubnetLab', text: shareText }).catch(() => {});
+    } else {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(codigo).then(() => {
+          btn.textContent = '✓ Copiado';
+          setTimeout(() => { btn.textContent = '📤 Compartilhar'; }, 2000);
+        }).catch(() => copyFallback(codigo, btn));
+      } else {
+        copyFallback(codigo, btn);
+      }
+      showAlert('Compartilhamento não disponível — código copiado.');
+    }
+  };
+
+  el.querySelector('#code-save').onclick = () => {
+    const content = [
+      codigo,
+      'Código de acesso SubnetLab — use para recuperar seu progresso em outro aparelho.',
+      `Criado em: ${dataStr}`,
+      shareUrl,
+    ].join('\n');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'subnetlab-codigo.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  };
+
+  el.querySelector('#code-seen').onclick = () => {
+    if (allowSetSeen) localStorage.setItem('sl_code_seen', '1');
+    el.remove();
+    if (allowSetSeen) { S.screen = 'modules'; render(); }
+  };
 }
 
 function showLightbox(src, alt) {
