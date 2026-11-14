@@ -288,6 +288,22 @@ function topicColor(tp) {
   return TOPIC_COLORS[tp] || '#7AB8F5';
 }
 
+function corDoNome(nome) {
+  let h = 0;
+  for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return `hsl(${h}, 62%, 48%)`;
+}
+
+function iniciais(nome) {
+  if (!nome) return '??';
+  const p = nome.trim().split(/\s+/).filter(Boolean);
+  if (!p.length) return '??';
+  if (p.length === 1) return p[0].slice(0, 2).toUpperCase();
+  return (p[0][0] + p[p.length - 1][0]).toUpperCase();
+}
+
+function formatXP(n) { return Number(n || 0).toLocaleString('pt-BR'); }
+
 function dateLabel() {
   return new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
     + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -488,6 +504,21 @@ async function sbDeleteCloud(code) {
     clearTimeout(tid);
     return r.ok;
   } catch { clearTimeout(tid); return false; }
+}
+
+async function sbRanking() {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const r = await fetch(
+      `${SB_URL}/rest/v1/ranking?select=*&order=posicao.asc&limit=50`,
+      { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }, signal: ctrl.signal }
+    );
+    clearTimeout(tid);
+    if (!r.ok) return { ok: false, data: [] };
+    const data = await r.json();
+    return { ok: true, data: Array.isArray(data) ? data : [] };
+  } catch { clearTimeout(tid); return { ok: false, data: [] }; }
 }
 
 // ── SYNC STATUS ───────────────────────────────────────────────────────
@@ -1018,6 +1049,7 @@ function render() {
   if (S.screen === 'review')  { app.innerHTML = renderReview();            bindReview();  return; }
   if (S.screen === 'history') { app.innerHTML = renderHistory();           bindHistory(); return; }
   if (S.screen === 'search')  { app.innerHTML = renderSearch();            bindSearch();  return; }
+  if (S.screen === 'ranking') { app.innerHTML = renderRanking();           bindRanking(); return; }
 }
 
 // ── DEFINIÇÕES DOS MÓDULOS ────────────────────────────────────────────
@@ -1150,6 +1182,7 @@ function renderModules() {
         <span class="modules-role">Estudante</span>
         <button class="btn" id="modChangeName" style="padding:3px 10px;font-size:11px" aria-label="Alterar nome">Alterar</button>
         <button class="btn" id="modMyCode" style="padding:3px 10px;font-size:11px" title="Meu código de acesso" aria-label="Meu código de acesso">🔑</button>
+        <button class="btn" id="modRanking" style="padding:3px 10px;font-size:11px" title="Ranking da turma" aria-label="Ranking da turma">🏆</button>
       </div>
     </div>
     <p class="modules-sub">Selecione o módulo do curso que está cursando.</p>
@@ -1174,8 +1207,215 @@ function bindModules() {
   });
   document.getElementById('modChangeName')?.addEventListener('click', () => { S.screen = 'login'; render(); });
   document.getElementById('modMyCode')?.addEventListener('click', () => showCodigoModal(false));
+  document.getElementById('modRanking')?.addEventListener('click', () => {
+    S.ranking = { status: 'loading', lista: [] };
+    S.screen = 'ranking';
+    render();
+  });
 
   if (getCode()) syncAndUpdateStatus();
+}
+
+// ── RANKING ───────────────────────────────────────────────────────────
+function renderRanking() {
+  const st = S.ranking || { status: 'loading', lista: [] };
+  const nome = getStudent();
+
+  const topbar = `
+    <div class="ranking-topbar">
+      <button class="ranking-back" id="btnRankingBack" aria-label="Voltar para módulos">← Voltar</button>
+      <div class="ranking-topbar-title">🏆 RANKING</div>
+    </div>`;
+
+  if (st.status === 'loading') {
+    return `<div class="ranking-wrap">${topbar}
+      <p class="ranking-kicker">SUBNETLAB · CCNA v7 · Turma SENAI</p>
+      <div class="ranking-skeleton">
+        <div class="rank-skel-podium">
+          <div class="skel-block" style="height:125px"></div>
+          <div class="skel-block" style="height:150px"></div>
+          <div class="skel-block" style="height:105px"></div>
+        </div>
+        <div class="skel-row"></div>
+        <div class="skel-row"></div>
+        <div class="skel-row"></div>
+        <div class="skel-row"></div>
+        <div class="skel-row"></div>
+      </div>
+    </div>`;
+  }
+
+  const lista = st.lista;
+
+  if (st.status === 'empty' || (!lista.length && st.status !== 'offline')) {
+    return `<div class="ranking-wrap">${topbar}
+      <p class="ranking-kicker">SUBNETLAB · CCNA v7 · Turma SENAI</p>
+      <div class="rank-empty">
+        <div class="rank-empty-icon">🏆</div>
+        <div class="rank-empty-title">Ninguém no ranking ainda</div>
+        <div class="rank-empty-sub">Seja o primeiro: complete uma sessão e seu XP aparece aqui.</div>
+        <button class="btn pri" id="btnRankingStudy" style="margin-top:20px;padding:12px 24px">Começar a estudar</button>
+      </div>
+    </div>`;
+  }
+
+  if (st.status === 'offline' && !lista.length) {
+    return `<div class="ranking-wrap">${topbar}
+      <p class="ranking-kicker">SUBNETLAB · CCNA v7 · Turma SENAI</p>
+      <div class="rank-offline-msg">📵 Ranking indisponível offline.</div>
+    </div>`;
+  }
+
+  const offlineBanner = st.status === 'offline'
+    ? `<div class="rank-offline-banner">📶 Sem conexão — mostrando a última lista vista</div>` : '';
+
+  const totalAlunos = lista.length;
+  const totalXP = lista.reduce((s, r) => s + (r.xp || 0), 0);
+  const mediaXP = totalAlunos >= 2 ? Math.round(totalXP / totalAlunos) : null;
+  const statsLine = `<div class="ranking-stats-line">${totalAlunos} aluno${totalAlunos !== 1 ? 's' : ''} · ${formatXP(totalXP)} XP no total${mediaXP !== null ? ' · média ' + formatXP(mediaXP) + ' XP' : ''}</div>`;
+
+  const meEntry = lista.find(r => r.nome === nome);
+  const mePosicao = meEntry ? meEntry.posicao : null;
+  const meXp = meEntry ? meEntry.xp : getXpTotal();
+
+  // ── Pódio (top 3)
+  const top3 = lista.slice(0, Math.min(3, lista.length));
+  let podiumOrder;
+  if (top3.length >= 3)      podiumOrder = [top3[1], top3[0], top3[2]]; // 2º, 1º, 3º
+  else if (top3.length === 2) podiumOrder = [top3[1], top3[0]];
+  else                        podiumOrder = [top3[0]];
+
+  const medalEmoji = { 1: '🥇', 2: '🥈', 3: '🥉' };
+  const medalClass = { 1: 'gold', 2: 'silver', 3: 'bronze' };
+  const podiumDelays = { 1: 0, 2: 80, 3: 160 };
+
+  const podiumCards = podiumOrder.map(item => {
+    if (!item) return '';
+    const pos = item.posicao;
+    const cls = medalClass[pos] || 'gold';
+    const delay = podiumDelays[pos] || 0;
+    const isMe = item.nome === nome;
+    const nomeTrunc = item.nome.length > 12 ? item.nome.slice(0, 12) + '…' : item.nome;
+    const ini = iniciais(item.nome);
+    const cor = corDoNome(item.nome);
+    const avatarSize = pos === 1 ? 42 : 36;
+    const fontSize = pos === 1 ? '16px' : '13px';
+    return `<div class="podium-card podium-${cls}${isMe ? ' podium-me' : ''}" style="animation-delay:${delay}ms">
+      <div class="podium-medal">${medalEmoji[pos] || '🏅'}</div>
+      <div class="rank-avatar" style="background:${cor};width:${avatarSize}px;height:${avatarSize}px;font-size:${fontSize}">${esc(ini)}</div>
+      <div class="podium-name" title="${esc(item.nome)}">${esc(nomeTrunc)}</div>
+      <div class="podium-xp">${formatXP(item.xp)}</div>
+    </div>`;
+  }).join('');
+
+  const podiumHTML = `<div class="ranking-podium">${podiumCards}</div>`;
+
+  // ── Faixa de posição
+  let bannerHTML = '';
+  if (meEntry && meXp > 0) {
+    let msg;
+    if (mePosicao === 1) {
+      msg = '🏆 Você lidera o ranking!';
+    } else if (mePosicao === totalAlunos && totalAlunos >= 2 && totalAlunos < 50) {
+      msg = '📍 Você está em último — bora subir?';
+    } else {
+      msg = `📍 Você está em ${mePosicao}º de ${totalAlunos} aluno${totalAlunos !== 1 ? 's' : ''}`;
+    }
+    bannerHTML = `<div class="rank-banner">${msg}</div>`;
+  }
+
+  // ── Lista do 4º em diante
+  const listItems = lista.slice(3);
+  const maxXP = Math.max(1, lista[0]?.xp || 1);
+
+  const listRows = listItems.map((item, idx) => {
+    const isMe = item.nome === nome;
+    const ini = iniciais(item.nome);
+    const cor = corDoNome(item.nome);
+    const pct = Math.min(100, Math.round((item.xp || 0) / maxXP * 100));
+    const delay = idx * 30;
+    const nameHtml = isMe
+      ? `${esc(item.nome)} <span class="rank-me-badge">VOCÊ</span>`
+      : esc(item.nome);
+    return `<div class="rank-row${isMe ? ' rank-row-me' : ''}" style="animation-delay:${delay}ms">
+      <div class="rank-row-body">
+        <span class="rank-pos">${item.posicao}</span>
+        <div class="rank-avatar" style="background:${cor};width:32px;height:32px;font-size:12px">${esc(ini)}</div>
+        <span class="rank-name">${nameHtml}</span>
+        <div class="rank-xp-wrap">
+          <span class="rank-xp-val">${formatXP(item.xp)}</span>
+          <span class="rank-xp-suf">XP</span>
+        </div>
+      </div>
+      <div class="rank-xpbar"><div class="rank-xpbar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+
+  const listHTML = listItems.length ? `<div class="rank-list">${listRows}</div>` : '';
+
+  // ── Fora do top 50
+  let notFoundHTML = '';
+  if (!meEntry) {
+    const ini = nome ? iniciais(nome) : '?';
+    const cor = nome ? corDoNome(nome) : '#888';
+    const myXP = getXpTotal();
+    const nameHtml = `${esc(nome || 'Você')} <span class="rank-me-badge">VOCÊ</span>`;
+    notFoundHTML = `
+      <div class="rank-sep"></div>
+      <div class="rank-list">
+        <div class="rank-row rank-row-me">
+          <div class="rank-row-body">
+            <span class="rank-pos" style="color:var(--text3)">?</span>
+            <div class="rank-avatar" style="background:${cor};width:32px;height:32px;font-size:12px">${esc(ini)}</div>
+            <span class="rank-name">${nameHtml}</span>
+            <div class="rank-xp-wrap">
+              ${myXP > 0 ? `<span class="rank-xp-val">${formatXP(myXP)}</span><span class="rank-xp-suf">XP</span>` : ''}
+            </div>
+          </div>
+          <div class="rank-xpbar"><div class="rank-xpbar-fill" style="width:0%"></div></div>
+        </div>
+        <div class="rank-notfound-msg">Sua posição aparecerá aqui quando você pontuar.</div>
+      </div>`;
+  }
+
+  return `<div class="ranking-wrap">
+    ${topbar}
+    <p class="ranking-kicker">SUBNETLAB · CCNA v7 · Turma SENAI</p>
+    ${statsLine}
+    ${offlineBanner}
+    ${podiumHTML}
+    ${bannerHTML}
+    ${listHTML}
+    ${notFoundHTML}
+  </div>`;
+}
+
+function bindRanking() {
+  document.getElementById('btnRankingBack')?.addEventListener('click', () => {
+    S.screen = 'modules';
+    render();
+  });
+  document.getElementById('btnRankingStudy')?.addEventListener('click', () => {
+    S.screen = 'modules';
+    render();
+  });
+
+  const st = S.ranking || { status: 'loading', lista: [] };
+  if (st.status !== 'loading') return;
+
+  sbRanking().then(({ ok, data }) => {
+    if (!ok) {
+      let cached = [];
+      try { cached = JSON.parse(localStorage.getItem('sl_ranking_cache') || '[]'); } catch {}
+      S.ranking = { status: 'offline', lista: cached };
+    } else if (!data.length) {
+      S.ranking = { status: 'empty', lista: [] };
+    } else {
+      localStorage.setItem('sl_ranking_cache', JSON.stringify(data));
+      S.ranking = { status: 'ok', lista: data };
+    }
+    if (S.screen === 'ranking') render();
+  });
 }
 
 // ── LOGIN ────────────────────────────────────────────────────────────
