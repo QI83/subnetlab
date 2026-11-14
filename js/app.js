@@ -1331,7 +1331,7 @@ function renderGuide() {
     { icon: '🔑',    name: 'Meu código',        desc: 'O código que leva seu progresso para outro aparelho.' },
     { icon: '🏆',    name: 'Ranking',           desc: 'A classificação da turma por XP.' },
     { icon: '☀️/🌙', name: 'Tema',             desc: 'Troca entre o modo claro e o escuro.' },
-    { icon: '⬇️/⬆️', name: 'Exportar/Importar', desc: 'Backup do progresso em arquivo local.' },
+    { icon: '⬇️/⬆️', name: 'Exportar/Importar', desc: 'Backup do progresso em arquivo local. Fica no seu perfil (avatar).' },
     { icon: '☆',    name: 'Favoritar',         desc: 'Marca uma questão para estudar depois.' },
   ].map(b => `<div class="guide-btn-row">
     <div class="guide-btn-icon">${b.icon}</div>
@@ -2049,10 +2049,6 @@ function renderStart() {
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
       <button class="btn" id="histBtnBottom" style="flex:1;min-width:100px" aria-label="Ver histórico">📋 Histórico</button>
       <button class="btn" id="statsBtn" style="flex:1;min-width:100px" aria-label="Estatísticas por questão">📊 Stats</button>
-      <button class="btn" id="exportBtn" aria-label="Exportar progresso">⬇️ Exportar</button>
-      <label class="btn" style="cursor:pointer" aria-label="Importar progresso">
-        ⬆️ Importar<input type="file" accept=".json" id="importFile" style="display:none">
-      </label>
     </div>
 
     <div class="start-cta">
@@ -2086,12 +2082,6 @@ function bindStart() {
   document.getElementById('glossBtn')?.addEventListener('click', showGlossary);
   document.getElementById('readyBtn')?.addEventListener('click', showReadiness);
   document.getElementById('statsBtn')?.addEventListener('click', showQStats);
-  document.getElementById('exportBtn')?.addEventListener('click', exportData);
-
-  document.getElementById('importFile')?.addEventListener('change', e => {
-    const f = e.target.files[0];
-    if (f) importData(f);
-  });
 
   document.getElementById('cdSet')?.addEventListener('click', promptExamDate);
   document.getElementById('cdEdit')?.addEventListener('click', promptExamDate);
@@ -3121,6 +3111,19 @@ function showProfileModal() {
     <div style="display:flex;flex-direction:column;gap:8px">
       <button class="btn" id="profileChangeName" style="text-align:left;padding:12px 14px;font-size:14px">✏️ Alterar nome</button>
       <button class="btn" id="profileMyCode" style="text-align:left;padding:12px 14px;font-size:14px">🔑 Meu código de acesso</button>
+
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin:10px 0 2px">Backup do progresso</div>
+      <p style="font-size:11.5px;line-height:1.5;color:var(--text3);margin:0 0 4px">
+        O progresso já sobe sozinho pela nuvem. O arquivo serve para guardar uma cópia sua —
+        útil se perder o código ou quiser levar sem internet.
+      </p>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="profileExport" style="flex:1;padding:10px;font-size:13px">⬇️ Exportar</button>
+        <label class="btn" style="flex:1;padding:10px;font-size:13px;cursor:pointer;text-align:center">
+          ⬆️ Importar<input type="file" accept=".json" id="profileImport" style="display:none">
+        </label>
+      </div>
+
       <button class="btn" id="profileDelete" style="text-align:left;padding:12px 14px;font-size:14px;color:var(--red-text)"><span class="emoji-i">🗑</span> Apagar meus dados</button>
     </div>
   </div>`;
@@ -3130,6 +3133,12 @@ function showProfileModal() {
 
   el.querySelector('#profileClose').onclick = () => el.remove();
   el.addEventListener('click', e => { if (e.target === el) el.remove(); });
+
+  el.querySelector('#profileExport')?.addEventListener('click', exportData);
+  el.querySelector('#profileImport')?.addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (f) { el.remove(); importData(f); }
+  });
 
   el.querySelector('#profileChangeName').onclick = () => {
     el.remove();
