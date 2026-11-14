@@ -1250,12 +1250,6 @@ function renderModules() {
       </div>
       <span class="mod-revisao-arrow">›</span>
     </div>
-    <div class="mod-trail-hr"></div>
-
-    <div class="mod-chips">
-      <div class="mod-chip" id="modRankingChip" role="button" tabindex="0">🏆<br>Ranking</div>
-      <div class="mod-chip" id="modGuideChip" role="button" tabindex="0">📖<br>Guia</div>
-    </div>
   </div>`;
 }
 
@@ -1288,14 +1282,6 @@ function bindModules() {
   document.getElementById('modRanking')?.addEventListener('click', goRanking);
   document.getElementById('modGuide')?.addEventListener('click', goGuide);
 
-  document.getElementById('modRankingChip')?.addEventListener('click', goRanking);
-  document.getElementById('modRankingChip')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goRanking(); }
-  });
-  document.getElementById('modGuideChip')?.addEventListener('click', goGuide);
-  document.getElementById('modGuideChip')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goGuide(); }
-  });
 
   if (getCode()) syncAndUpdateStatus();
 }
@@ -1382,7 +1368,7 @@ function renderGuide() {
   return `<div class="guide-wrap" role="main">
     <div class="guide-topbar">
       <button class="ranking-back" id="guideBack" aria-label="Voltar para módulos">← Voltar</button>
-      <div class="guide-topbar-title">Como funciona</div>
+      <div class="guide-topbar-title">Guia</div>
       <button class="icon-btn theme-btn" title="Alternar tema" aria-label="Alternar tema claro/escuro">${darkMode ? '☀️' : '🌙'}</button>
     </div>
 
@@ -3135,7 +3121,7 @@ function showProfileModal() {
     <div style="display:flex;flex-direction:column;gap:8px">
       <button class="btn" id="profileChangeName" style="text-align:left;padding:12px 14px;font-size:14px">✏️ Alterar nome</button>
       <button class="btn" id="profileMyCode" style="text-align:left;padding:12px 14px;font-size:14px">🔑 Meu código de acesso</button>
-      <button class="btn" id="profileDelete" style="text-align:left;padding:12px 14px;font-size:14px;color:var(--red-text)">🗑 Apagar meus dados</button>
+      <button class="btn" id="profileDelete" style="text-align:left;padding:12px 14px;font-size:14px;color:var(--red-text)"><span class="emoji-i">🗑</span> Apagar meus dados</button>
     </div>
   </div>`;
 

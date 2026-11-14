@@ -1237,11 +1237,21 @@ body {
 .ranking-wrap { padding-bottom: 32px; }
 
 .ranking-topbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 18px;
   gap: 8px;
+}
+.ranking-topbar > :first-child { justify-self: start; }
+.ranking-topbar > :last-child  { justify-self: end; }
+.ranking-topbar-title { justify-self: center; text-align: center; }
+
+/* Emoji de ícone: nunca herda a cor do texto (o 🗑 sumia no vermelho) */
+.emoji-i {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  color: initial;
+  margin-right: 4px;
 }
 .ranking-topbar-title {
   font-size: 15px;
@@ -1637,9 +1647,9 @@ body {
   z-index: 10;
   background: var(--bg);
   padding: 10px 0 8px;
-  margin: 0 -16px 24px;
-  padding-left: 16px;
-  padding-right: 16px;
+  /* Sem full-bleed: o -16px fazia a faixa dos chips começar fora da margem
+     dos outros blocos e parecer desalinhada. */
+  margin: 0 0 20px;
   border-bottom: 1px solid var(--border);
   display: flex;
   gap: 6px;
