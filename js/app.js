@@ -853,6 +853,7 @@ function handleSingle(dispIdx) {
   applyScore(q, ok, dispIdx);
   render();
   saveProgress();
+  scrollToFeedback();
   if (S.timerMode === 'timed' && S.lives <= 0) showLivesOut();
 }
 
@@ -888,6 +889,7 @@ function handleMultiConfirm() {
   applyScore(q, ok, null);
   render();
   saveProgress();
+  scrollToFeedback();
   if (S.timerMode === 'timed' && S.lives <= 0) showLivesOut();
 }
 
@@ -908,7 +910,22 @@ function handleMatchConfirm() {
   applyScore(q, allOk, null);
   render();
   saveProgress();
+  scrollToFeedback();
   if (S.timerMode === 'timed' && S.lives <= 0) showLivesOut();
+}
+
+// Ao responder, a explicação nasce abaixo da dobra e o aluno não a vê.
+// Esta função leva o bloco de feedback para a área visível.
+function scrollToFeedback() {
+  if (S.timerMode !== 'free') return;   // na prova o feedback só aparece no fim
+  requestAnimationFrame(() => {
+    const el = document.querySelector('.fb');
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    if (r.top > window.innerHeight * 0.55) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 }
 
 function applyScore(q, ok, _dispIdx) {
@@ -1181,9 +1198,9 @@ function renderModules() {
         <span>👤 ${esc(name)}</span>
         <span id="sync-status" style="font-size:11px;color:var(--text3)"></span>
         <button class="btn" id="modChangeName" style="padding:3px 10px;font-size:11px" aria-label="Alterar nome">Alterar</button>
-        <button class="btn" id="modMyCode" style="padding:3px 10px;font-size:11px" title="Meu código de acesso" aria-label="Meu código de acesso">🔑</button>
-        <button class="btn" id="modRanking" style="padding:3px 10px;font-size:11px" title="Ranking da turma" aria-label="Ranking da turma">🏆</button>
-        <button class="btn" id="modGuide" style="padding:3px 10px;font-size:11px" title="Como funciona" aria-label="Como funciona">❓</button>
+        <button class="btn" id="modMyCode" style="padding:3px 10px;font-size:11px;min-width:44px;min-height:44px" title="Meu código de acesso" aria-label="Meu código de acesso">🔑</button>
+        <button class="btn" id="modRanking" style="padding:3px 10px;font-size:11px;min-width:44px;min-height:44px" title="Ranking da turma" aria-label="Ranking da turma">🏆</button>
+        <button class="btn" id="modGuide" style="padding:3px 10px;font-size:11px;min-width:44px;min-height:44px" title="Como funciona" aria-label="Como funciona">❓</button>
         <button class="icon-btn theme-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">${darkMode ? '☀️' : '🌙'}</button>
       </div>
     </div>
@@ -1995,9 +2012,11 @@ function renderStart() {
       </label>
     </div>
 
-    <button class="btn pri" id="startBtn" style="width:100%;font-size:16px;padding:15px;border-radius:var(--radius)">
-      ▶ Iniciar${S.startMode === 'timed' ? ' Prova' : S.startMode === 'topic' && S.selectedTopic ? ' — ' + S.selectedTopic : ''}
-    </button>
+    <div class="start-cta">
+      <button class="btn pri" id="startBtn" style="width:100%;font-size:16px;padding:15px;border-radius:var(--radius)">
+        ▶ Iniciar${S.startMode === 'timed' ? ' Prova' : S.startMode === 'topic' && S.selectedTopic ? ' — ' + S.selectedTopic : ''}
+      </button>
+    </div>
   </div>`;
 }
 
