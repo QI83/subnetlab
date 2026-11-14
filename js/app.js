@@ -1191,6 +1191,11 @@ function renderModules() {
 }
 
 function bindModules() {
+  // Garante que TODO aluno tenha código, inclusive quem já usava o app antes desta
+  // funcionalidade existir e por isso nunca passa pela tela de login.
+  ensureCode();
+  if (localStorage.getItem('sl_code_seen') === '') showCodigoModal(true);
+
   document.querySelectorAll('.mod-card[data-mod]').forEach(card => {
     const activate = () => {
       const m = parseInt(card.dataset.mod, 10) || 0;
