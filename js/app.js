@@ -1050,6 +1050,7 @@ function render() {
   if (S.screen === 'history') { app.innerHTML = renderHistory();           bindHistory(); return; }
   if (S.screen === 'search')  { app.innerHTML = renderSearch();            bindSearch();  return; }
   if (S.screen === 'ranking') { app.innerHTML = renderRanking();           bindRanking(); return; }
+  if (S.screen === 'guide')   { app.innerHTML = renderGuide();             bindGuide();   return; }
 }
 
 // ── DEFINIÇÕES DOS MÓDULOS ────────────────────────────────────────────
@@ -1179,10 +1180,11 @@ function renderModules() {
       <div class="modules-student">
         <span>👤 ${esc(name)}</span>
         <span id="sync-status" style="font-size:11px;color:var(--text3)"></span>
-        <span class="modules-role">Estudante</span>
         <button class="btn" id="modChangeName" style="padding:3px 10px;font-size:11px" aria-label="Alterar nome">Alterar</button>
         <button class="btn" id="modMyCode" style="padding:3px 10px;font-size:11px" title="Meu código de acesso" aria-label="Meu código de acesso">🔑</button>
         <button class="btn" id="modRanking" style="padding:3px 10px;font-size:11px" title="Ranking da turma" aria-label="Ranking da turma">🏆</button>
+        <button class="btn" id="modGuide" style="padding:3px 10px;font-size:11px" title="Como funciona" aria-label="Como funciona">❓</button>
+        <button class="icon-btn theme-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">${darkMode ? '☀️' : '🌙'}</button>
       </div>
     </div>
     <p class="modules-sub">Selecione o módulo do curso que está cursando.</p>
@@ -1195,6 +1197,7 @@ function bindModules() {
   // funcionalidade existir e por isso nunca passa pela tela de login.
   ensureCode();
   if (localStorage.getItem('sl_code_seen') === '') showCodigoModal(true);
+  document.querySelector('.theme-btn')?.addEventListener('click', toggleTheme);
 
   document.querySelectorAll('.mod-card[data-mod]').forEach(card => {
     const activate = () => {
@@ -1217,8 +1220,162 @@ function bindModules() {
     S.screen = 'ranking';
     render();
   });
+  document.getElementById('modGuide')?.addEventListener('click', () => { S.screen = 'guide'; render(); });
 
   if (getCode()) syncAndUpdateStatus();
+}
+
+// ── GUIA ──────────────────────────────────────────────────────────────
+function renderGuide() {
+  const chips = [
+    { id: 'sec-caminho',   label: 'O caminho' },
+    { id: 'sec-modos',     label: 'Os modos' },
+    { id: 'sec-botoes',    label: 'Os botões' },
+    { id: 'sec-pontuacao', label: 'Pontuação' },
+    { id: 'sec-progresso', label: 'Seu progresso' },
+  ];
+
+  const chipHtml = chips.map(c =>
+    `<button class="guide-chip" role="button" tabindex="0" data-target="${c.id}" aria-label="Ir para ${esc(c.label)}">${esc(c.label)}</button>`
+  ).join('');
+
+  const stepsHtml = [
+    { n: '1', title: 'Escolha o módulo',        text: 'SRWE, ENSA, Revisão Completa ou Certificação. O número no card é quantas questões o módulo tem. A barra mostra quanto você já viu.' },
+    { n: '2', title: 'Escolha o modo de estudo', text: 'Livre, Prova, Por Tópico, Revisão de Erros ou Revisão Espaçada — ou o Plano de hoje, que monta a sessão sozinho.' },
+    { n: '3', title: 'Estude e acompanhe',       text: 'Cada questão tem explicação da resposta. O XP aparece no ranking, e um código guarda seu progresso para você continuar em outro aparelho.' },
+  ].map(s => `<div class="guide-step">
+    <div class="guide-step-num">${s.n}</div>
+    <div class="guide-step-body"><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>
+  </div>`).join('');
+
+  const modesHtml = [
+    { icon: '📚', name: 'Livre',           desc: 'Questões em ordem aleatória, com correção e explicação na hora.',        when: '"quero estudar sem pressão"' },
+    { icon: '⏱', name: 'Prova',            desc: 'Cronômetro, sem feedback até o fim, limite de erros. 70%+ emite certificado.', when: '"quero simular o dia da prova"' },
+    { icon: '🏷️', name: 'Por Tópico',      desc: 'Você escolhe um assunto (STP, OSPF, ACLs…) e treina só ele.',           when: '"vou mal em VLANs"' },
+    { icon: '❌', name: 'Revisão de Erros', desc: 'Só as questões que você já errou, das mais erradas para as menos.',     when: '"quero corrigir o que caiu"' },
+    { icon: '🔁', name: 'Revisão Espaçada', desc: 'Questões vencendo hoje, num intervalo que cresce a cada acerto.',       when: '"quero não esquecer o que aprendi"' },
+  ].map(m => `<div class="guide-mode-card">
+    <div class="guide-mode-icon">${m.icon}</div>
+    <div class="guide-mode-name">${esc(m.name)}</div>
+    <div class="guide-mode-desc">${esc(m.desc)}</div>
+    <div class="guide-mode-when"><strong>Use quando…</strong> ${esc(m.when)}</div>
+  </div>`).join('');
+
+  const buttonsHtml = [
+    { icon: '🔍',    name: 'Buscar',           desc: 'Procura uma palavra em todas as questões.' },
+    { icon: '📖',    name: 'Glossário',         desc: 'Explica as siglas do CCNA (VLAN, STP, OSPF…).' },
+    { icon: '🎯',    name: 'Prontidão',         desc: 'Diz o quanto você está pronto para a prova.' },
+    { icon: '📊',    name: 'Stats',             desc: 'Seu desempenho questão por questão.' },
+    { icon: '📋',    name: 'Histórico',         desc: 'Todas as sessões que você já fez.' },
+    { icon: '🔑',    name: 'Meu código',        desc: 'O código que leva seu progresso para outro aparelho.' },
+    { icon: '🏆',    name: 'Ranking',           desc: 'A classificação da turma por XP.' },
+    { icon: '☀️/🌙', name: 'Tema',             desc: 'Troca entre o modo claro e o escuro.' },
+    { icon: '⬇️/⬆️', name: 'Exportar/Importar', desc: 'Backup do progresso em arquivo local.' },
+    { icon: '☆',    name: 'Favoritar',         desc: 'Marca uma questão para estudar depois.' },
+  ].map(b => `<div class="guide-btn-row">
+    <div class="guide-btn-icon">${b.icon}</div>
+    <div class="guide-btn-name">${esc(b.name)}</div>
+    <div class="guide-btn-desc">${esc(b.desc)}</div>
+  </div>`).join('');
+
+  const scoresHtml = [
+    { emoji: '⚡', label: 'XP',                 rule: `Acertar vale <span class="guide-score-hl">+15 XP</span>. Errar desconta <span class="guide-score-hl">5 XP</span> (mínimo zero).` },
+    { emoji: '🔥', label: 'Streak',              rule: `Acertos seguidos: <span class="guide-score-hl">+5 XP</span> no 2.° e <span class="guide-score-hl">+10 XP</span> do 3.° em diante.` },
+    { emoji: '❤️', label: 'Vidas (só na Prova)', rule: 'Você pode errar até 30% das questões. A sessão encerra quando as vidas zeram.' },
+    { emoji: '🏆', label: 'Certificado',         rule: '70% ou mais no modo Prova gera certificado com rank, disponível para download.' },
+  ].map(s => `<div class="guide-score-card">
+    <div class="guide-score-top">
+      <div class="guide-score-emoji">${s.emoji}</div>
+      <div class="guide-score-label">${esc(s.label)}</div>
+    </div>
+    <div class="guide-score-rule">${s.rule}</div>
+  </div>`).join('');
+
+  const progHtml = [
+    { icon: '🔑', title: 'Código de acesso', text: 'É o que identifica você — sem senha, sem e-mail. Guarde-o: com ele você recupera tudo em outro celular ou computador.' },
+    { icon: '☁️', title: 'Sincronização',    text: 'Automática quando há internet. Funciona offline: o app salva no aparelho e envia depois.' },
+    { icon: '🏆', title: 'Ranking',          text: 'Nome, XP e posição. Seu progresso individual nunca é mostrado a ninguém.' },
+    { icon: '🗑️', title: 'Apagar da nuvem', text: 'No modal do código você pode apagar os dados do servidor. Os dados deste aparelho ficam.' },
+  ].map(p => `<div class="guide-prog-item">
+    <div class="guide-prog-icon">${p.icon}</div>
+    <div class="guide-prog-body"><h3>${esc(p.title)}</h3><p>${esc(p.text)}</p></div>
+  </div>`).join('');
+
+  const secHdr = (label) =>
+    `<div class="guide-section-hdr"><h2 class="sec-hdr" style="margin:0">${esc(label)}</h2></div>`;
+
+  return `<div class="guide-wrap" role="main">
+    <div class="guide-topbar">
+      <button class="ranking-back" id="guideBack" aria-label="Voltar para módulos">← Voltar</button>
+      <div class="guide-topbar-title">Como funciona</div>
+      <button class="icon-btn theme-btn" title="Alternar tema" aria-label="Alternar tema claro/escuro">${darkMode ? '☀️' : '🌙'}</button>
+    </div>
+
+    <p class="guide-kicker">SUBNETLAB · CCNA v7</p>
+    <div class="guide-hero">
+      <h1>Como funciona</h1>
+      <p>Tudo o que você precisa saber para usar o app.</p>
+    </div>
+
+    <div class="guide-chips" role="navigation" aria-label="Índice do guia">
+      ${chipHtml}
+    </div>
+
+    <section class="guide-section" id="sec-caminho">
+      ${secHdr('O caminho')}
+      <div class="guide-steps">${stepsHtml}</div>
+    </section>
+
+    <section class="guide-section" id="sec-modos">
+      ${secHdr('Os modos')}
+      <div class="guide-plan-callout">
+        <div class="guide-plan-icon">🎯</div>
+        <div class="guide-plan-body">
+          <h3>Plano de hoje</h3>
+          <p>Monta uma sessão de ~25 questões sozinho — mistura seus pontos fracos, revisões vencidas e questões novas. Use quando não souber por onde começar.</p>
+        </div>
+      </div>
+      <div class="guide-modes">${modesHtml}</div>
+    </section>
+
+    <section class="guide-section" id="sec-botoes">
+      ${secHdr('Os botões')}
+      <div class="guide-btn-list">${buttonsHtml}</div>
+    </section>
+
+    <section class="guide-section" id="sec-pontuacao">
+      ${secHdr('Pontuação')}
+      <div class="guide-score-grid">${scoresHtml}</div>
+    </section>
+
+    <section class="guide-section" id="sec-progresso">
+      ${secHdr('Seu progresso')}
+      <div class="guide-prog-list">${progHtml}</div>
+    </section>
+
+    <div class="guide-cta">
+      <button class="btn pri" id="guideStudy">Entendi, vamos estudar →</button>
+    </div>
+  </div>`;
+}
+
+function bindGuide() {
+  document.querySelector('.theme-btn')?.addEventListener('click', toggleTheme);
+
+  const goBack = () => { S.screen = 'modules'; render(); };
+  document.getElementById('guideBack')?.addEventListener('click', goBack);
+  document.getElementById('guideStudy')?.addEventListener('click', goBack);
+
+  document.querySelectorAll('.guide-chip').forEach(chip => {
+    const activate = () => {
+      const target = document.getElementById(chip.dataset.target);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    chip.addEventListener('click', activate);
+    chip.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+    });
+  });
 }
 
 // ── RANKING ───────────────────────────────────────────────────────────
@@ -1230,6 +1387,7 @@ function renderRanking() {
     <div class="ranking-topbar">
       <button class="ranking-back" id="btnRankingBack" aria-label="Voltar para módulos">← Voltar</button>
       <div class="ranking-topbar-title">🏆 RANKING</div>
+      <button class="icon-btn theme-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">${darkMode ? '☀️' : '🌙'}</button>
     </div>`;
 
   if (st.status === 'loading') {
@@ -1396,6 +1554,7 @@ function renderRanking() {
 }
 
 function bindRanking() {
+  document.querySelector('.theme-btn')?.addEventListener('click', toggleTheme);
   document.getElementById('btnRankingBack')?.addEventListener('click', () => {
     S.screen = 'modules';
     render();
