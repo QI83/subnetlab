@@ -357,6 +357,14 @@ body {
 }
 .start-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 8px; flex-wrap: wrap; }
 .start-h     { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+/* Descrição do módulo: aparece só depois de entrar, onde ela informa em vez de poluir a escolha. */
+.start-mod-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text2);
+  margin: 8px 0 12px;
+  max-width: 60ch;
+}
 .start-sub   { font-size: 13px; color: var(--text2); line-height: 1.65; margin-bottom: 14px; }
 .module-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
 
@@ -897,145 +905,331 @@ body {
   to   { opacity: 0; }
 }
 
-/* ── TELA DE MÓDULOS ─────────────────────────────────────────────── */
+/* ── TELA DE MÓDULOS — TRILHA ────────────────────────────────────── */
 .modules-wrap { padding: 4px 0; }
-.modules-topbar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
-}
-.modules-h { font-size: 24px; font-weight: 700; color: var(--text); }
-/* Título + status de sincronização na mesma linha, para a topbar do aluno
-   não quebrar em duas faixas e empurrar os botões. */
-.modules-title-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  flex-wrap: nowrap;
-  flex: 0 0 auto;          /* não deixa o flexbox comprimir: era isso que jogava o sync para baixo */
-  min-width: 0;
-}
-.modules-student { margin-left: auto; }
 #sync-status { white-space: nowrap; }
 
-/* No celular a topbar vira duas linhas previsíveis:
-   título + status em cima, nome + botões embaixo. */
-@media (max-width: 640px) {
-  .modules-topbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-  .modules-title-row { justify-content: flex-start; }
-  .modules-student { justify-content: flex-end; margin-left: 0; }
-  .modules-h { font-size: 22px; }
-}
-.modules-student {
+/* Topbar duas linhas */
+.mod-topbar { margin-bottom: 16px; }
+.mod-topbar-row1 {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+.mod-topbar-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.mod-topbar-sync {
+  font-size: 11px;
+  color: var(--green-text);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.mod-topbar-row2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mod-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mod-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  font-family: var(--font);
+  min-height: 44px;
+}
+.mod-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+.mod-profile-name {
   font-size: 12px;
   color: var(--text2);
-  flex-shrink: 0;
-  flex-wrap: wrap;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
 }
-.modules-role { color: var(--text3); }
-.modules-sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.65; }
+.mod-profile:hover .mod-profile-name { color: var(--text); }
 
-.mod-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
+/* Section header */
+.mod-sec-hdr {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 800;
+  color: var(--text3);
+  margin-bottom: 2px;
 }
-
-/* Separação visual entre cursos, revisão completa e certificação */
-.mod-section { margin-bottom: 22px; }
-.mod-section:last-child { margin-bottom: 4px; }
-.mod-section-sub {
+.mod-sec-sub {
   font-size: 11.5px;
   color: var(--text2);
-  margin: 0 0 9px;
-  line-height: 1.35;
+  margin-bottom: 13px;
 }
-.mod-section .mod-list { margin-bottom: 0; }
-.mod-card {
+
+/* Trail */
+.mod-trail {
+  position: relative;
+  padding-left: 30px;
+}
+.mod-trail-vline {
+  position: absolute;
+  left: 7px;
+  top: 18px;
+  width: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  bottom: 28px;
+}
+.mod-trail-step { position: relative; margin-bottom: 9px; }
+.mod-trail-step:last-child { margin-bottom: 0; }
+
+/* Markers */
+.mod-trail-marker {
+  position: absolute;
+  left: -27px;
+  top: 14px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  z-index: 2;
+  transition: all 0.15s;
+}
+.dm-disabled {
+  background: var(--bg3);
+  border: 2px solid var(--border2);
+}
+.dm-current {
+  width: 18px;
+  height: 18px;
+  left: -29px;
+  top: 12px;
+  background: var(--blue);
+  border: 2.5px solid var(--blue);
+  box-shadow: 0 0 0 4px var(--blue-bg);
+}
+.dm-done {
+  background: var(--green);
+  border: 2px solid var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--bg);
+}
+.dm-half {
+  background: linear-gradient(to right, var(--blue-text) 50%, var(--border) 50%);
+  border: 2px solid var(--blue-text);
+}
+.dm-empty {
+  background: var(--border);
+  border: 2px solid var(--border2);
+}
+
+/* Cards */
+.mod-trail-card {
   background: var(--bg2);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
+  border-radius: 13px;
+  padding: 11px 13px;
   cursor: pointer;
-  transition: border-color .15s, background .15s;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.mod-card:hover { background: var(--bg3); border-color: var(--border2); }
-.mod-card:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-.mod-card-disabled {
-  opacity: 0.5;
-  pointer-events: none;
-  cursor: default;
-  user-select: none;
-}
-.mod-card-top {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-.mod-card-icon { font-size: 26px; line-height: 1; flex-shrink: 0; margin-top: 2px; }
-.mod-card-info { flex: 1; min-width: 0; }
-.mod-card-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.4;
-  margin-bottom: 5px;
-}
-.mod-card-badge {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 2px 10px;
-  border-radius: 20px;
-  border: .5px solid;
-}
-.mod-card-avail {
-  background: var(--green-bg);
-  color: var(--green-text);
-  border-color: var(--green);
-}
-.mod-card-soon {
-  background: var(--bg3);
-  color: var(--text3);
-  border-color: var(--border2);
-}
-.mod-card-desc {
-  font-size: 12px;
-  color: var(--text2);
-  line-height: 1.65;
-}
-.mod-card-progress-wrap { display: flex; flex-direction: column; gap: 5px; }
-.mod-card-pbar {
-  height: 5px;
-  background: var(--bg3);
-  border-radius: 3px;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
   overflow: hidden;
 }
-.mod-card-pfill {
-  height: 100%;
-  background: var(--green);
-  border-radius: 3px;
-  transition: width .4s ease;
+.mod-trail-card:hover:not(.mod-trail-card--disabled) { border-color: var(--border2); }
+.mod-trail-card:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.mod-trail-card--current {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue-bg);
+  background: var(--blue-bg);
 }
-.mod-card-ptext { font-size: 12px; color: var(--text3); }
+[data-theme="dark"] .mod-trail-card--current {
+  background: linear-gradient(140deg, #1D2235 0%, #191C27 100%);
+}
+.mod-trail-card--disabled {
+  background: var(--bg3);
+  border-color: var(--border);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
-@media (min-width: 700px) {
-  .mod-list { display: grid; grid-template-columns: repeat(2, 1fr); }
+/* Row inside card */
+.mod-trail-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 4px;
 }
+.mod-trail-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+.mod-trail-icon-sm { font-size: 18px; }
+.mod-trail-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  flex: 1;
+  letter-spacing: -0.01em;
+}
+.mod-trail-current-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--blue-bg);
+  color: var(--blue-text);
+  padding: 2px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.mod-trail-soon {
+  display: inline-block;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  background: var(--bg3);
+  color: var(--text3);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.mod-trail-name-full {
+  font-size: 11.5px;
+  color: var(--text2);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.mod-trail-desc {
+  font-size: 11.5px;
+  color: var(--text2);
+  margin-bottom: 7px;
+  line-height: 1.45;
+  font-weight: 400;
+}
+.mod-trail-stats {
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 7px;
+}
+
+/* Progress bars */
+.mod-trail-pbar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.mod-trail-pbar--thin { height: 2px; margin-top: 5px; }
+.mod-trail-pfill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--green);
+  transition: width 0.4s ease;
+}
+
+/* CTA button */
+.mod-trail-cta {
+  width: 100%;
+  margin-top: 10px;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: opacity 0.15s;
+  letter-spacing: -0.01em;
+  position: relative;
+  z-index: 1;
+}
+.mod-trail-cta:hover { opacity: 0.85; }
+
+/* Compact card */
+.mod-trail-compact-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.mod-trail-compact-body { flex: 1; min-width: 0; }
+.mod-trail-compact-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.mod-trail-compact-meta { font-size: 11px; color: var(--text2); font-weight: 400; }
+.mod-trail-compact-pct { font-size: 12px; font-weight: 700; flex-shrink: 0; }
+
+/* Divider */
+.mod-trail-hr { height: 1px; background: var(--border); margin: 10px 0; }
+
+/* Revisão row */
+.mod-revisao {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 13px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.mod-revisao:hover { border-color: var(--border2); }
+.mod-revisao:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.mod-revisao-body { flex: 1; min-width: 0; }
+.mod-revisao-name  { font-size: 13px; font-weight: 600; color: var(--text); display: block; }
+.mod-revisao-count { font-size: 11px; color: var(--text2); }
+.mod-revisao-arrow { color: var(--text3); font-size: 18px; flex-shrink: 0; }
+
+/* Footer chips */
+.mod-chips { display: flex; gap: 8px; margin-top: 4px; }
+.mod-chip {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 10px 6px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  line-height: 1.4;
+  transition: border-color 0.15s, color 0.15s;
+}
+.mod-chip:hover { border-color: var(--border2); color: var(--text); }
+.mod-chip:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
 /* ── RANKING ─────────────────────────────────────────────────────── */
 :root { --accent: #1D9E75; }

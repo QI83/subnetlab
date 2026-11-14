@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SubnetLab · Módulos — 4 Propostas de Layout</title>
+  <style>
+    /* =====================================================
+       DESIGN TOKENS
+    ===================================================== */
+    :root[data-theme="dark"] {
+      --bg:          #0C0E16;
+      --surface:     #1A1D27;
+      --surface-2:   #20243380;
+      --border:      #2A2F42;
+      --border-soft: #232737;
+      --text:        #E8EAF2;
+      --muted:       #9BA3C4;
+      --faint:       #5A6080;
+      --accent:      #7AB8F5;
+      --accent-bg:   rgba(122,184,245,0.10);
+      --green:       #5EE0A8;
+      --green-bg:    rgba(94,224,168,0.10);
+      --amber:       #F5A623;
+      --disabled-bg: #13151E;
+      --disabled-text:#3E4466;
+      --tab-tray:    #12141E;
+      --analysis-bg: #12141E;
+      --phone-frame: #282C3E;
+      --phone-bg:    #0F1117;
+      --notch:       #0A0C12;
+      --shadow: 0 24px 72px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    :root[data-theme="light"] {
+      --bg:          #ECEEF8;
+      --surface:     #FFFFFF;
+      --surface-2:   rgba(240,242,252,0.8);
+      --border:      #CDD2E8;
+      --border-soft: #DDE1F0;
+      --text:        #1A1D2A;
+      --muted:       #5A6080;
+      --faint:       #A0A8C8;
+      --accent:      #2E7BC4;
+      --accent-bg:   rgba(46,123,196,0.08);
+      --green:       #1EA877;
+      --green-bg:    rgba(30,168,119,0.08);
+      --amber:       #C47A00;
+      --disabled-bg: #F3F5FC;
+      --disabled-text:#B0BAD8;
+      --tab-tray:    #E0E3F2;
+      --analysis-bg: #E5E8F4;
+      --phone-frame: #A0AACE;
+      --phone-bg:    #F4F5FB;
+      --notch:       #9098B8;
+      --shadow: 0 24px 72px rgba(60,70,120,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+    }
+
+    /* =====================================================
+       RESET / BASE
+    ===================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 32px 48px;
+      transition: background 0.25s, color 0.25s;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* =====================================================
+       HEADER
+    ===================================================== */
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .header-left h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .header-left h1 span { color: var(--muted); font-weight: 400; }
+
+    .header-left p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .header-left p strong { color: var(--text); }
+
+    .theme-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .theme-btn:hover { border-color: var(--accent); }
+
+    /* =====================================================
+       TABS
+    ===================================================== */
+    .tab-bar {
+      display: flex;
+      gap: 3px;
+      background: var(--tab-tray);
+      border: 1px solid var(--border);
+      padding: 4px;
+      border-radius: 13px;
+      width: fit-content;
+      margin-bottom: 32px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 9px 22px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--accent);
+      font-weight: 600;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+    }
+
+    .tab-shortcut {
+      font-size: 11px;
+      font-weight: 700;
+      opacity: 0.7;
+      margin-right: 4px;
+    }
+
+    /* =====================================================
+       PANELS
+    ===================================================== */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* =====================================================
+       LAYOUT: PHONE + ANALYSIS
+    ===================================================== */
+    .layout {
+      display: flex;
+      gap: 36px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    /* =====================================================
+       PHONE MOCKUP
+    ===================================================== */
+    .phone-wrap { flex-shrink: 0; }
+
+    .phone-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--faint);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .phone {
+      width: 390px;
+      height: 780px;
+      background: var(--phone-bg);
+      border-radius: 46px;
+      border: 2.5px solid var(--phone-frame);
+      overflow: hidden;
+      position: relative;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+
+    /* Dynamic island */
+    .phone::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 32px;
+      background: var(--notch);
+      border-radius: 20px;
+      z-index: 20;
+      transition: background 0.25s;
+    }
+
+    /* Home indicator */
+    .phone::after {
+      content: '';
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      z-index: 20;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 50px 22px 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .status-bar .status-right {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+    }
+
+    .phone-screen {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 10px 16px 24px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .phone-screen::-webkit-scrollbar { width: 3px; }
+    .phone-screen::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* =====================================================
+       SHARED PHONE COMPONENTS
+    ===================================================== */
+    .p-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .p-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .p-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent) 0%, #5880D8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .prog {
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .prog-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--green) 100%);
+    }
+
+    .soon-pill {
+      display: inline-block;
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      background: var(--border-soft);
+      color: var(--faint);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    /* =====================================================
+       PROPOSAL A — Compact Grid
+    ===================================================== */
+    .a-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .a-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 13px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.12s;
+      min-height: 120px;
+      position: relative;
+    }
+
+    .a-card:active { transform: scale(0.97); }
+
+    .a-card:hover:not(.a-disabled) {
+      border-color: var(--accent);
+    }
+
+    .a-card.a-current {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .a-card.a-current::after {
+      content: 'Atual';
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      background: var(--accent-bg);
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+
+    .a-card.a-disabled {
+      background: var(--disabled-bg);
+      border-color: var(--border-soft);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .a-card.a-full {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: center;
+      gap: 14px;
+      min-height: auto;
+      padding: 13px 14px;
+    }
+
+    .a-card.a-full .a-card-body { flex: 1; }
+
+    .a-icon { font-size: 26px; line-height: 1; }
+    .a-icon-sm { font-size: 22px; }
+    .a-code { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+    .a-code-sm { font-size: 13px; font-weight: 700; }
+    .a-count { font-size: 11px; color: var(--muted); }
+
+    .a-card.a-full .a-pct {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    /* =====================================================
+       PROPOSAL B — Trail
+    ===================================================== */
+    .b-trail {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .b-vline {
+      position: absolute;
+      left: 6px;
+      top: 14px;
+      /* height will be set to stop before last item dot */
+      width: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      transition: background 0.25s;
+      bottom: 60px;
+    }
+
+    .b-step {
+      position: relative;
+      margin-bottom: 9px;
+    }
+
+    .b-dot {
+      position: absolute;
+      left: -27px;
+      top: 14px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--border);
+      border: 2px solid var(--border);
+      z-index: 2;
+      transition: all 0.15s;
+    }
+
+    .b-dot.d-active {
+      width: 18px;
+      height: 18px;
+      left: -29px;
+      top: 12px;
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-bg);
+    }
+
+    .b-dot.d-disabled {
+      background: var(--disabled-bg);
+      border-color: var(--border-soft);
+    }
+
+    .b-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 13px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .b-item:hover:not(.b-disabled) { border-color: var(--accent); }
+
+    .b-item.b-active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .b-item.b-disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .b-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .b-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .b-meta { font-size: 11px; color: var(--muted); margin-bottom: 7px; }
+
+    .b-active-tag {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--accent-bg);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .b-sep {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--faint);
+      font-weight: 600;
+      text-align: center;
+      padding: 10px 0 8px;
+    }
+
+    .b-revisao {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .b-revisao:hover { border-color: var(--green); }
+
+    .b-revisao-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    /* =====================================================
+       PROPOSAL C — Hero + List
+    ===================================================== */
+    .c-hero {
+      border-radius: 16px;
+      border: 1px solid var(--accent);
+      padding: 16px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    /* Glow effect */
+    .c-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 80% 0%, rgba(122,184,245,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    :root[data-theme="dark"] .c-hero {
+      background: linear-gradient(140deg, #1D2235 0%, #191C27 100%);
+    }
+
+    .c-hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .c-hero-id {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .c-hero-emoji { font-size: 30px; line-height: 1; }
+
+    .c-hero-code {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .c-hero-name { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    .c-plan-badge {
+      flex-shrink: 0;
+      background: var(--green-bg);
+      border: 1px solid rgba(94,224,168,0.2);
+      color: var(--green);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .c-hero-stats {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 9px;
+    }
+
+    .c-hero-stats b { color: var(--text); }
+    .c-hero-stats .pct { color: var(--accent); font-weight: 700; }
+
+    .c-cta {
+      width: 100%;
+      margin-top: 12px;
+      background: var(--accent);
+      color: #0a0d14;
+      border: none;
+      border-radius: 11px;
+      padding: 11px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: opacity 0.15s;
+      letter-spacing: -0.01em;
+    }
+
+    .c-cta:hover { opacity: 0.88; }
+    .c-cta .arrow { font-size: 16px; }
+
+    .c-section-label {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--faint);
+      margin-bottom: 8px;
+    }
+
+    .c-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .c-row:hover:not(.c-row-disabled) { border-color: var(--accent); }
+
+    .c-row.c-row-disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .c-row-icon { font-size: 20px; flex-shrink: 0; }
+    .c-row-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .c-row-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .c-row-body { flex: 1; min-width: 0; }
+    .c-row-arrow { color: var(--faint); font-size: 18px; flex-shrink: 0; }
+
+    .c-chips {
+      display: flex;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .c-chip {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 10px 6px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      line-height: 1.4;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .c-chip:hover { border-color: var(--accent); color: var(--text); }
+
+    /* =====================================================
+       ANALYSIS COLUMN
+    ===================================================== */
+    .analysis {
+      flex: 1;
+      min-width: 260px;
+      max-width: 400px;
+    }
+
+    .analysis-header {
+      margin-bottom: 12px;
+    }
+
+    .analysis-header h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .height-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .h-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 11px;
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .h-ref {
+      font-size: 11px;
+      color: var(--faint);
+    }
+
+    .analysis-block {
+      background: var(--analysis-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .a-section {}
+
+    .a-section-label {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .a-section-label.lbl-pro  { color: var(--green); }
+    .a-section-label.lbl-con  { color: var(--amber); }
+    .a-section-label.lbl-who  { color: var(--accent); }
+
+    .a-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .a-list li {
+      font-size: 13px;
+      color: var(--muted);
+      padding-left: 16px;
+      position: relative;
+      line-height: 1.45;
+    }
+
+    .a-list.pros li::before { content: '+'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    .a-list.cons li::before { content: '–'; position: absolute; left: 0; color: var(--amber); font-weight: 700; }
+
+    .a-who-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border-soft);
+    }
+
+    /* =====================================================
+       PROPOSAL D — Trilha + Destaque
+    ===================================================== */
+
+    /* 2-line topbar */
+    .d-topbar { margin-bottom: 16px; }
+    .d-topbar-row1 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+    .d-topbar-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .d-topbar-sync {
+      font-size: 11px;
+      color: var(--green);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .d-topbar-row2 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .d-topbar-user {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .d-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .d-taction {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .d-taction-icon { font-size: 15px; cursor: pointer; opacity: 0.65; }
+
+    /* Section header */
+    .d-sec-hdr {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-weight: 800;
+      color: var(--faint);
+      margin-bottom: 2px;
+    }
+    .d-sec-sub {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-bottom: 13px;
+    }
+
+    /* Trail container */
+    .d-trail {
+      position: relative;
+      padding-left: 30px;
+      margin-bottom: 0;
+    }
+    .d-vline {
+      position: absolute;
+      left: 7px;
+      top: 18px;
+      width: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      bottom: 28px;
+      transition: background 0.25s;
+    }
+    .d-step { position: relative; margin-bottom: 9px; }
+    .d-step:last-child { margin-bottom: 0; }
+
+    /* Markers */
+    .d-marker {
+      position: absolute;
+      left: -27px;
+      top: 14px;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      z-index: 2;
+      transition: all 0.15s;
+    }
+    .d-marker.dm-disabled {
+      background: var(--disabled-bg);
+      border: 2px solid var(--border-soft);
+    }
+    .d-marker.dm-current {
+      width: 18px;
+      height: 18px;
+      left: -29px;
+      top: 12px;
+      background: var(--accent);
+      border: 2.5px solid var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-bg);
+    }
+    .d-marker.dm-half {
+      background: linear-gradient(to right, var(--accent) 50%, var(--border) 50%);
+      border: 2px solid var(--accent);
+    }
+    .d-marker.dm-done {
+      background: var(--green);
+      border: 2px solid var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 800;
+      color: #0C0E16;
+    }
+
+    /* Cards */
+    .d-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 11px 13px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .d-card:hover:not(.d-card--disabled) { border-color: var(--accent); }
+    .d-card--current {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-bg);
+      background: var(--accent-bg);
+    }
+    :root[data-theme="dark"] .d-card--current {
+      background: linear-gradient(140deg, #1D2235 0%, #191C27 100%);
+    }
+    .d-card--current::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 100% 0%, rgba(122,184,245,0.09) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .d-card--disabled {
+      background: var(--disabled-bg);
+      border-color: var(--border-soft);
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Header row inside card */
+    .d-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 4px;
+    }
+    .d-icon     { font-size: 20px; line-height: 1; flex-shrink: 0; }
+    .d-icon-sm  { font-size: 18px; }
+    .d-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text);
+      flex: 1;
+      letter-spacing: -0.01em;
+    }
+    .d-current-tag {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--accent-bg);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .d-name-full {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .d-stats {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    /* Compact row (non-current items) */
+    .d-compact-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .d-compact-body { flex: 1; min-width: 0; }
+    .d-compact-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .d-compact-meta { font-size: 11px; color: var(--muted); font-weight: 400; }
+    .d-thin-prog { height: 2px !important; margin-top: 5px; }
+    .d-compact-pct { font-size: 12px; font-weight: 700; flex-shrink: 0; }
+
+    /* CTA button */
+    .d-cta {
+      width: 100%;
+      margin-top: 10px;
+      background: var(--accent);
+      color: #0a0d14;
+      border: none;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: opacity 0.15s;
+      letter-spacing: -0.01em;
+      position: relative;
+      z-index: 1;
+    }
+    .d-cta:hover { opacity: 0.88; }
+    .d-cta-arrow { font-size: 16px; }
+
+    /* Divider */
+    .d-hr {
+      height: 1px;
+      background: var(--border-soft);
+      margin: 10px 0;
+    }
+
+    /* Revisão row */
+    .d-revisao {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .d-revisao:hover { border-color: var(--green); }
+    .d-revisao-body { flex: 1; min-width: 0; }
+    .d-revisao-name  { font-size: 13px; font-weight: 600; color: var(--text); display: block; }
+    .d-revisao-count { font-size: 11px; color: var(--muted); }
+    .d-revisao-arrow { color: var(--faint); font-size: 18px; }
+
+    /* Footer chips */
+    .d-chips {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .d-chip {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 10px 6px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      line-height: 1.4;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .d-chip:hover { border-color: var(--accent); color: var(--text); }
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+    @media (max-width: 860px) {
+      body { padding: 16px; }
+
+      .tab-btn { padding: 8px 14px; font-size: 13px; }
+
+      .layout {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .phone { transform-origin: top center; }
+
+      .analysis { max-width: 390px; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================= HEADER ======================= -->
+  <div class="header">
+    <div class="header-left">
+      <h1>SubnetLab · Módulos <span>— 4 propostas</span></h1>
+      <p>Escolha um layout. Dados reais: <strong>Caique Reis · último módulo SRWE</strong></p>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">
+      <span id="ti">☀️</span>
+      <span id="tl">Modo claro</span>
+    </button>
+  </div>
+
+  <!-- ======================= TABS ======================= -->
+  <div class="tab-bar" role="tablist">
+    <button class="tab-btn active" onclick="go('a',this)" role="tab">
+      <span class="tab-shortcut">[A]</span> Grade compacta
+    </button>
+    <button class="tab-btn" onclick="go('b',this)" role="tab">
+      <span class="tab-shortcut">[B]</span> Trilha
+    </button>
+    <button class="tab-btn" onclick="go('c',this)" role="tab">
+      <span class="tab-shortcut">[C]</span> Destaque + lista
+    </button>
+    <button class="tab-btn" onclick="go('d',this)" role="tab">
+      <span class="tab-shortcut">[D]</span> Trilha + Destaque
+    </button>
+  </div>
+
+  <!-- ======================================================
+       PANEL A — Grade compacta
+  ====================================================== -->
+  <div id="p-a" class="panel active">
+    <div class="layout">
+
+      <!-- Phone -->
+      <div class="phone-wrap">
+        <div class="phone-label">Mockup 390 × 780 px</div>
+        <div class="phone">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-right">
+              <span>●●●</span>
+              <span>WiFi</span>
+              <span>🔋</span>
+            </div>
+          </div>
+          <div class="phone-screen">
+
+            <div class="p-topbar">
+              <div>
+                <div class="p-title">Olá, Caique 👋</div>
+                <div class="p-subtitle">Qual módulo hoje?</div>
+              </div>
+              <div class="avatar">CR</div>
+            </div>
+
+            <div class="a-grid">
+
+              <!-- ITN — disabled -->
+              <div class="a-card a-disabled">
+                <div class="a-icon">🌐</div>
+                <div class="a-code">ITN</div>
+                <span class="soon-pill">Em breve</span>
+              </div>
+
+              <!-- SRWE — current -->
+              <div class="a-card a-current">
+                <div class="a-icon">🔀</div>
+                <div class="a-code">SRWE</div>
+                <div class="a-count">60 questões</div>
+                <div class="prog">
+                  <div class="prog-fill" style="width:7%"></div>
+                </div>
+              </div>
+
+              <!-- ENSA -->
+              <div class="a-card">
+                <div class="a-icon">🏢</div>
+                <div class="a-code">ENSA</div>
+                <div class="a-count">55 questões</div>
+                <div class="prog">
+                  <div class="prog-fill" style="width:20%"></div>
+                </div>
+              </div>
+
+              <!-- Certif -->
+              <div class="a-card">
+                <div class="a-icon">🎓</div>
+                <div class="a-code">CERT</div>
+                <div class="a-count">90 questões</div>
+                <div class="prog">
+                  <div class="prog-fill" style="width:3%"></div>
+                </div>
+              </div>
+
+              <!-- Revisão — full width -->
+              <div class="a-card a-full">
+                <div class="a-icon-sm">🎯</div>
+                <div class="a-card-body">
+                  <div class="a-code-sm">REVISÃO COMPLETA</div>
+                  <div class="a-count">320 questões · 26 vistas</div>
+                  <div class="prog" style="margin-top:5px;">
+                    <div class="prog-fill" style="width:8%"></div>
+                  </div>
+                </div>
+                <div class="a-pct">8%</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis -->
+      <div class="analysis">
+        <div class="analysis-header">
+          <h2>[A] Grade compacta</h2>
+          <div class="height-row">
+            <span class="h-badge">📏 ~440 px &nbsp;·&nbsp; 0.56 telas</span>
+            <span class="h-ref">Atual: 1216 px · 1,44 telas</span>
+          </div>
+        </div>
+        <div class="analysis-block">
+          <div class="a-section">
+            <div class="a-section-label lbl-pro">Prós</div>
+            <ul class="a-list pros">
+              <li>Cabe inteiramente em uma tela — sem rolar, tudo visível de uma vez</li>
+              <li>Varredura visual rápida; cards idênticos criam ritmo uniforme e previsível</li>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="a-section">
+            <div class="a-section-label lbl-con">Contras</div>
+            <ul class="a-list cons">
+              <li>Siglas sem nome completo — alunos novos podem não reconhecer ITN, ENSA</li>
+              <li>Nenhum módulo se destaca como "ponto atual"; falta senso de jornada</li>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="a-section">
+            <div class="a-section-label lbl-who">Para quem funciona melhor</div>
+            <div class="a-who-text">Usuário já familiarizado com os módulos que quer acesso direto e rápido — funciona como um menu de atalhos, não como um guia de jornada.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================
+       PANEL B — Trilha
+  ====================================================== -->
+  <div id="p-b" class="panel">
+    <div class="layout">
+
+      <!-- Phone -->
+      <div class="phone-wrap">
+        <div class="phone-label">Mockup 390 × 780 px</div>
+        <div class="phone">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-right">
+              <span>●●●</span>
+              <span>WiFi</span>
+              <span>🔋</span>
+            </div>
+          </div>
+          <div class="phone-screen">
+
+            <div class="p-topbar">
+              <div>
+                <div class="p-title">Jornada CCNA</div>
+                <div class="p-subtitle">Caique Reis · 4 módulos</div>
+              </div>
+              <div class="avatar">CR</div>
+            </div>
+
+            <div class="b-trail">
+              <div class="b-vline"></div>
+
+              <!-- ITN -->
+              <div class="b-step">
+                <div class="b-dot d-disabled"></div>
+                <div class="b-item b-disabled">
+                  <div class="b-row">
+                    <div class="b-name">🌐 ITN</div>
+                    <span class="soon-pill">Em breve</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--disabled-text);">Introduction to Networks</div>
+                </div>
+              </div>
+
+              <!-- SRWE — active -->
+              <div class="b-step">
+                <div class="b-dot d-active"></div>
+                <div class="b-item b-active">
+                  <div class="b-row">
+                    <div class="b-name">🔀 SRWE</div>
+                    <span class="b-active-tag">Você está aqui</span>
+                  </div>
+                  <div class="b-meta">60 questões · 4 vistas · <span style="color:var(--accent);font-weight:700;">7%</span></div>
+                  <div class="prog"><div class="prog-fill" style="width:7%"></div></div>
+                </div>
+              </div>
+
+              <!-- ENSA -->
+              <div class="b-step">
+                <div class="b-dot"></div>
+                <div class="b-item">
+                  <div class="b-row">
+                    <div class="b-name">🏢 ENSA</div>
+                    <span style="font-size:11px;color:var(--green);font-weight:700;">20%</span>
+                  </div>
+                  <div class="b-meta">55 questões · 11 vistas</div>
+                  <div class="prog"><div class="prog-fill" style="width:20%"></div></div>
+                </div>
+              </div>
+
+              <!-- Certif -->
+              <div class="b-step">
+                <div class="b-dot"></div>
+                <div class="b-item">
+                  <div class="b-row">
+                    <div class="b-name">🎓 Certificação</div>
+                    <span style="font-size:11px;color:var(--muted);font-weight:600;">3%</span>
+                  </div>
+                  <div class="b-meta">90 questões · 3 vistas</div>
+                  <div class="prog"><div class="prog-fill" style="width:3%"></div></div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Revisão separada -->
+            <div class="b-sep">— Revisão geral —</div>
+            <div class="b-revisao">
+              <div class="b-revisao-row">
+                <div class="b-name" style="font-size:14px;">🎯 Revisão Completa</div>
+                <span style="font-size:12px;color:var(--green);font-weight:700;">8%</span>
+              </div>
+              <div class="b-meta" style="margin-bottom:8px;">320 questões · 26 vistas</div>
+              <div class="prog"><div class="prog-fill" style="width:8%"></div></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis -->
+      <div class="analysis">
+        <div class="analysis-header">
+          <h2>[B] Trilha</h2>
+          <div class="height-row">
+            <span class="h-badge">📏 ~610 px &nbsp;·&nbsp; 0.78 telas</span>
+            <span class="h-ref">Atual: 1216 px · 1,44 telas</span>
+          </div>
+        </div>
+        <div class="analysis-block">
+          <div class="a-section">
+            <div class="a-section-label lbl-pro">Prós</div>
+            <ul class="a-list pros">
+              <li>Comunica jornada e progressão — o aluno vê exatamente onde está no CCNA</li>
+              <li>Nomes completos visíveis; destaque "Você está aqui" reduz decisão ao abrir</li>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="a-section">
+            <div class="a-section-label lbl-con">Contras</div>
+            <ul class="a-list cons">
+              <li>Requer scroll em telas menores; mais longo que a grade</li>
+              <li>Ordem linear pode parecer prescritiva para quem estuda fora de sequência</li>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="a-section">
+            <div class="a-section-label lbl-who">Para quem funciona melhor</div>
+            <div class="a-who-text">Usuário em início de jornada que precisa de contexto sobre o caminho à frente — especialmente quem segue o currículo CCNA em ordem.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================
+       PANEL C — Destaque + Lista
+  ====================================================== -->
+  <div id="p-c" class="panel">
+    <div class="layout">
+
+      <!-- Phone -->
+      <div class="phone-wrap">
+        <div class="phone-label">Mockup 390 × 780 px</div>
+        <div class="phone">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-right">
+              <span>●●●</span>
+              <span>WiFi</span>
+              <span>🔋</span>
+            </div>
+          </div>
+          <div class="phone-screen">
+
+            <div class="p-topbar">
+              <div>
+                <div class="p-title">Módulos</div>
+                <div class="p-subtitle">Caique Reis</div>
+              </div>
+              <div class="avatar">CR</div>
+            </div>
+
+            <!-- Hero card SRWE -->
+            <div class="c-hero">
+              <div class="c-hero-top">
+                <div class="c-hero-id">
+                  <div class="c-hero-emoji">🔀</div>
+                  <div>
+                    <div class="c-hero-code">SRWE</div>
+                    <div class="c-hero-name">Switching, Routing & Wireless</div>
+                  </div>
+                </div>
+                <div class="c-plan-badge">📋 25 hoje</div>
+              </div>
+              <div class="c-hero-stats">
+                <b>4</b> de 60 questões &nbsp;·&nbsp; 4 vistas &nbsp;·&nbsp; <span class="pct">7%</span>
+              </div>
+              <div class="prog"><div class="prog-fill" style="width:7%"></div></div>
+              <button class="c-cta">Continuar <span class="arrow">→</span></button>
+            </div>
+
+            <!-- Other modules -->
+            <div class="c-section-label">Outros módulos</div>
+
+            <!-- ITN disabled -->
+            <div class="c-row c-row-disabled">
+              <div class="c-row-icon">🌐</div>
+              <div class="c-row-body">
+                <div class="c-row-name">ITN</div>
+                <div class="c-row-meta">Introduction to Networks</div>
+              </div>
+              <span class="soon-pill">Em breve</span>
+            </div>
+
+            <!-- ENSA -->
+            <div class="c-row">
+              <div class="c-row-icon">🏢</div>
+              <div class="c-row-body">
+                <div class="c-row-name">ENSA</div>
+                <div class="c-row-meta">55 questões · 20%</div>
+              </div>
+              <span class="c-row-arrow">›</span>
+            </div>
+
+            <!-- Certif -->
+            <div class="c-row">
+              <div class="c-row-icon">🎓</div>
+              <div class="c-row-body">
+                <div class="c-row-name">Certificação</div>
+                <div class="c-row-meta">90 questões · 3%</div>
+              </div>
+              <span class="c-row-arrow">›</span>
+            </div>
+
+            <!-- Revisão -->
+            <div class="c-row">
+              <div class="c-row-icon">🎯</div>
+              <div class="c-row-body">
+                <div class="c-row-name">Revisão Completa</div>
+                <div class="c-row-meta">320 questões · 8%</div>
+              </div>
+              <span class="c-row-arrow">›</span>
+            </div>
+
+            <!-- Footer chips -->
+            <div class="c-chips">
+              <div class="c-chip">🎯<br>Revisão<br>rápida</div>
+              <div class="c-chip">🏆<br>Ranking</div>
+              <div class="c-chip">📖<br>Guia</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis -->
+      <div class="analysis">
+        <div class="analysis-header">
+          <h2>[C] Destaque + lista</h2>
+          <div class="height-row">
+            <span class="h-badge">📏 ~700 px &nbsp;·&nbsp; 0.90 telas</span>
+            <span class="h-ref">Atual: 1216 px · 1,44 telas</span>
+          </div>
+        </div>
+        <div class="analysis-block">
+          <div class="a-section">
+            <div class="a-section-label lbl-pro">Prós</div>
+            <ul class="a-list pros">
+              <li>CTA "Continuar" imediato — reduz a fricção no fluxo mais frequente a zero cliques extras</li>
+              <li>Hierarquia clara: o módulo atual domina visualmente; o resto é acessório</li>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="a-section">
+            <div class="a-section-label lbl-con">Contras</div>
+            <ul class="a-list cons">
+              <li>Ir direto para ENSA exige mais toques do que na grade ou na trilha</li>
+              <li>Card hero ocupa ~40% da tela — pode parecer excessivo com progresso muito baixo</li>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="a-section">
+            <div class="a-section-label lbl-who">Para quem funciona melhor</div>
+            <div class="a-who-text">Usuário com rotina estabelecida que abre o app para "continuar de onde parou" — a ação principal está a um toque, sem pensar.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================
+       PANEL D — Trilha + Destaque
+  ====================================================== -->
+  <div id="p-d" class="panel">
+    <div class="layout">
+
+      <!-- Phone -->
+      <div class="phone-wrap">
+        <div class="phone-label">Mockup 390 × 780 px</div>
+        <div class="phone">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-right">
+              <span>●●●</span>
+              <span>WiFi</span>
+              <span>🔋</span>
+            </div>
+          </div>
+          <div class="phone-screen">
+
+            <!-- 2-line topbar -->
+            <div class="d-topbar">
+              <div class="d-topbar-row1">
+                <span class="d-topbar-title">Módulos</span>
+                <span class="d-topbar-sync">☁️ Sincronizado</span>
+              </div>
+              <div class="d-topbar-row2">
+                <span class="d-topbar-user">👤 Caique Reis</span>
+                <div class="d-topbar-actions">
+                  <span class="d-taction">Alterar</span>
+                  <span class="d-taction-icon">🔑</span>
+                  <span class="d-taction-icon">🏆</span>
+                  <span class="d-taction-icon">❓</span>
+                  <span class="d-taction-icon">☀️</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section header -->
+            <div class="d-sec-hdr">Sua Trilha</div>
+            <div class="d-sec-sub">Do ITN à certificação 200-301</div>
+
+            <!-- Trail -->
+            <div class="d-trail">
+              <div class="d-vline"></div>
+
+              <!-- ITN — desabilitado (Em breve) -->
+              <div class="d-step">
+                <div class="d-marker dm-disabled"></div>
+                <div class="d-card d-card--disabled">
+                  <div class="d-row">
+                    <span class="d-icon">🌐</span>
+                    <span class="d-name">ITN</span>
+                    <span class="soon-pill">Em breve</span>
+                  </div>
+                  <div class="d-name-full">Introduction to Networks</div>
+                </div>
+              </div>
+
+              <!-- SRWE — atual (expandido) -->
+              <div class="d-step">
+                <div class="d-marker dm-current"></div>
+                <div class="d-card d-card--current">
+                  <div class="d-row">
+                    <span class="d-icon">🔀</span>
+                    <span class="d-name">SRWE</span>
+                    <span class="d-current-tag">Atual</span>
+                  </div>
+                  <div class="d-name-full" style="color:var(--text);font-weight:500;">Switching, Routing &amp; Wireless Essentials</div>
+                  <div class="d-stats">4 de 60 questões · <span style="color:var(--accent);font-weight:700;">7%</span></div>
+                  <div class="prog" style="margin-bottom:0;">
+                    <div class="prog-fill" style="width:7%"></div>
+                  </div>
+                  <button class="d-cta">Continuar <span class="d-cta-arrow">→</span></button>
+                </div>
+              </div>
+
+              <!-- ENSA — parcial (20%) -->
+              <div class="d-step">
+                <div class="d-marker dm-half"></div>
+                <div class="d-card">
+                  <div class="d-compact-row">
+                    <span class="d-icon d-icon-sm">🏢</span>
+                    <div class="d-compact-body">
+                      <div class="d-compact-name">ENSA <span class="d-compact-meta">· 11 de 55 questões</span></div>
+                      <div class="prog d-thin-prog">
+                        <div class="prog-fill" style="width:20%"></div>
+                      </div>
+                    </div>
+                    <span class="d-compact-pct" style="color:var(--green);">20%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Certif — parcial (3%) -->
+              <div class="d-step">
+                <div class="d-marker dm-half"></div>
+                <div class="d-card">
+                  <div class="d-compact-row">
+                    <span class="d-icon d-icon-sm">🎓</span>
+                    <div class="d-compact-body">
+                      <div class="d-compact-name">Certif. 200-301 <span class="d-compact-meta">· 3 de 90 questões</span></div>
+                      <div class="prog d-thin-prog">
+                        <div class="prog-fill" style="width:3%"></div>
+                      </div>
+                    </div>
+                    <span class="d-compact-pct" style="color:var(--muted);">3%</span>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /d-trail -->
+
+            <!-- Separador + Revisão -->
+            <div class="d-hr" style="margin-top:12px;"></div>
+            <div class="d-revisao">
+              <span class="d-icon d-icon-sm">🎯</span>
+              <div class="d-revisao-body">
+                <span class="d-revisao-name">Revisão completa</span>
+                <span class="d-revisao-count">26 de 320 questões · 8%</span>
+              </div>
+              <span class="d-revisao-arrow">›</span>
+            </div>
+            <div class="d-hr"></div>
+
+            <!-- Chips de atalho -->
+            <div class="d-chips">
+              <div class="d-chip">🏆<br>Ranking</div>
+              <div class="d-chip">📖<br>Guia</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis -->
+      <div class="analysis">
+        <div class="analysis-header">
+          <h2>[D] Trilha + Destaque</h2>
+          <div class="height-row">
+            <span class="h-badge">📏 ~720 px &nbsp;·&nbsp; 0.92 telas</span>
+            <span class="h-ref">Atual: 1216 px · 1,44 telas</span>
+          </div>
+        </div>
+        <div class="analysis-block">
+          <div class="a-section">
+            <div class="a-section-label lbl-pro">Prós</div>
+            <ul class="a-list pros">
+              <li>Mapa da jornada <em>e</em> ação no mesmo lugar — o aluno vê onde está e tem o botão na cara, sem trocar de tela</li>
+              <li>Escala bem quando ITN entrar: só mais uma linha na trilha, layout não quebra</li>
+              <li>Ordem dos cursos fica explícita — elimina a dúvida "o que estudo depois de SRWE?"</li>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="a-section">
+            <div class="a-section-label lbl-con">Contras</div>
+            <ul class="a-list cons">
+              <li>Mais alta que a grade (A) — pede um pequeno scroll quando todos os módulos estão visíveis</li>
+              <li>Com 5 itens ainda há rolagem em telas com menos de 700 px de altura útil</li>
+            </ul>
+          </div>
+          <div class="divider"></div>
+          <div class="a-section">
+            <div class="a-section-label lbl-who">Para quem funciona melhor</div>
+            <div class="a-who-text">Aluno no meio do curso que quer continuar sem pensar — vê a jornada completa <em>e</em> o botão de continuar de uma vez, sem perder o contexto de onde está.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================
+       SCRIPT
+  ====================================================== -->
+  <script>
+    function go(id, btn) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('p-' + id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const dark = html.dataset.theme === 'dark';
+      html.dataset.theme = dark ? 'light' : 'dark';
+      document.getElementById('ti').textContent = dark ? '🌙' : '☀️';
+      document.getElementById('tl').textContent = dark ? 'Modo escuro' : 'Modo claro';
+    }
+
+    /* Keyboard shortcuts: press A, B, C */
+    document.addEventListener('keydown', e => {
+      const map = { a: 0, b: 1, c: 2, d: 3 };
+      const k = e.key.toLowerCase();
+      if (k in map && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const btns = document.querySelectorAll('.tab-btn');
+        btns[map[k]].click();
+      }
+      if (k === 't') toggleTheme();
+    });
+
+    /* Warn if any panel content overflows 390px */
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.phone-screen').forEach((el, i) => {
+        if (el.scrollWidth > 390) {
+          console.warn(`Panel ${['A','B','C','D'][i]}: scrollWidth=${el.scrollWidth}px > 390px`);
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

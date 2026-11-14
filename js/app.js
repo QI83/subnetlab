@@ -536,7 +536,7 @@ function updateSyncIndicator() {
   const el = document.getElementById('sync-status');
   if (!el) return;
   if (!syncStatus)                   el.textContent = '';
-  else if (syncStatus === 'syncing') el.textContent = '☁️ …';
+  else if (syncStatus === 'syncing') el.textContent = '☁️ Sincronizando…';
   else if (syncStatus === 'ok')      el.textContent = '☁️ Sincronizado';
   else                               el.textContent = '☁️ Offline';
 }
@@ -1138,108 +1138,164 @@ function bindSplash() {
 
 // ── TELA DE MÓDULOS ───────────────────────────────────────────────────
 function renderModules() {
-  const name = getStudent() || 'Estudante';
+  const name     = getStudent() || 'Estudante';
   const availMods = availableMods();
+  const ini      = iniciais(name);
+  const cor      = corDoNome(name);
 
-  const card = (def) => {
-    const isAvail = def.mod === 0 ? ALL.length > 0 : availMods.includes(def.mod);
-    const prog = modProgress(def.mod);
+  // Trilha: módulos 1→4 em ordem fixa
+  const trailDefs = MOD_DEFS.filter(d => d.mod !== 0).sort((a, b) => a.mod - b.mod);
+
+  // Aluno novo nunca escolheu módulo (S.selectedMod === 0). Sem isto, NENHUM item
+  // ficaria expandido: a tela perde o Continuar e a descrição justo no primeiro acesso.
+  // Nesse caso destacamos o primeiro curso disponível como sugestão de partida.
+  const disponiveis = trailDefs.filter(d => availMods.includes(d.mod));
+  const atualMod    = S.selectedMod || (disponiveis[0] ? disponiveis[0].mod : 0);
+  const estreia     = !S.selectedMod;   // destaque é sugestão, não histórico
+
+  const trailItems = trailDefs.map(def => {
+    const isAvail   = availMods.includes(def.mod);
+    const isCurrent = def.mod === atualMod;
+    const { seen, total, pct } = modProgress(def.mod);
+
+    let markerClass, markerInner = '';
+    if (!isAvail)        { markerClass = 'dm-disabled'; }
+    else if (isCurrent)  { markerClass = 'dm-current'; }
+    else if (pct >= 80)  { markerClass = 'dm-done'; markerInner = '✓'; }
+    else if (pct > 0)    { markerClass = 'dm-half'; }
+    else                 { markerClass = 'dm-empty'; }
 
     if (!isAvail) {
-      return `<div class="mod-card mod-card-disabled" aria-disabled="true" tabindex="-1">
-        <div class="mod-card-top">
-          <span class="mod-card-icon">${def.icon}</span>
-          <div class="mod-card-info">
-            <div class="mod-card-title">CCNA v7: ${esc(def.name)}</div>
-            <span class="mod-card-badge mod-card-soon">Em breve</span>
+      return `<div class="mod-trail-step">
+        <div class="mod-trail-marker ${markerClass}">${markerInner}</div>
+        <div class="mod-trail-card mod-trail-card--disabled" aria-disabled="true">
+          <div class="mod-trail-row">
+            <span class="mod-trail-icon">${def.icon}</span>
+            <span class="mod-trail-name">${esc(def.abbr)}</span>
+            <span class="mod-trail-soon">Em breve</span>
           </div>
+          <div class="mod-trail-name-full">${esc(def.name)}</div>
         </div>
-        <p class="mod-card-desc">${esc(def.desc)}</p>
       </div>`;
     }
 
-    const { seen, total, pct } = prog;
-    return `<div class="mod-card" data-mod="${def.mod}" role="button" tabindex="0" aria-label="${esc('CCNA v7: ' + def.name)}">
-      <div class="mod-card-top">
-        <span class="mod-card-icon">${def.icon}</span>
-        <div class="mod-card-info">
-          <div class="mod-card-title">CCNA v7: ${esc(def.name)}</div>
-          <span class="mod-card-badge mod-card-avail">✓ Disponível · ${total} questões</span>
+    if (isCurrent) {
+      return `<div class="mod-trail-step">
+        <div class="mod-trail-marker ${markerClass}">${markerInner}</div>
+        <div class="mod-trail-card mod-trail-card--current" data-mod="${def.mod}" role="button" tabindex="0" aria-label="${esc(def.name)}">
+          <div class="mod-trail-row">
+            <span class="mod-trail-icon">${def.icon}</span>
+            <span class="mod-trail-name">${esc(def.abbr)}</span>
+            <span class="mod-trail-current-tag">${estreia ? 'Comece aqui' : 'Atual'}</span>
+          </div>
+          <div class="mod-trail-name-full">${esc(def.name)}</div>
+          <div class="mod-trail-stats">${seen} de ${total} questões · <span style="color:var(--blue-text);font-weight:700">${pct}%</span></div>
+          <div class="mod-trail-pbar"><div class="mod-trail-pfill" style="width:${pct}%"></div></div>
+          <button class="mod-trail-cta">Continuar <span>→</span></button>
         </div>
-      </div>
-      <p class="mod-card-desc">${esc(def.desc)}</p>
-      <div class="mod-card-progress-wrap">
-        <div class="mod-card-pbar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
-          <div class="mod-card-pfill" style="width:${pct}%"></div>
+      </div>`;
+    }
+
+    const pctColor = pct >= 80 ? 'var(--green-text)' : pct > 0 ? 'var(--blue-text)' : 'var(--text3)';
+    return `<div class="mod-trail-step">
+      <div class="mod-trail-marker ${markerClass}">${markerInner}</div>
+      <div class="mod-trail-card" data-mod="${def.mod}" role="button" tabindex="0" aria-label="${esc(def.name)}">
+        <div class="mod-trail-compact-row">
+          <span class="mod-trail-icon mod-trail-icon-sm">${def.icon}</span>
+          <div class="mod-trail-compact-body">
+            <div class="mod-trail-compact-name">${esc(def.abbr)} <span class="mod-trail-compact-meta">· ${seen} de ${total} questões</span></div>
+            <div class="mod-trail-pbar mod-trail-pbar--thin"><div class="mod-trail-pfill" style="width:${pct}%"></div></div>
+          </div>
+          <span class="mod-trail-compact-pct" style="color:${pctColor}">${pct}%</span>
         </div>
-        <span class="mod-card-ptext">${seen} de ${total} questões vistas · ${pct}%</span>
       </div>
     </div>`;
-  };
+  }).join('');
 
-  const byMod = m => MOD_DEFS.find(d => d.mod === m);
-  const GRUPOS = [
-    { titulo: 'Módulos do curso',   sub: 'Conteúdo de cada curso do CCNA v7.',   mods: [1, 2, 3] },
-    { titulo: 'Revisão completa',   sub: 'Todo o banco de questões, sem filtro de curso.', mods: [0] },
-    { titulo: 'Certificação',       sub: 'Exame prático 200-301.',                mods: [4] },
-  ];
-
-  const secoes = GRUPOS.map(g => `
-    <div class="mod-section">
-      <p class="sec-hdr" style="margin-bottom:2px">${g.titulo}</p>
-      <p class="mod-section-sub">${g.sub}</p>
-      <div class="mod-list">${g.mods.map(m => byMod(m)).filter(Boolean).map(card).join('')}</div>
-    </div>`).join('');
+  const revProg = modProgress(0);
 
   return `<div class="modules-wrap">
-    <div class="modules-topbar">
-      <div class="modules-title-row">
-        <h1 class="modules-h">Módulos</h1>
-        <span id="sync-status" style="font-size:11px;color:var(--text3)"></span>
+    <div class="mod-topbar">
+      <div class="mod-topbar-row1">
+        <span class="mod-topbar-title">SubnetLab</span>
+        <span id="sync-status" class="mod-topbar-sync"></span>
       </div>
-      <div class="modules-student">
-        <span>👤 ${esc(name)}</span>
-        <button class="btn" id="modChangeName" style="padding:3px 10px;font-size:11px" aria-label="Alterar nome">Alterar</button>
-        <button class="btn" id="modMyCode" style="padding:3px 10px;font-size:11px;min-width:44px;min-height:44px" title="Meu código de acesso" aria-label="Meu código de acesso">🔑</button>
-        <button class="btn" id="modRanking" style="padding:3px 10px;font-size:11px;min-width:44px;min-height:44px" title="Ranking da turma" aria-label="Ranking da turma">🏆</button>
-        <button class="btn" id="modGuide" style="padding:3px 10px;font-size:11px;min-width:44px;min-height:44px" title="Como funciona" aria-label="Como funciona">❓</button>
-        <button class="icon-btn theme-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">${darkMode ? '☀️' : '🌙'}</button>
+      <div class="mod-topbar-row2">
+        <button class="mod-profile" id="modProfile" aria-label="Meu perfil">
+          <span class="mod-avatar" style="background:${esc(cor)}">${esc(ini)}</span>
+          <span class="mod-profile-name">${esc(name)}</span>
+        </button>
+        <div class="mod-topbar-actions">
+          <button class="icon-btn" id="modRanking" title="Ranking da turma" aria-label="Ranking da turma">🏆</button>
+          <button class="icon-btn" id="modGuide" title="Como funciona" aria-label="Como funciona">❓</button>
+          <button class="icon-btn theme-btn" title="Alternar tema" aria-label="Alternar tema">${darkMode ? '☀️' : '🌙'}</button>
+        </div>
       </div>
     </div>
-    <p class="modules-sub">Selecione o módulo do curso que está cursando.</p>
-    ${secoes}
+
+    <div class="mod-sec-hdr">Sua Trilha</div>
+    <div class="mod-sec-sub">Do ITN à certificação 200-301</div>
+
+    <div class="mod-trail">
+      <div class="mod-trail-vline"></div>
+      ${trailItems}
+    </div>
+
+    <div class="mod-trail-hr" style="margin-top:12px"></div>
+    <div class="mod-revisao" data-mod="0" role="button" tabindex="0" aria-label="Revisão completa">
+      <span class="mod-trail-icon mod-trail-icon-sm">🎯</span>
+      <div class="mod-revisao-body">
+        <span class="mod-revisao-name">Revisão completa</span>
+        <span class="mod-revisao-count">${revProg.seen} de ${revProg.total} questões · ${revProg.pct}%</span>
+      </div>
+      <span class="mod-revisao-arrow">›</span>
+    </div>
+    <div class="mod-trail-hr"></div>
+
+    <div class="mod-chips">
+      <div class="mod-chip" id="modRankingChip" role="button" tabindex="0">🏆<br>Ranking</div>
+      <div class="mod-chip" id="modGuideChip" role="button" tabindex="0">📖<br>Guia</div>
+    </div>
   </div>`;
 }
 
 function bindModules() {
-  // Garante que TODO aluno tenha código, inclusive quem já usava o app antes desta
-  // funcionalidade existir e por isso nunca passa pela tela de login.
   ensureCode();
   if (localStorage.getItem('sl_code_seen') === '') showCodigoModal(true);
   document.querySelector('.theme-btn')?.addEventListener('click', toggleTheme);
 
-  document.querySelectorAll('.mod-card[data-mod]').forEach(card => {
-    const activate = () => {
-      const m = parseInt(card.dataset.mod, 10) || 0;
-      S.selectedMod = m;
-      localStorage.setItem('sl_mod', String(m));
-      buildPool();
-      S.screen = 'start';
-      render();
-    };
-    card.addEventListener('click', activate);
-    card.addEventListener('keydown', e => {
+  document.getElementById('modProfile')?.addEventListener('click', showProfileModal);
+
+  const enterMod = (m) => {
+    S.selectedMod = m;
+    localStorage.setItem('sl_mod', String(m));
+    buildPool();
+    S.screen = 'start';
+    render();
+  };
+
+  document.querySelectorAll('.mod-trail-card[data-mod], .mod-revisao[data-mod]').forEach(el => {
+    const activate = () => enterMod(parseInt(el.dataset.mod, 10) || 0);
+    el.addEventListener('click', activate);
+    el.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
     });
   });
-  document.getElementById('modChangeName')?.addEventListener('click', () => { S.screen = 'login'; render(); });
-  document.getElementById('modMyCode')?.addEventListener('click', () => showCodigoModal(false));
-  document.getElementById('modRanking')?.addEventListener('click', () => {
-    S.ranking = { status: 'loading', lista: [] };
-    S.screen = 'ranking';
-    render();
+
+  const goRanking = () => { S.ranking = { status: 'loading', lista: [] }; S.screen = 'ranking'; render(); };
+  const goGuide   = () => { S.screen = 'guide'; render(); };
+
+  document.getElementById('modRanking')?.addEventListener('click', goRanking);
+  document.getElementById('modGuide')?.addEventListener('click', goGuide);
+
+  document.getElementById('modRankingChip')?.addEventListener('click', goRanking);
+  document.getElementById('modRankingChip')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goRanking(); }
   });
-  document.getElementById('modGuide')?.addEventListener('click', () => { S.screen = 'guide'; render(); });
+  document.getElementById('modGuideChip')?.addEventListener('click', goGuide);
+  document.getElementById('modGuideChip')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goGuide(); }
+  });
 
   if (getCode()) syncAndUpdateStatus();
 }
@@ -1950,17 +2006,18 @@ function renderStart() {
   }).join('');
 
   // Módulos disponíveis
-  const modLabels = { 1: 'ITN', 2: 'SRWE', 3: 'ENSA', 4: 'Preparação para Certificação' };
-  const modInfo   = {
-    1: 'Introdução às Redes',
-    2: 'Switching, Routing e Wireless',
-    3: 'Redes Empresariais',
-    4: 'Preparação para Certificação',
-  };
-  let titleSub;
-  titleSub = S.selectedMod
-    ? `Módulo ${S.selectedMod} — ${modLabels[S.selectedMod] || ''} · ${Q.length} questões`
-    : `Revisão Completa · ${Q.length} questões`;
+  const modLabels = { 1: 'ITN', 2: 'SRWE', 3: 'ENSA', 4: 'CERT' };
+  // Dentro do módulo o título é "Módulo 2 — SRWE": sem o nome do app (ele pertence à tela
+  // de escolha) e sem a contagem de questões (que já aparece nos modos e nos cards).
+  const titleSub = S.selectedMod
+    ? `Módulo ${S.selectedMod} — ${modLabels[S.selectedMod] || ''}`
+    : 'Revisão Completa';
+
+  // A descrição do módulo vive AQUI, não na tela de escolha: é onde o aluno já entrou
+  // e precisa saber o que vai estudar.
+  const defAtual = MOD_DEFS.find(d => d.mod === (S.selectedMod || 0));
+  const modDescHtml = defAtual && defAtual.desc
+    ? `<p class="start-mod-desc">${esc(defAtual.desc)}</p>` : '';
 
   // Módulo 4 não tem seletor de escopo: aqui só entram as questões do exame 200-301.
   // ENSA e SRWE já são módulos próprios na tela anterior.
@@ -1977,14 +2034,12 @@ function renderStart() {
     </div>
     <div class="start-topbar">
       <div>
-        <div class="module-label">CCNA v7 — Cisco Networking Academy</div>
-        <h1 class="start-h">SubnetLab<br>
-          <span style="font-size:14px;font-weight:400;color:var(--text2)">
-            ${titleSub}
-          </span>
-        </h1>
+        <div class="module-label">CCNA v7</div>
+        <h1 class="start-h">${titleSub}</h1>
       </div>
     </div>
+    ${modDescHtml}
+
     ${renderCountdown()}
     ${resumeBanner}
     ${lastResult}
@@ -2996,9 +3051,6 @@ function showCodigoModal(allowSetSeen) {
     <div>
       <button class="btn pri" id="code-seen" style="width:100%;font-size:14px;padding:12px" aria-label="Já guardei meu código">Já guardei meu código</button>
     </div>
-    <div style="margin-top:16px;text-align:center">
-      <button id="code-delete" style="background:none;border:none;cursor:pointer;color:var(--red-text,#e05555);font-size:12px;text-decoration:underline;padding:4px 8px">Apagar meus dados da nuvem</button>
-    </div>
   </div>`;
 
   document.body.appendChild(el);
@@ -3055,8 +3107,58 @@ function showCodigoModal(allowSetSeen) {
     el.remove();
     if (allowSetSeen) { S.screen = 'modules'; render(); }
   };
+}
 
-  el.querySelector('#code-delete').onclick = () => {
+function showProfileModal() {
+  if (document.getElementById('profile-modal-overlay')) return;
+  const name = getStudent() || 'Estudante';
+  const ini  = iniciais(name);
+  const cor  = corDoNome(name);
+
+  const el = document.createElement('div');
+  el.className = 'cmodal-overlay';
+  el.id = 'profile-modal-overlay';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-modal', 'true');
+  el.setAttribute('aria-label', 'Meu perfil');
+  el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;box-sizing:border-box';
+
+  el.innerHTML = `<div class="cmodal" style="max-width:340px;width:100%">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="cmodal-title">Meu perfil</div>
+      <button id="profileClose" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:20px;line-height:1;padding:4px 8px" aria-label="Fechar">✕</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px">
+      <div style="width:48px;height:48px;border-radius:50%;background:${esc(cor)};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0">${esc(ini)}</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text)">${esc(name)}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn" id="profileChangeName" style="text-align:left;padding:12px 14px;font-size:14px">✏️ Alterar nome</button>
+      <button class="btn" id="profileMyCode" style="text-align:left;padding:12px 14px;font-size:14px">🔑 Meu código de acesso</button>
+      <button class="btn" id="profileDelete" style="text-align:left;padding:12px 14px;font-size:14px;color:var(--red-text)">🗑 Apagar meus dados</button>
+    </div>
+  </div>`;
+
+  document.body.appendChild(el);
+  setTimeout(() => el.querySelector('#profileChangeName').focus(), 50);
+
+  el.querySelector('#profileClose').onclick = () => el.remove();
+  el.addEventListener('click', e => { if (e.target === el) el.remove(); });
+
+  el.querySelector('#profileChangeName').onclick = () => {
+    el.remove();
+    S.screen = 'login';
+    render();
+  };
+
+  el.querySelector('#profileMyCode').onclick = () => {
+    el.remove();
+    showCodigoModal(false);
+  };
+
+  el.querySelector('#profileDelete').onclick = () => {
+    el.remove();
+    const codigo = getCode();
     showConfirm(
       'Apagar dados da nuvem?',
       'Isso apaga o progresso salvo na nuvem. O deste aparelho continua.',
