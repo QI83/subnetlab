@@ -908,10 +908,35 @@ body {
   margin-bottom: 8px;
 }
 .modules-h { font-size: 24px; font-weight: 700; color: var(--text); }
+/* Título + status de sincronização na mesma linha, para a topbar do aluno
+   não quebrar em duas faixas e empurrar os botões. */
+.modules-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: nowrap;
+  flex: 0 0 auto;          /* não deixa o flexbox comprimir: era isso que jogava o sync para baixo */
+  min-width: 0;
+}
+.modules-student { margin-left: auto; }
+#sync-status { white-space: nowrap; }
+
+/* No celular a topbar vira duas linhas previsíveis:
+   título + status em cima, nome + botões embaixo. */
+@media (max-width: 640px) {
+  .modules-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .modules-title-row { justify-content: flex-start; }
+  .modules-student { justify-content: flex-end; margin-left: 0; }
+  .modules-h { font-size: 22px; }
+}
 .modules-student {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   font-size: 12px;
   color: var(--text2);
   flex-shrink: 0;

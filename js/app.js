@@ -1193,10 +1193,12 @@ function renderModules() {
 
   return `<div class="modules-wrap">
     <div class="modules-topbar">
-      <h1 class="modules-h">Módulos</h1>
+      <div class="modules-title-row">
+        <h1 class="modules-h">Módulos</h1>
+        <span id="sync-status" style="font-size:11px;color:var(--text3)"></span>
+      </div>
       <div class="modules-student">
         <span>👤 ${esc(name)}</span>
-        <span id="sync-status" style="font-size:11px;color:var(--text3)"></span>
         <button class="btn" id="modChangeName" style="padding:3px 10px;font-size:11px" aria-label="Alterar nome">Alterar</button>
         <button class="btn" id="modMyCode" style="padding:3px 10px;font-size:11px;min-width:44px;min-height:44px" title="Meu código de acesso" aria-label="Meu código de acesso">🔑</button>
         <button class="btn" id="modRanking" style="padding:3px 10px;font-size:11px;min-width:44px;min-height:44px" title="Ranking da turma" aria-label="Ranking da turma">🏆</button>
