@@ -1,8 +1,12 @@
 // SubnetLab — Service Worker
-// Estratégia: cache-first para assets estáticos, rede como fallback
+// Estratégia:
+//  - Código e HTML (js/css/html/navegação): NETWORK-FIRST — quem está online sempre
+//    recebe a versão nova. Cair para o cache só quando estiver offline.
+//  - Imagens e dados: CACHE-FIRST — não mudam e economizam rede.
+// O cache-first puro prendia o aluno na versão antiga depois de cada deploy.
 'use strict';
 
-const CACHE_NAME = 'subnetlab-v26';
+const CACHE_NAME = 'subnetlab-v27';
 
 const ASSETS = [
   '.',
@@ -80,7 +84,8 @@ const ASSETS = [
   'img/m2-q46.webp',
 ];
 
-// Instala e pré-carrega todos os assets
+// Kill switch para versões antigas: se um SW antigo ainda controlar a página,
+// o navegador busca o sw.js e este skipWaiting assume na hora.
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
@@ -98,30 +103,49 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Cache-first: retorna do cache; se não encontrar, busca na rede
+// O que NUNCA deve ser servido do cache sem antes tentar a rede
+const NETWORK_FIRST = /\/(index\.html)?$|\.(html|js|css|json)$/i;
+
 self.addEventListener('fetch', event => {
-  // Ignora requisições não-GET e chrome-extension://
   if (event.request.method !== 'GET') return;
   if (!event.request.url.startsWith('http') && !event.request.url.startsWith('file')) return;
 
+  const url = new URL(event.request.url);
+  const deveBuscarRedePrimeiro =
+    event.request.mode === 'navigate' || NETWORK_FIRST.test(url.pathname);
+
+  if (deveBuscarRedePrimeiro) {
+    // NETWORK-FIRST: rede manda; cache é só o plano B offline.
+    event.respondWith(
+      fetch(event.request).then(response => {
+        if (response && response.status === 200 && response.type !== 'opaque') {
+          const copia = response.clone();
+          caches.open(CACHE_NAME).then(c => c.put(event.request, copia)).catch(() => {});
+        }
+        return response;
+      }).catch(() =>
+        caches.match(event.request).then(cached => cached || new Response(
+          'Sem conexão. Abra o app online uma vez para habilitar o modo offline.',
+          { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+        ))
+      )
+    );
+    return;
+  }
+
+  // CACHE-FIRST: imagens e demais assets estáticos.
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
       return fetch(event.request).then(response => {
-        // Só cacheia respostas válidas
-        if (!response || response.status !== 200 || response.type === 'opaque') {
-          return response;
-        }
+        if (!response || response.status !== 200 || response.type === 'opaque') return response;
         const toCache = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, toCache));
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, toCache)).catch(() => {});
         return response;
-      }).catch(() => {
-        // Offline e não está em cache: retorna 503
-        return new Response('Sem conexão. Abra o app online uma vez para habilitar o modo offline.', {
-          status: 503,
-          headers: {'Content-Type': 'text/plain; charset=utf-8'},
-        });
-      });
+      }).catch(() => new Response(
+        'Sem conexão. Abra o app online uma vez para habilitar o modo offline.',
+        { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } }
+      ));
     })
   );
 });

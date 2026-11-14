@@ -3401,10 +3401,29 @@ window.addEventListener('beforeinstallprompt', e => {
 
 // ── 17. SERVICE WORKER ───────────────────────────────────────────────
 function registerSW() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .catch(err => console.warn('SW: falha no registro', err));
-  }
+  if (!('serviceWorker' in navigator)) return;
+
+  // updateViaCache:'none' impede o navegador de servir o sw.js do cache HTTP —
+  // sem isso, o aluno pode ficar dias preso na versão antiga após um deploy.
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+    .then(reg => {
+      // Procura atualização a cada abertura do app
+      reg.update().catch(() => {});
+      // Quando um SW novo assume, recarrega uma vez para aplicar o código novo
+      reg.addEventListener('updatefound', () => {
+        const novo = reg.installing;
+        if (!novo) return;
+        novo.addEventListener('statechange', () => {
+          if (novo.state === 'activated' && navigator.serviceWorker.controller) {
+            if (!sessionStorage.getItem('sl_reloaded_for_sw')) {
+              sessionStorage.setItem('sl_reloaded_for_sw', '1');
+              location.reload();
+            }
+          }
+        });
+      });
+    })
+    .catch(err => console.warn('SW: falha no registro', err));
 }
 
 // ── 18. INICIALIZAÇÃO ────────────────────────────────────────────────
