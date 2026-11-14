@@ -190,6 +190,10 @@ function normalizarCodigo(c) {
   return String(c).toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
+// ── SUPABASE ──────────────────────────────────────────────────────────
+const SB_URL = 'https://obxytazxfeozyawkvcpx.supabase.co';
+const SB_KEY = 'sb_publishable_bSqD4FOMLCyc81egVV9eJQ_x13y-EzL';
+
 const LEVELS = [
   { n: 'Novato',       min: 0,   max: 60  },
   { n: 'Trainee',      min: 60,  max: 150 },
@@ -409,6 +413,110 @@ function toggleFav(id) {
   localStorage.setItem(KEY.favs, JSON.stringify([...favorites]));
 }
 
+// ── XP TOTAL ──────────────────────────────────────────────────────────
+function getXpTotal() {
+  let n = parseInt(localStorage.getItem('sl_xp_total') || '0', 10) || 0;
+  if (!n) {
+    const h = getHistory();
+    if (h.length) {
+      n = h.reduce((s, e) => s + (e.xp || 0), 0);
+      if (n) localStorage.setItem('sl_xp_total', String(n));
+    }
+  }
+  return n;
+}
+
+function addXpTotal(xp) {
+  if (!xp || xp <= 0) return;
+  localStorage.setItem('sl_xp_total', String(getXpTotal() + xp));
+}
+
+// ── SNAPSHOT / SUPABASE FETCH ─────────────────────────────────────────
+function snapshot() {
+  return { qStats, spaced, history: getHistory() };
+}
+
+async function sbPush() {
+  const code = getCode();
+  if (!code) return false;
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/sync_put`, {
+      method: 'POST',
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        p_code: code,
+        p_nome: getStudent() || 'Estudante',
+        p_xp: getXpTotal(),
+        p_dados: snapshot(),
+      }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(tid);
+    return r.ok;
+  } catch { clearTimeout(tid); return false; }
+}
+
+async function sbPull(code) {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/sync_get`, {
+      method: 'POST',
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_code: code }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(tid);
+    if (!r.ok) return null;
+    const data = await r.json();
+    return data && data.length > 0 ? data[0] : null;
+  } catch { clearTimeout(tid); return null; }
+}
+
+async function sbDeleteCloud(code) {
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/sync_delete`, {
+      method: 'POST',
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_code: code }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(tid);
+    return r.ok;
+  } catch { clearTimeout(tid); return false; }
+}
+
+// ── SYNC STATUS ───────────────────────────────────────────────────────
+let syncStatus = '';
+let syncStatusTimer = null;
+
+function setSyncStatus(s) {
+  syncStatus = s;
+  if (syncStatusTimer) { clearTimeout(syncStatusTimer); syncStatusTimer = null; }
+  if (s === 'ok') syncStatusTimer = setTimeout(() => { syncStatus = ''; updateSyncIndicator(); }, 3000);
+  updateSyncIndicator();
+}
+
+function updateSyncIndicator() {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  if (!syncStatus)                   el.textContent = '';
+  else if (syncStatus === 'syncing') el.textContent = '☁️ …';
+  else if (syncStatus === 'ok')      el.textContent = '☁️ Sincronizado';
+  else                               el.textContent = '☁️ Offline';
+}
+
+async function syncAndUpdateStatus() {
+  if (!getCode()) return;
+  setSyncStatus('syncing');
+  const ok = await sbPush();
+  setSyncStatus(ok ? 'ok' : 'offline');
+}
+
 function exportData() {
   const data = {
     __v: 2,
@@ -416,6 +524,8 @@ function exportData() {
     examDate: getExamDate(),
     history: getHistory(),
     qStats,
+    spaced,
+    xpTotal: getXpTotal(),
     favs: [...favorites],
     dark: darkMode,
   };
@@ -447,6 +557,8 @@ function importData(file) {
         darkMode = d.dark;
         localStorage.setItem(KEY.dark, String(darkMode));
       }
+      if (d.spaced) { spaced = d.spaced; localStorage.setItem(KEY.spaced, JSON.stringify(spaced)); }
+      if (typeof d.xpTotal === 'number') localStorage.setItem('sl_xp_total', String(d.xpTotal));
       showAlert('✅ Progresso importado com sucesso!');
       render();
     } catch {
@@ -868,6 +980,7 @@ function finishQuiz() {
   clearProgress();
 
   persistSpaced();
+  addXpTotal(S.xp);
 
   const tot = S.correct + S.wrong;
   const pct = tot > 0 ? Math.round(S.correct / tot * 100) : 0;
@@ -883,6 +996,7 @@ function finishQuiz() {
 
   // Histórico
   saveHistory(buildHistoryEntry());
+  if (getCode()) sbPush();
 
   S.screen = 'result';
   render();
@@ -1032,6 +1146,7 @@ function renderModules() {
       <h1 class="modules-h">Módulos</h1>
       <div class="modules-student">
         <span>👤 ${esc(name)}</span>
+        <span id="sync-status" style="font-size:11px;color:var(--text3)"></span>
         <span class="modules-role">Estudante</span>
         <button class="btn" id="modChangeName" style="padding:3px 10px;font-size:11px" aria-label="Alterar nome">Alterar</button>
         <button class="btn" id="modMyCode" style="padding:3px 10px;font-size:11px" title="Meu código de acesso" aria-label="Meu código de acesso">🔑</button>
@@ -1059,6 +1174,8 @@ function bindModules() {
   });
   document.getElementById('modChangeName')?.addEventListener('click', () => { S.screen = 'login'; render(); });
   document.getElementById('modMyCode')?.addEventListener('click', () => showCodigoModal(false));
+
+  if (getCode()) syncAndUpdateStatus();
 }
 
 // ── LOGIN ────────────────────────────────────────────────────────────
@@ -1130,7 +1247,7 @@ function bindLogin() {
   });
 }
 
-function vincularCodigo(codigoDigitado) {
+async function vincularCodigo(codigoDigitado) {
   const normalizado = normalizarCodigo(codigoDigitado);
   if (normalizado.length !== 16) {
     showAlert('Código inválido — deve ter 16 caracteres.');
@@ -1140,8 +1257,97 @@ function vincularCodigo(codigoDigitado) {
     showAlert('Este já é o código deste aparelho.');
     return;
   }
-  // sync_get(normalizado) — será implementado na integração com Supabase (V2)
-  showAlert('A busca na nuvem ainda não está disponível. Quando estiver, este código trará seu progresso.');
+
+  const linkBtn = document.getElementById('linkBtn');
+  if (linkBtn) { linkBtn.disabled = true; linkBtn.textContent = '…'; }
+
+  const remoto = await sbPull(normalizado);
+
+  if (linkBtn) { linkBtn.disabled = false; linkBtn.textContent = 'Vincular'; }
+
+  if (!remoto) {
+    showAlert('Código não encontrado na nuvem.');
+    return;
+  }
+
+  const { nome, xp, dados } = remoto;
+  const nQs = dados?.qStats ? Object.keys(dados.qStats).length : 0;
+  const formatted = normalizado.match(/.{4}/g).join('-');
+
+  const el = document.createElement('div');
+  el.className = 'cmodal-overlay';
+  el.id = 'merge-modal';
+  el.innerHTML = `<div class="cmodal">
+    <div class="cmodal-title">Encontramos seu progresso</div>
+    <div class="cmodal-msg" style="margin-bottom:16px">
+      Nome: <strong>${esc(nome)}</strong> · <strong>${xp}</strong> XP · <strong>${nQs}</strong> questões respondidas<br><br>
+      O que fazer?
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn" id="merge-cloud">Usar o da nuvem (substitui este aparelho)</button>
+      <button class="btn" id="merge-both">Juntar os dois (mantém o melhor de cada)</button>
+      <button class="btn" id="merge-cancel">Cancelar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(el);
+
+  el.querySelector('#merge-cancel').onclick = () => el.remove();
+  el.addEventListener('click', e => { if (e.target === el) el.remove(); });
+
+  el.querySelector('#merge-cloud').onclick = () => {
+    el.remove();
+    localStorage.setItem('sl_code', formatted);
+    if (dados?.qStats) { qStats = dados.qStats; localStorage.setItem(KEY.qstats, JSON.stringify(qStats)); }
+    if (dados?.spaced) { spaced = dados.spaced; localStorage.setItem(KEY.spaced, JSON.stringify(spaced)); }
+    if (dados?.history) localStorage.setItem(KEY.history, JSON.stringify(dados.history));
+    if (xp) localStorage.setItem('sl_xp_total', String(xp));
+    if (!getStudent() && nome) saveStudent(nome);
+    showAlert('✅ Progresso da nuvem aplicado!');
+    if (getStudent()) { S.screen = 'modules'; }
+    render();
+  };
+
+  el.querySelector('#merge-both').onclick = () => {
+    el.remove();
+    // Merge qStats: keep record with higher 'a'; on tie, higher 'c'
+    const remoteQStats = dados?.qStats || {};
+    const mergedQStats = { ...qStats };
+    for (const [k, rv] of Object.entries(remoteQStats)) {
+      const lv = mergedQStats[k];
+      if (!lv || rv.a > lv.a || (rv.a === lv.a && rv.c > lv.c)) mergedQStats[k] = rv;
+    }
+    qStats = mergedQStats;
+    localStorage.setItem(KEY.qstats, JSON.stringify(qStats));
+
+    // Merge history: union by date+total
+    const localHistory = getHistory();
+    const seen = new Set(localHistory.map(h => `${h.date}|${h.total}`));
+    const mergedHistory = [...localHistory];
+    for (const h of (dados?.history || [])) {
+      if (!seen.has(`${h.date}|${h.total}`)) { mergedHistory.push(h); seen.add(`${h.date}|${h.total}`); }
+    }
+    localStorage.setItem(KEY.history, JSON.stringify(mergedHistory));
+
+    // Merge spaced: keep the entry with the furthest due date
+    const remoteSpaced = dados?.spaced || {};
+    const mergedSpaced = { ...spaced };
+    for (const [k, rv] of Object.entries(remoteSpaced)) {
+      if (!mergedSpaced[k] || rv.due > mergedSpaced[k].due) mergedSpaced[k] = rv;
+    }
+    spaced = mergedSpaced;
+    localStorage.setItem(KEY.spaced, JSON.stringify(spaced));
+
+    // XP total: use the higher value
+    const localXp = getXpTotal();
+    if (xp > localXp) localStorage.setItem('sl_xp_total', String(xp));
+
+    localStorage.setItem('sl_code', formatted);
+    sbPush();
+    showAlert('✅ Dados mesclados com sucesso!');
+    if (!getStudent() && nome) saveStudent(nome);
+    if (getStudent()) { S.screen = 'modules'; }
+    render();
+  };
 }
 
 // ── TELA INICIAL ─────────────────────────────────────────────────────
@@ -1678,8 +1884,10 @@ function bindQuiz() {
     showConfirm('Encerrar sessão?', 'Seu progresso atual será salvo.', () => {
       stopTimer();
       persistSpaced();
+      addXpTotal(S.xp);
       if (S.correct + S.wrong > 0) saveHistory(buildHistoryEntry());
       clearProgress();
+      if (getCode()) sbPush();
       S.screen = 'start';
       render();
     });
@@ -2363,6 +2571,9 @@ function showCodigoModal(allowSetSeen) {
     <div>
       <button class="btn pri" id="code-seen" style="width:100%;font-size:14px;padding:12px" aria-label="Já guardei meu código">Já guardei meu código</button>
     </div>
+    <div style="margin-top:16px;text-align:center">
+      <button id="code-delete" style="background:none;border:none;cursor:pointer;color:var(--red-text,#e05555);font-size:12px;text-decoration:underline;padding:4px 8px">Apagar meus dados da nuvem</button>
+    </div>
   </div>`;
 
   document.body.appendChild(el);
@@ -2418,6 +2629,23 @@ function showCodigoModal(allowSetSeen) {
     if (allowSetSeen) localStorage.setItem('sl_code_seen', '1');
     el.remove();
     if (allowSetSeen) { S.screen = 'modules'; render(); }
+  };
+
+  el.querySelector('#code-delete').onclick = () => {
+    showConfirm(
+      'Apagar dados da nuvem?',
+      'Isso apaga o progresso salvo na nuvem. O deste aparelho continua.',
+      () => {
+        showConfirm(
+          'Confirmar exclusão',
+          'Esta ação não pode ser desfeita. Deseja continuar?',
+          async () => {
+            const ok = await sbDeleteCloud(codigo);
+            showAlert(ok ? '✅ Dados da nuvem apagados.' : '❌ Erro ao apagar. Tente novamente.');
+          }
+        );
+      }
+    );
   };
 }
 
@@ -2790,6 +3018,8 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme();
   render();
   registerSW();
+
+  window.addEventListener('online', () => { if (getCode()) sbPush(); });
 
   // Tooltips de siglas — clicar em .acr mostra definição
   document.addEventListener('click', e => {
