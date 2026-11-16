@@ -1858,3 +1858,27 @@ body {
 .notif-body { min-width: 0; }
 .notif-txt  { font-size: 13px; color: var(--text); line-height: 1.45; }
 .notif-when { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* ── LISTA DE CERTIFICADOS (perfil) ─────────────────────────────── */
+.cert-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: .5px solid var(--border);
+  flex-wrap: wrap;
+}
+.cert-list-row:last-child { border-bottom: none; }
+.cert-list-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.cert-list-mod  { font-size: 13px; font-weight: 700; color: var(--text); }
+.cert-list-rank { font-size: 12px; font-weight: 600; }
+.cert-list-date { font-size: 11px; color: var(--text3); }
+.cert-list-btns { display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; }
+.cert-list-empty { font-size: 12px; color: var(--text3); padding: 8px 0; line-height: 1.5; }

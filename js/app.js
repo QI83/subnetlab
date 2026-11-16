@@ -1073,6 +1073,7 @@ function finishQuiz() {
 const CERT_MIN = 70;
 
 function certTipo(mod) {
+  if (mod === 0) return { titulo: 'Certificado de Revisão Completa', curso: 'Revisão Completa — todos os módulos', tipo: 'revisao' };
   const d = MOD_DEFS.find(x => x.mod === mod) || { name: 'SubnetLab' };
   if (mod === 4) return { titulo: 'Certificado de Preparação para Certificação', curso: d.name, tipo: 'prep' };
   return { titulo: 'Certificado de Conclusão de Curso', curso: d.name, tipo: 'curso' };
@@ -1083,6 +1084,109 @@ function certRank(pct) {
        : pct >= 90   ? { rank: 'Expert em Redes', icon: '🌟', cor: '#5EE0A8' }
        : pct >= 80   ? { rank: 'CCNA Aprovado',   icon: '✅', cor: '#7AB8F5' }
        :               { rank: 'Técnico de Redes', icon: '📡', cor: '#A89DF5' };
+}
+
+function certSlug(mod) {
+  return ({ 0: 'revisao', 1: 'itn', 2: 'srwe', 3: 'ensa', 4: 'cert' })[mod] || 'subnetlab';
+}
+
+function certCanvas(info) {
+  const { mod, pct, acertos, erros, nome, dataStr } = info;
+  const certD = pct === 100 ? { rank: 'Mestre CCNA',    icon: '🏆', color: '#F5C842' }
+    : pct >= 90             ? { rank: 'Expert em Redes', icon: '🌟', color: '#5EE0A8' }
+    : pct >= 80             ? { rank: 'CCNA Aprovado',   icon: '✅', color: '#7AB8F5' }
+    :                         { rank: 'Técnico de Redes',icon: '📡', color: '#A89DF5' };
+
+  const tipo = certTipo(mod);
+  const W = 800, H = 500;
+  const cv  = document.createElement('canvas');
+  cv.width  = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0,   '#12172B');
+  bg.addColorStop(0.5, '#1A1D2F');
+  bg.addColorStop(1,   '#12172B');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = certD.color + '88';
+  ctx.lineWidth   = 3;
+  ctx.strokeRect(10, 10, W - 20, H - 20);
+
+  const cs = 18;
+  ctx.strokeStyle = certD.color + '66';
+  ctx.lineWidth   = 2;
+  [[20, 20, 1, 1], [W-20, 20, -1, 1], [20, H-20, 1, -1], [W-20, H-20, -1, -1]].forEach(([x, y, dx, dy]) => {
+    ctx.beginPath();
+    ctx.moveTo(x + dx * cs, y);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x, y + dy * cs);
+    ctx.stroke();
+  });
+
+  ctx.textAlign = 'center';
+
+  ctx.fillStyle = '#6B7399';
+  ctx.font      = '12px system-ui, sans-serif';
+  ctx.fillText('SubnetLab · CCNA v7 · Simulador de Certificação', W / 2, 52);
+
+  ctx.font = '52px system-ui, sans-serif';
+  ctx.fillText(certD.icon, W / 2, 120);
+
+  ctx.fillStyle = '#9BA3C4';
+  ctx.font      = '13px system-ui, sans-serif';
+  ctx.fillText(tipo.titulo.toUpperCase(), W / 2, 155);
+
+  ctx.fillStyle = '#E8EAF6';
+  ctx.font      = 'bold 26px system-ui, sans-serif';
+  ctx.fillText(nome, W / 2, 198);
+
+  ctx.fillStyle = certD.color;
+  ctx.font      = 'bold 30px system-ui, sans-serif';
+  ctx.fillText(certD.rank, W / 2, 240);
+
+  ctx.fillStyle = '#9BA3C4';
+  ctx.font      = '13px system-ui, sans-serif';
+  ctx.fillText(tipo.curso, W / 2, 268);
+
+  ctx.strokeStyle = certD.color + '44';
+  ctx.lineWidth   = 1;
+  ctx.beginPath();
+  ctx.moveTo(W / 2 - 200, 285);
+  ctx.lineTo(W / 2 + 200, 285);
+  ctx.stroke();
+
+  ctx.fillStyle = certD.color;
+  ctx.font      = 'bold 34px system-ui, sans-serif';
+  [[pct + '%', W / 2 - 150], [String(acertos), W / 2], [String(erros), W / 2 + 150]].forEach(([v, x]) => {
+    ctx.fillText(v, x, 335);
+  });
+  ctx.fillStyle = '#6B7399';
+  ctx.font      = '11px system-ui, sans-serif';
+  [['APROVEITAMENTO', W / 2 - 150], ['ACERTOS', W / 2], ['ERROS', W / 2 + 150]].forEach(([l, x]) => {
+    ctx.fillText(l, x, 353);
+  });
+
+  let datePT;
+  if (dataStr && dataStr.length === 10) {
+    const [y, m, d] = dataStr.split('-').map(Number);
+    datePT = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+  } else if (dataStr) {
+    datePT = new Date(dataStr).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } else {
+    datePT = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  ctx.fillStyle = '#6B7399';
+  ctx.font      = '12px system-ui, sans-serif';
+  ctx.fillText(datePT, W / 2, 410);
+
+  ctx.fillStyle = '#3A3F5C';
+  ctx.font      = '11px system-ui, sans-serif';
+  ctx.fillText('SubnetLab', W / 2, 450);
+
+  return cv;
 }
 
 function getCerts() {
@@ -1141,12 +1245,78 @@ async function sbConquistasList(excluir, limite = 30) {
   } catch { return null; }
 }
 
+async function sbCertList(code) {
+  if (!code) return null;
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/cert_list`, {
+      method: 'POST',
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_code: code }),
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    return Array.isArray(d) ? d : null;
+  } catch { return null; }
+}
+
+function mergeCerts(local, cloud) {
+  const merged = { ...local };
+  if (!cloud) return merged;
+  for (const row of cloud) {
+    const mod = row.mod;
+    if (!merged[mod] || row.pct > merged[mod].pct) {
+      merged[mod] = {
+        pct: row.pct,
+        acertos: row.acertos || 0,
+        total: row.total || 0,
+        rank: row.rank || certRank(row.pct).rank,
+        quando: row.emitido_em || new Date().toISOString(),
+        emitido_em: row.emitido_em,
+      };
+    }
+  }
+  return merged;
+}
+
+function renderCertListHtml(certs) {
+  const mods = Object.keys(certs).map(Number).sort((a, b) => a - b);
+  if (!mods.length) {
+    return `<p class="cert-list-empty">Nenhum certificado ainda — conclua uma prova com 70% ou mais.</p>`;
+  }
+  return mods.map(mod => {
+    const c = certs[mod];
+    const def = MOD_DEFS.find(d => d.mod === mod);
+    const modName = def ? def.abbr : `Módulo ${mod}`;
+    const { rank, cor } = certRank(c.pct);
+    const when = c.emitido_em || c.quando || '';
+    const dateStr = when ? (() => {
+      const dt = new Date(when);
+      return isNaN(dt) ? '' : dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    })() : '';
+    const dataISO = when && when.length >= 10 ? when.slice(0, 10) : hojeISO();
+    const acertos = c.acertos || 0;
+    const total   = c.total   || acertos;
+    return `<div class="cert-list-row" data-mod="${mod}" data-pct="${c.pct}" data-acertos="${acertos}" data-total="${total}" data-data="${esc(dataISO)}">
+      <div class="cert-list-info">
+        <span class="cert-list-mod">${esc(modName)}</span>
+        <span class="cert-list-rank" style="color:${cor}">${c.pct}% · ${esc(rank)}</span>
+        ${dateStr ? `<span class="cert-list-date">${esc(dateStr)}</span>` : ''}
+      </div>
+      <div class="cert-list-btns">
+        <button class="btn cert-list-dl" style="padding:3px 8px;font-size:11px">⬇️ PNG</button>
+        <button class="btn cert-list-share" style="padding:3px 8px;font-size:11px">📤 Compartilhar</button>
+        <button class="btn cert-list-print" style="padding:3px 8px;font-size:11px">🖨 Imprimir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // Chamado no fim de TODA sessão: decide se há certificado e o que registrar.
 async function registrarCertificado() {
   const tot = S.correct + S.wrong;
   const pct = tot > 0 ? Math.round(S.correct / tot * 100) : 0;
   const mod = S.selectedMod;
-  const elegivel = S.timerMode === 'timed' && pct >= CERT_MIN && [1, 2, 3, 4].includes(mod);
+  const elegivel = S.timerMode === 'timed' && pct >= CERT_MIN && [0, 1, 2, 3, 4].includes(mod);
 
   S.cert = { elegivel, pct, melhor: bestCertPct(mod), novo: false, sincronizado: null };
   if (!elegivel) return;
@@ -1189,6 +1359,7 @@ async function carregarNotificacoes() {
 }
 
 function textoConquista(c) {
+  if (c.mod === 0) return `${c.nome} finalizou a revisão completa e conquistou o certificado ${c.rank || 'de aprovação'} (${c.pct}%)`;
   const alvo = c.mod === 4
     ? 'da preparação para a certificação'
     : `do curso ${certTipo(c.mod).curso}`;
@@ -2265,7 +2436,7 @@ function renderStart() {
     ${evoHtml}
 
     ${S.startMode === 'topic' ? '' : `
-    <p class="sec-hdr" style="margin-top:4px">Tópicos — ${S.selectedMod ? 'Módulo ' + S.selectedMod : 'Revisão Completa'}</p>
+    <p class="sec-hdr" style="margin-top:4px">Tópicos — ${S.selectedMod ? (MOD_DEFS.find(d => d.mod === S.selectedMod) || {}).abbr || 'Módulo' : 'Revisão Completa'}</p>
     <div class="tgrid">
       ${topics.map(t => `<div class="tpill">
         <span class="tdot" style="background:${topicColor(t)}"></span>
@@ -2635,7 +2806,7 @@ function renderResult() {
   const certBorder = scoreColor + '88';
 
   const certInfo  = certTipo(S.selectedMod);
-  const isCert    = S.timerMode === 'timed' && pct >= CERT_MIN && [1, 2, 3, 4].includes(S.selectedMod);
+  const isCert    = S.timerMode === 'timed' && pct >= CERT_MIN && [0, 1, 2, 3, 4].includes(S.selectedMod);
   const melhorPct = S.cert ? S.cert.melhor : bestCertPct(S.selectedMod);
   const recorde   = S.cert ? !!S.cert.novo : false;
   const certData = pct === 100 ? { rank: 'Mestre CCNA',    icon: '🏆', sub: 'Desempenho Perfeito!' }
@@ -2773,112 +2944,14 @@ function bindResult() {
 }
 
 function downloadCertCanvas() {
-  const tot = S.correct + S.wrong;
-  const pct = tot > 0 ? Math.round(S.correct / tot * 100) : 0;
-  const certData = pct === 100 ? { rank: 'Mestre CCNA',    icon: '🏆', color: '#F5C842' }
-    : pct >= 90              ? { rank: 'Expert em Redes',  icon: '🌟', color: '#5EE0A8' }
-    : pct >= 80              ? { rank: 'CCNA Aprovado',    icon: '✅', color: '#7AB8F5' }
-    :                          { rank: 'Técnico de Redes', icon: '📡', color: '#A89DF5' };
-
-  const name     = getStudent() || 'Aluno';
-  const _defM = MOD_DEFS.find(d => d.mod === S.selectedMod);
-  const modLabel = _defM ? _defM.name : 'SubnetLab';
-  const datePT   = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-  const W = 800, H = 500;
-  const cv  = document.createElement('canvas');
-  cv.width  = W; cv.height = H;
-  const ctx = cv.getContext('2d');
-
-  // Fundo
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0,   '#12172B');
-  bg.addColorStop(0.5, '#1A1D2F');
-  bg.addColorStop(1,   '#12172B');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-
-  // Borda
-  ctx.strokeStyle = certData.color + '88';
-  ctx.lineWidth   = 3;
-  ctx.strokeRect(10, 10, W - 20, H - 20);
-
-  // Cantos decorativos
-  const cs = 18;
-  ctx.strokeStyle = certData.color + '66';
-  ctx.lineWidth   = 2;
-  [[20, 20, 1, 1], [W-20, 20, -1, 1], [20, H-20, 1, -1], [W-20, H-20, -1, -1]].forEach(([x, y, dx, dy]) => {
-    ctx.beginPath();
-    ctx.moveTo(x + dx * cs, y);
-    ctx.lineTo(x, y);
-    ctx.lineTo(x, y + dy * cs);
-    ctx.stroke();
-  });
-
-  ctx.textAlign = 'center';
-
-  // Rótulo superior
-  ctx.fillStyle = '#6B7399';
-  ctx.font      = '12px system-ui, sans-serif';
-  ctx.fillText('SubnetLab · CCNA v7 · Simulador de Certificação', W / 2, 52);
-
-  // Ícone
-  ctx.font = '52px system-ui, sans-serif';
-  ctx.fillText(certData.icon, W / 2, 120);
-
-  // Título
-  ctx.fillStyle = '#9BA3C4';
-  ctx.font      = '13px system-ui, sans-serif';
-  ctx.fillText((certTipo(S.selectedMod).titulo || 'CERTIFICADO').toUpperCase(), W / 2, 155);
-
-  // Nome
-  ctx.fillStyle = '#E8EAF6';
-  ctx.font      = 'bold 26px system-ui, sans-serif';
-  ctx.fillText(name, W / 2, 198);
-
-  // Rank
-  ctx.fillStyle = certData.color;
-  ctx.font      = 'bold 30px system-ui, sans-serif';
-  ctx.fillText(certData.rank, W / 2, 240);
-
-  // Módulo
-  ctx.fillStyle = '#9BA3C4';
-  ctx.font      = '13px system-ui, sans-serif';
-  ctx.fillText(modLabel, W / 2, 268);
-
-  // Divisor
-  ctx.strokeStyle = certData.color + '44';
-  ctx.lineWidth   = 1;
-  ctx.beginPath();
-  ctx.moveTo(W / 2 - 200, 285);
-  ctx.lineTo(W / 2 + 200, 285);
-  ctx.stroke();
-
-  // Stats
-  ctx.fillStyle = certData.color;
-  ctx.font      = 'bold 34px system-ui, sans-serif';
-  [[pct + '%', W / 2 - 150], [String(S.correct), W / 2], [String(S.wrong), W / 2 + 150]].forEach(([v, x]) => {
-    ctx.fillText(v, x, 335);
-  });
-  ctx.fillStyle = '#6B7399';
-  ctx.font      = '11px system-ui, sans-serif';
-  [['APROVEITAMENTO', W / 2 - 150], ['ACERTOS', W / 2], ['ERROS', W / 2 + 150]].forEach(([l, x]) => {
-    ctx.fillText(l, x, 353);
-  });
-
-  // Data
-  ctx.fillStyle = '#6B7399';
-  ctx.font      = '12px system-ui, sans-serif';
-  ctx.fillText(datePT, W / 2, 410);
-
-  // Marca d'água
-  ctx.fillStyle = '#3A3F5C';
-  ctx.font      = '11px system-ui, sans-serif';
-  ctx.fillText('SubnetLab', W / 2, 450);
-
+  const tot  = S.correct + S.wrong;
+  const pct  = tot > 0 ? Math.round(S.correct / tot * 100) : 0;
+  const nome = getStudent() || 'Aluno';
+  const cv   = certCanvas({ mod: S.selectedMod, pct, acertos: S.correct, erros: S.wrong, nome, dataStr: hojeISO() });
+  const slug = certSlug(S.selectedMod);
   try {
     const a    = document.createElement('a');
-    a.download = `certificado_${name.replace(/\s+/g, '_')}_${hojeISO()}.png`;
+    a.download = `certificado_${nome.replace(/\s+/g, '_')}_${slug}_${hojeISO()}.png`;
     a.href     = cv.toDataURL('image/png');
     document.body.appendChild(a);
     a.click();
@@ -2886,6 +2959,62 @@ function downloadCertCanvas() {
   } catch {
     showAlert('Não foi possível gerar o PNG. Tente capturar a tela manualmente.');
   }
+}
+
+function downloadCertFrom(mod, pct, acertos, total, dataStr) {
+  const nome  = getStudent() || 'Aluno';
+  const erros = total - acertos;
+  const cv    = certCanvas({ mod, pct, acertos, erros, nome, dataStr });
+  const slug  = certSlug(mod);
+  const dFile = (dataStr || hojeISO()).slice(0, 10);
+  try {
+    const a    = document.createElement('a');
+    a.download = `certificado_${nome.replace(/\s+/g, '_')}_${slug}_${dFile}.png`;
+    a.href     = cv.toDataURL('image/png');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch {
+    showAlert('Não foi possível gerar o PNG.');
+  }
+}
+
+function shareCert(mod, pct, acertos, total, dataStr) {
+  const nome  = getStudent() || 'Aluno';
+  const erros = total - acertos;
+  const cv    = certCanvas({ mod, pct, acertos, erros, nome, dataStr });
+  cv.toBlob(blob => {
+    const slug  = certSlug(mod);
+    const dFile = (dataStr || hojeISO()).slice(0, 10);
+    const file  = new File([blob], `certificado_${nome.replace(/\s+/g, '_')}_${slug}_${dFile}.png`, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: 'Meu certificado SubnetLab' }).catch(err => {
+        if (err && err.name === 'AbortError') return;          // usuário cancelou: silêncio é correto
+        downloadCertFrom(mod, pct, acertos, total, dataStr);   // sem alvo de compartilhamento: baixa o PNG
+        showAlert('Não foi possível compartilhar direto neste aparelho — baixamos o PNG para você.');
+      });
+    } else {
+      downloadCertFrom(mod, pct, acertos, total, dataStr);
+      showAlert('Compartilhamento não disponível — baixamos o PNG para você.');
+    }
+  }, 'image/png');
+}
+
+function printCert(mod, pct, acertos, total, dataStr) {
+  const nome    = getStudent() || 'Aluno';
+  const erros   = total - acertos;
+  const cv      = certCanvas({ mod, pct, acertos, erros, nome, dataStr });
+  const dataUrl = cv.toDataURL('image/png');
+  const win     = window.open('', '_blank');
+  if (!win) {
+    showAlert('Popup bloqueado — permita popups para imprimir o certificado.');
+    return;
+  }
+  win.document.write(`<!DOCTYPE html><html><head><title>Certificado SubnetLab</title><style>
+    *{margin:0;padding:0;box-sizing:border-box}body{background:#fff}img{width:100%;display:block}
+    @media print{@page{margin:0}}
+  </style></head><body><img src="${dataUrl}" onload="window.print()"></body></html>`);
+  win.document.close();
 }
 
 // ── REVISÃO ───────────────────────────────────────────────────────────
@@ -3379,7 +3508,10 @@ function showProfileModal() {
         </label>
       </div>
 
-      <button class="btn" id="profileDelete" style="text-align:left;padding:12px 14px;font-size:14px;color:var(--red-text)"><span class="emoji-i">🗑</span> Apagar meus dados</button>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin:14px 0 4px">Meus certificados</div>
+      <div id="profile-certs-list">${renderCertListHtml(getCerts())}</div>
+
+      <button class="btn" id="profileDelete" style="text-align:left;padding:12px 14px;font-size:14px;color:var(--red-text);margin-top:10px"><span class="emoji-i">🗑</span> Apagar meus dados</button>
     </div>
   </div>`;
 
@@ -3424,6 +3556,28 @@ function showProfileModal() {
       }
     );
   };
+
+  // Cert list: delegate clicks on the container so it still works after innerHTML refresh
+  const certsList = el.querySelector('#profile-certs-list');
+  if (certsList) {
+    certsList.addEventListener('click', e => {
+      const row = e.target.closest('.cert-list-row');
+      if (!row) return;
+      const mod     = parseInt(row.dataset.mod);
+      const pct     = parseInt(row.dataset.pct);
+      const acertos = parseInt(row.dataset.acertos);
+      const total   = parseInt(row.dataset.total);
+      const dataStr = row.dataset.data;
+      if (e.target.closest('.cert-list-dl'))    downloadCertFrom(mod, pct, acertos, total, dataStr);
+      else if (e.target.closest('.cert-list-share')) shareCert(mod, pct, acertos, total, dataStr);
+      else if (e.target.closest('.cert-list-print')) printCert(mod, pct, acertos, total, dataStr);
+    });
+    sbCertList(getCode()).then(cloudCerts => {
+      if (cloudCerts && document.body.contains(certsList)) {
+        certsList.innerHTML = renderCertListHtml(mergeCerts(getCerts(), cloudCerts));
+      }
+    });
+  }
 }
 
 function showLightbox(src, alt) {
