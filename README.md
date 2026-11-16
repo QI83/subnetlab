@@ -22,12 +22,19 @@ Treine para as provas do curso e para a certificação com questões em **portug
 - **Quiz** com 3 tipos de questão: múltipla escolha, escolha múltipla e associação.
 - **Explicação da resposta correta** em toda questão — o objetivo é aprender, não só acertar.
 - **Modos**: estudo livre, prova cronometrada (sem feedback até o fim), por tópico, por módulo, revisão de erros e **revisão espaçada de verdade** (algoritmo SM-2).
-- **Certificado simbólico**: ao alcançar 70% ou mais no modo prova, o app emite um certificado com rank
-  (Mestre CCNA, Expert em Redes, CCNA Aprovado, Técnico de Redes), que pode ser baixado em PNG.
+- **Certificados por módulo**: terminar uma **Prova** com 70% ou mais emite certificado com rank
+  (Mestre CCNA, Expert em Redes, CCNA Aprovado, Técnico de Redes). Módulos 1–3 emitem *Conclusão de Curso*;
+  a Revisão Completa e a Preparação para Certificação têm os seus. O app guarda **sempre a melhor nota** —
+  refazer e tirar menos não apaga o certificado conquistado. Em *Meu perfil* dá para baixar em PNG,
+  compartilhar ou imprimir (salvar em PDF pela impressão).
 - **Gamificação**: XP, níveis, medalhas, streak e sequência de acertos.
 - **Estatísticas** por tópico, por questão e por módulo, com relatório de prontidão.
 - **Glossário** de acrônimos (Cisco adora siglas) com tooltip.
-- **Progresso local** (localStorage) com exportar/importar — trocou de celular, não perdeu nada.
+- **Código de acesso + sincronização**: o progresso sobe para a nuvem e volta em qualquer aparelho.
+  O envio **junta** o que existe em cada aparelho antes de gravar, então nada se perde ao estudar em dois.
+- **Ranking da turma** por XP, com selo de offline quando a lista vem do cache.
+- **Sino de conquistas**: avisa quando um colega conclui uma prova e ganha certificado.
+- **Backup manual** (exportar/importar JSON) dentro do perfil.
 
 ### Revisão espaçada (SM-2)
 
@@ -71,33 +78,59 @@ data/modulo4.js     questões do módulo 4 (window.QUESTIONS_M4)
 img/                figuras em WebP, logo, ícones e favicon
 manifest.json       PWA
 sw.js               service worker (offline)
+sql/certificados.sql  tabelas e RPCs de certificados/conquistas (rodar no Supabase)
 docs/               especificação da v2.0 e mídia
 prototype/          protótipos isolados (não integrados ao app)
 reference/          simulador original (histórico)
 BRIEF.md            especificação técnica do projeto
 ```
 
-## Roadmap — v2.0 (ranking na nuvem)
+## Nuvem (Supabase)
 
-> **Status: não implementado.** Nada está configurado ainda — não existe projeto no Supabase, e o
-> app não faz nenhuma chamada de rede. Tudo continua 100% local (`localStorage`).
+O app sincroniza por um **código de acesso** (sem senha, sem e-mail): é o identificador do aluno e a credencial.
+Não há login — quem tem o código acessa o progresso, então ele deve ser tratado como segredo.
 
-O que existe hoje é **material de planejamento**:
+### Regras de produto
 
-- [`docs/V2-SUPABASE.md`](docs/V2-SUPABASE.md) — a especificação: decisões de produto, o SQL das
-  tabelas (`profiles`, `progresso`), as regras de acesso (RLS), a view de ranking e o passo a passo
-  de configuração (~15 min). É um documento para seguir, não um recurso ativo.
-- [`prototype/ranking-demo.html`](prototype/ranking-demo.html) — uma página separada que **exige que
-  você crie um projeto no Supabase** e cole a URL e a chave nele para funcionar. Serve para testar a
-  ideia do ranking antes de integrar.
+- **Melhor nota não regride**: o certificado só é gravado se a nova nota for maior que a guardada (validado no
+  banco, em `cert_put`). Nota menor não sobrescreve, nem local nem na nuvem, e não gera notificação.
+- **Conquista só é anunciada quando melhora de fato** na nuvem — evita aviso duplicado ao refazer a prova.
+- **Sincronização é merge, não substituição**: todo envio (`sbPush`) primeiro puxa o estado da nuvem e junta
+  (qStats fica com o registro de mais tentativas, histórico é união sem duplicar, XP é o maior dos dois).
+  Sem isso, dois aparelhos se sobrescrevem — esse bug existiu e foi corrigido.
+- **Nunca sincroniza durante o quiz** (evita re-render no meio da questão).
 
-### O que faltaria para a v2.0 existir
+### Tabelas
 
-1. Criar o projeto gratuito no Supabase e rodar o SQL do `docs/V2-SUPABASE.md`.
-2. Testar o protótipo apontando para esse projeto.
-3. Integrar no app: enviar o XP a cada sessão e exibir o ranking na tela de módulos.
-4. Decidir sobre LGPD: o ranking é público por nome, então precisa de consentimento e de uma forma
-   de o aluno apagar o próprio perfil.
+| Tabela | Colunas | Uso |
+|---|---|---|
+| `alunos` | `nome, xp, dados, criado_em, atualizado_em` | progresso por aluno. O **código de acesso vive dentro do JSON `dados`** (não há coluna `code`) |
+| `certificados` | `code, mod, pct, acertos, total, rank, emitido_em, atualizado_em` (PK `code+mod`) | melhor nota por módulo |
+| `conquistas` | `id, code, nome, mod, pct, rank, criado_em` | feed global que alimenta o sino |
+| `ranking` (view) | `nome, xp, posicao` | classificação da turma (`security_invoker`, sem colunas sensíveis) |
+
+### RPCs (chamadas com a chave pública)
+
+| RPC | Para quê |
+|---|---|
+| `sync_put(p_code, p_nome, p_xp, p_dados)` | grava o snapshot do progresso |
+| `sync_get(p_code)` | lê o snapshot |
+| `sync_delete(p_code)` | apaga os dados da nuvem |
+| `cert_put(p_code, p_mod, p_pct, p_acertos, p_total, p_rank)` | grava certificado só se melhor; devolve `melhor_pct` e `melhorou` |
+| `cert_list(p_code)` | certificados de um aluno (perfil) |
+| `conquista_add(...)` / `conquistas_list(p_excluir, p_limite)` | publica e lê o feed do sino (exclui as do próprio aluno) |
+
+### Montar um ambiente novo
+
+1. Crie o projeto no Supabase.
+2. Rode `sql/certificados.sql` inteiro no SQL Editor (é idempotente).
+3. Garanta o RLS da tabela `alunos` com **privilégio por coluna**: `grant select (nome, xp) to anon` —
+   sem isso a view `ranking` (com `security_invoker = true`) fica vazia, e com grant amplo a chave pública
+   leria `dados` (onde está o código de acesso).
+4. Ajuste `SB_URL` e `SB_KEY` no topo do `js/app.js`.
+
+> Armadilha conhecida: sem `security_invoker = true` a view ignora RLS e o Advisor do Supabase marca
+> *Security Definer View* como Critical.
 
 ## Adicionar questões
 

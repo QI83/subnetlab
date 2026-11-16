@@ -130,3 +130,47 @@ Como aplicar:
 ## Entrega
 
 Ao terminar, rodar um checklist e reportar: arquivos criados, tamanho total, e o que ficou pendente (se algo). Não commitar.
+
+---
+
+## Atualizações depois deste BRIEF (nov/2026)
+
+O que abaixo não estava previsto na especificação original e hoje está em produção. Leia antes de planejar
+qualquer coisa, para não refazer o que já existe.
+
+### Tela de módulos: selecionar ≠ entrar
+
+Tocar num card **só seleciona/expande** (`S.pendingMod`, transitório, não persistido). A entrada acontece
+**apenas** pelo CTA do card — `Iniciar` quando o destino tem 0 questões vistas, `Continuar` quando já tem
+progresso. `S.selectedMod`/`sl_mod` só mudam na confirmação. Vale também para a linha "Revisão completa"
+(mod 0) e **obrigatoriamente para qualquer ponto de entrada novo** nessa tela. Use `aria-pressed`
+(não `aria-selected`, inválido em `role="button"`).
+
+### Certificados
+
+- Emitidos ao concluir uma **Prova** (modo cronometrado) com `>= CERT_MIN` (70%), para os módulos 0–4.
+- Tipo por módulo: 1–3 → "Certificado de Conclusão de Curso"; 4 → "Certificado de Preparação para
+  Certificação"; 0 → "Certificado de Revisão Completa".
+- **Melhor nota não regride**: guardado localmente (`sl_certs`) e no banco (`cert_put`, que só grava se
+  `p_pct > melhor`). Nota menor não sobrescreve e não notifica.
+- Renderização em canvas (`certCanvas(info)`) — reutilizável para reemitir certificado antigo.
+- No perfil ("Meus certificados"): PNG, compartilhar (`navigator.share` com fallback para download) e
+  imprimir (janela própria + `print()`, onde o aluno pode salvar em PDF).
+
+### Sincronização e notificações
+
+- `sbPush()` **junta com a nuvem antes de enviar** (`mergeSnapshots`); `syncPullMerge()` puxa no boot, no
+  `focus` e no `visibilitychange`, com trava de 20s e nunca durante o quiz. Sem o merge, dois aparelhos se
+  sobrescrevem — foi um bug real, com perda de progresso.
+- Sino (`#modNotif`) alimentado pela tabela `conquistas`; o próprio autor não recebe a sua conquista.
+- Tabelas, RPCs e passo de instalação: ver "Nuvem (Supabase)" no `README.md` e `sql/certificados.sql`.
+
+### Títulos sem "Módulo N"
+
+A tela do módulo e o certificado usam o **nome do curso** (ex.: "Enterprise Networking, Security & Automation"),
+sem o prefixo "Módulo 4 —".
+
+### Revisão mostra a resposta do aluno
+
+`S.answers[qKey(q)]` guarda a escolha de cada questão; a revisão pinta a alternativa errada e mostra
+"Sua resposta: C ✗" (e, na associação, "✗ Você associou: …").

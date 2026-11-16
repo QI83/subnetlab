@@ -533,6 +533,17 @@ async function sbDeleteCloud(code) {
 }
 
 // ── BIDIRECTIONAL SYNC ───────────────────────────────────────────────
+// A data do histórico é uma string pt-BR ("16/11/26 18:05"); comparar isso como texto
+// inverte sessões de meses/anos diferentes. Usa o ts gravado e, para registros antigos,
+// converte a data na hora.
+function histTs(h) {
+  if (h && typeof h.ts === 'number') return h.ts;
+  const m = /(\d{2})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2})/.exec((h && h.date) || '');
+  if (!m) return 0;
+  const [, d, mo, y, hh, mi] = m;
+  return new Date(2000 + Number(y), Number(mo) - 1, Number(d), Number(hh), Number(mi)).getTime();
+}
+
 function mergeSnapshots(local, remote) {
   let changed = false;
 
@@ -564,7 +575,7 @@ function mergeSnapshots(local, remote) {
     const key = `${h.date}|${h.total}`;
     if (!seen.has(key)) { mergedHistory.push(h); seen.add(key); changed = true; }
   }
-  mergedHistory.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  mergedHistory.sort((a, b) => histTs(b) - histTs(a));
   if (mergedHistory.length > 20) mergedHistory.length = 20;
 
   // xp: take the max
@@ -1105,6 +1116,7 @@ function buildHistoryEntry() {
   const pct = tot > 0 ? Math.round(S.correct / tot * 100) : 0;
   const wrongIds = S.wrongLog.map(w => w.q?.id).filter(Boolean);
   return {
+    ts:         Date.now(),       // ordenação confiável (a string dd/mm/aa não ordena)
     date:       dateLabel(),
     pct,
     correct:    S.correct,
