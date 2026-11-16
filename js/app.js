@@ -628,6 +628,7 @@ let S = {
   reviewIdx:     0,
   searchQuery:   '',
   selectedMod:   0,
+  pendingMod:    null,     // transient: módulo selecionado na trilha, não persistido
   planIds:       [],       // índices do plano corrente (persistido para resumeQuiz)
 };
 
@@ -1153,10 +1154,12 @@ function renderModules() {
   const disponiveis = trailDefs.filter(d => availMods.includes(d.mod));
   const atualMod    = S.selectedMod || (disponiveis[0] ? disponiveis[0].mod : 0);
   const estreia     = !S.selectedMod;   // destaque é sugestão, não histórico
+  const pendente    = S.pendingMod != null ? S.pendingMod : atualMod;
 
   const trailItems = trailDefs.map(def => {
-    const isAvail   = availMods.includes(def.mod);
-    const isCurrent = def.mod === atualMod;
+    const isAvail    = availMods.includes(def.mod);
+    const isCurrent  = def.mod === atualMod;    // para marker e tag "Atual"
+    const isPendente = def.mod === pendente && pendente !== 0; // para expansão
     const { seen, total, pct } = modProgress(def.mod);
 
     let markerClass, markerInner = '';
@@ -1180,19 +1183,20 @@ function renderModules() {
       </div>`;
     }
 
-    if (isCurrent) {
+    if (isPendente) {
+      const ctaLabel = seen > 0 ? 'Continuar' : 'Iniciar';
       return `<div class="mod-trail-step">
         <div class="mod-trail-marker ${markerClass}">${markerInner}</div>
-        <div class="mod-trail-card mod-trail-card--current" data-mod="${def.mod}" role="button" tabindex="0" aria-label="${esc(def.name)}">
+        <div class="mod-trail-card mod-trail-card--current" data-mod="${def.mod}" role="button" tabindex="0" aria-label="${esc(def.name)}" aria-pressed="true">
           <div class="mod-trail-row">
             <span class="mod-trail-icon">${def.icon}</span>
             <span class="mod-trail-name">${esc(def.abbr)}</span>
-            <span class="mod-trail-current-tag">${estreia ? 'Comece aqui' : 'Atual'}</span>
+            ${isCurrent ? `<span class="mod-trail-current-tag">${estreia ? 'Comece aqui' : 'Atual'}</span>` : ''}
           </div>
           <div class="mod-trail-name-full">${esc(def.name)}</div>
           <div class="mod-trail-stats">${seen} de ${total} questões · <span style="color:var(--blue-text);font-weight:700">${pct}%</span></div>
           <div class="mod-trail-pbar"><div class="mod-trail-pfill" style="width:${pct}%"></div></div>
-          <button class="mod-trail-cta">Continuar <span>→</span></button>
+          <button class="mod-trail-cta" aria-label="Entrar no módulo ${esc(def.name)}">${ctaLabel} <span>→</span></button>
         </div>
       </div>`;
     }
@@ -1200,7 +1204,7 @@ function renderModules() {
     const pctColor = pct >= 80 ? 'var(--green-text)' : pct > 0 ? 'var(--blue-text)' : 'var(--text3)';
     return `<div class="mod-trail-step">
       <div class="mod-trail-marker ${markerClass}">${markerInner}</div>
-      <div class="mod-trail-card" data-mod="${def.mod}" role="button" tabindex="0" aria-label="${esc(def.name)}">
+      <div class="mod-trail-card" data-mod="${def.mod}" role="button" tabindex="0" aria-label="${esc(def.name)}" aria-pressed="false">
         <div class="mod-trail-compact-row">
           <span class="mod-trail-icon mod-trail-icon-sm">${def.icon}</span>
           <div class="mod-trail-compact-body">
@@ -1262,6 +1266,7 @@ function bindModules() {
   document.getElementById('modProfile')?.addEventListener('click', showProfileModal);
 
   const enterMod = (m) => {
+    S.pendingMod = null;
     S.selectedMod = m;
     localStorage.setItem('sl_mod', String(m));
     buildPool();
@@ -1269,7 +1274,27 @@ function bindModules() {
     render();
   };
 
-  document.querySelectorAll('.mod-trail-card[data-mod], .mod-revisao[data-mod]').forEach(el => {
+  // Module cards: tap to SELECT (expand), not enter
+  document.querySelectorAll('.mod-trail-card[data-mod]').forEach(el => {
+    const mod = parseInt(el.dataset.mod, 10);
+    const select = () => { S.pendingMod = mod; render(); };
+    el.addEventListener('click', select);
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); }
+    });
+  });
+
+  // CTA button: enter the expanded module
+  document.querySelectorAll('.mod-trail-cta').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const card = btn.closest('[data-mod]');
+      enterMod(card ? parseInt(card.dataset.mod, 10) : 0);
+    });
+  });
+
+  // Revisão completa: direct entry (unchanged shortcut)
+  document.querySelectorAll('.mod-revisao[data-mod]').forEach(el => {
     const activate = () => enterMod(parseInt(el.dataset.mod, 10) || 0);
     el.addEventListener('click', activate);
     el.addEventListener('keydown', e => {
