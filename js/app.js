@@ -161,6 +161,8 @@ const KEY = {
   history:  'sl_history',
   qstats:   'sl_qstats',
   examdate: 'sl_examdate',
+  certs:    'sl_certs',       // melhor certificado por módulo (local)
+  notifSeen:'sl_notif_seen',  // id da última conquista vista
   spaced:   'sl_spaced',
 };
 
@@ -634,6 +636,8 @@ let S = {
   selectedMod:   0,
   pendingMod:    null,     // transient: módulo selecionado na trilha, não persistido
   planIds:       [],       // índices do plano corrente (persistido para resumeQuiz)
+  cert:          null,     // {elegivel, pct, melhor, novo, sincronizado}
+  notif:         null,     // últimas conquistas dos colegas
 };
 
 // ── 7. TIMER ────────────────────────────────────────────────────────
@@ -1055,9 +1059,176 @@ function finishQuiz() {
   // Histórico
   saveHistory(buildHistoryEntry());
   if (getCode()) sbPush();
+  registrarCertificado();   // grava o melhor resultado e publica a conquista
 
   S.screen = 'result';
   render();
+}
+
+
+// ── CERTIFICADOS POR MÓDULO ──────────────────────────────────────────
+// Regra: só ganha certificado quem faz uma PROVA (modo cronometrado) e
+// acerta pelo menos CERT_MIN%. O melhor resultado é guardado; nota menor
+// nunca substitui a maior (nem localmente, nem no banco).
+const CERT_MIN = 70;
+
+function certTipo(mod) {
+  const d = MOD_DEFS.find(x => x.mod === mod) || { name: 'SubnetLab' };
+  if (mod === 4) return { titulo: 'Certificado de Preparação para Certificação', curso: d.name, tipo: 'prep' };
+  return { titulo: 'Certificado de Conclusão de Curso', curso: d.name, tipo: 'curso' };
+}
+
+function certRank(pct) {
+  return pct === 100 ? { rank: 'Mestre CCNA',    icon: '🏆', cor: '#F5C842' }
+       : pct >= 90   ? { rank: 'Expert em Redes', icon: '🌟', cor: '#5EE0A8' }
+       : pct >= 80   ? { rank: 'CCNA Aprovado',   icon: '✅', cor: '#7AB8F5' }
+       :               { rank: 'Técnico de Redes', icon: '📡', cor: '#A89DF5' };
+}
+
+function getCerts() {
+  try { return JSON.parse(localStorage.getItem(KEY.certs) || '{}'); } catch { return {}; }
+}
+
+// Grava localmente apenas se for a melhor nota do módulo. Devolve true se melhorou.
+function saveCertLocal(mod, info) {
+  const c   = getCerts();
+  const at  = c[mod];
+  if (at && at.pct >= info.pct) return false;
+  c[mod] = info;
+  localStorage.setItem(KEY.certs, JSON.stringify(c));
+  return true;
+}
+
+function bestCertPct(mod) {
+  const c = getCerts();
+  return c[mod] ? c[mod].pct : null;
+}
+
+async function sbCertPut(code, mod, pct, acertos, total, rank) {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/cert_put`, {
+      method: 'POST',
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_code: code, p_mod: mod, p_pct: pct, p_acertos: acertos, p_total: total, p_rank: rank }),
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    return Array.isArray(d) ? d[0] : d;
+  } catch { return null; }
+}
+
+async function sbConquistaAdd(code, nome, mod, pct, rank) {
+  try {
+    await fetch(`${SB_URL}/rest/v1/rpc/conquista_add`, {
+      method: 'POST',
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_code: code, p_nome: nome, p_mod: mod, p_pct: pct, p_rank: rank }),
+    });
+    return true;
+  } catch { return false; }
+}
+
+async function sbConquistasList(excluir, limite = 30) {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/conquistas_list`, {
+      method: 'POST',
+      headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_excluir: excluir || '', p_limite: limite }),
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    return Array.isArray(d) ? d : null;
+  } catch { return null; }
+}
+
+// Chamado no fim de TODA sessão: decide se há certificado e o que registrar.
+async function registrarCertificado() {
+  const tot = S.correct + S.wrong;
+  const pct = tot > 0 ? Math.round(S.correct / tot * 100) : 0;
+  const mod = S.selectedMod;
+  const elegivel = S.timerMode === 'timed' && pct >= CERT_MIN && [1, 2, 3, 4].includes(mod);
+
+  S.cert = { elegivel, pct, melhor: bestCertPct(mod), novo: false, sincronizado: null };
+  if (!elegivel) return;
+
+  const rank  = certRank(pct).rank;
+  const antes = bestCertPct(mod);
+  const info  = { pct, acertos: S.correct, total: tot, rank, quando: new Date().toISOString() };
+  S.cert.novo = saveCertLocal(mod, info);
+  S.cert.melhor = antes === null ? pct : Math.max(antes, pct);
+  if (!S.cert.novo) return;              // nota menor: nada é publicado
+
+  const code = getCode();
+  if (!code) { S.cert.sincronizado = false; return; }
+  const res = await sbCertPut(code, mod, pct, S.correct, tot, rank);
+  S.cert.sincronizado = res ? !!res.melhorou : false;
+  if (res && res.melhorou) {
+    // só anuncia aos colegas quando a nota melhorou DE FATO na nuvem
+    await sbConquistaAdd(code, getStudent() || 'Colega', mod, pct, rank);
+  }
+  if (S.screen === 'result') render();
+}
+
+
+// ── NOTIFICAÇÕES (conquistas dos colegas) ────────────────────────────
+function ultimaNotifVista() {
+  return parseInt(localStorage.getItem(KEY.notifSeen) || '0', 10) || 0;
+}
+
+async function carregarNotificacoes() {
+  const lista = await sbConquistasList(getCode(), 30);
+  if (!lista) return;                       // offline: mantém o que houver
+  S.notif = lista;
+  const vistas = ultimaNotifVista();
+  const novas  = lista.filter(c => Number(c.id) > vistas).length;
+  const b = document.getElementById('notifBadge');
+  if (b) {
+    b.textContent = novas > 9 ? '9+' : String(novas);
+    b.hidden = novas === 0;
+  }
+}
+
+function textoConquista(c) {
+  const curso = c.mod === 4 ? 'a preparação para a certificação' : `o curso ${certTipo(c.mod).curso}`;
+  return `${c.nome} finalizou a prova final de ${curso} e conquistou o certificado ${c.rank || 'de aprovação'} (${c.pct}%)`;
+}
+
+function showNotificacoes() {
+  closeAllModals();
+  const lista = Array.isArray(S.notif) ? S.notif : null;   // null = ainda não carregou / falhou
+  const itens = lista === null
+    ? `<p style="color:var(--text2);font-size:13px">Não foi possível carregar as conquistas agora. Verifique a conexão e tente de novo.</p>`
+    : !lista.length
+      ? `<p style="color:var(--text2);font-size:13px">Nenhum colega conquistou certificado ainda. Seja o primeiro! 🏆</p>`
+      : lista.map(c => `<div class="notif-item">
+          <div class="notif-icon">🎓</div>
+          <div class="notif-body">
+            <div class="notif-txt">${esc(textoConquista(c))}</div>
+            <div class="notif-when">${esc(new Date(c.criado_em).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' }))}</div>
+          </div>
+        </div>`).join('');
+
+  const el = document.createElement('div');
+  el.className = 'cmodal-overlay';
+  el.id = 'notif-overlay';
+  el.innerHTML = `<div class="cmodal" style="max-width:420px">
+    <div class="cmodal-title">🔔 Conquistas dos colegas</div>
+    <div class="notif-list">${itens}</div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="btn pri" id="notifOk" style="min-width:90px">Fechar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(el);
+  el.querySelector('#notifOk').onclick = () => el.remove();
+  el.addEventListener('click', e => { if (e.target === el) el.remove(); });
+
+  // marca como vistas
+  if (Array.isArray(lista) && lista.length) {
+    const maior = Math.max(...lista.map(c => Number(c.id) || 0));
+    if (maior > ultimaNotifVista()) localStorage.setItem(KEY.notifSeen, String(maior));
+    const b = document.getElementById('notifBadge');
+    if (b) { b.hidden = true; b.textContent = ''; }
+  }
 }
 
 // ── 10. RENDER ──────────────────────────────────────────────────────
@@ -1239,6 +1410,7 @@ function renderModules() {
           <span class="mod-profile-name">${esc(name)}</span>
         </button>
         <div class="mod-topbar-actions">
+          <button class="icon-btn notif-btn" id="modNotif" title="Conquistas dos colegas" aria-label="Notificações de conquistas">🔔<span class="notif-badge" id="notifBadge" hidden></span></button>
           <button class="icon-btn" id="modRanking" title="Ranking da turma" aria-label="Ranking da turma">🏆</button>
           <button class="icon-btn" id="modGuide" title="Como funciona" aria-label="Como funciona">❓</button>
           <button class="icon-btn theme-btn" title="Alternar tema" aria-label="Alternar tema">${darkMode ? '☀️' : '🌙'}</button>
@@ -1282,6 +1454,8 @@ function bindModules() {
   document.querySelector('.theme-btn')?.addEventListener('click', toggleTheme);
 
   document.getElementById('modProfile')?.addEventListener('click', showProfileModal);
+  document.getElementById('modNotif')?.addEventListener('click', showNotificacoes);
+  carregarNotificacoes();
 
   const enterMod = (m) => {
     S.pendingMod = null;
@@ -2457,14 +2631,16 @@ function renderResult() {
   const scoreColor = pct === 100 ? '#F5C842' : pct >= 90 ? '#5EE0A8' : pct >= 70 ? '#7AB8F5' : '#F08080';
   const certBorder = scoreColor + '88';
 
-  const isCert = S.timerMode === 'timed' && pct >= 70;
+  const certInfo  = certTipo(S.selectedMod);
+  const isCert    = S.timerMode === 'timed' && pct >= CERT_MIN && [1, 2, 3, 4].includes(S.selectedMod);
+  const melhorPct = S.cert ? S.cert.melhor : bestCertPct(S.selectedMod);
+  const recorde   = S.cert ? !!S.cert.novo : false;
   const certData = pct === 100 ? { rank: 'Mestre CCNA',    icon: '🏆', sub: 'Desempenho Perfeito!' }
     : pct >= 90              ? { rank: 'Expert em Redes',  icon: '🌟', sub: 'Resultado excepcional!' }
     : pct >= 80              ? { rank: 'CCNA Aprovado',    icon: '✅', sub: 'Pronto para o exame real!' }
     :                          { rank: 'Técnico de Redes', icon: '📡', sub: 'Aprovado no limite!' };
 
-  const _modLabels = { 1: 'Módulo 1 — ITN', 2: 'Módulo 2 — SRWE', 3: 'Módulo 3 — ENSA', 4: 'Módulo 4 — Preparação para Certificação', 0: 'Revisão Completa' };
-  const modLabel = _modLabels[S.selectedMod] || 'SubnetLab';
+  const modLabel = certInfo.curso;
   const datePT   = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   const badgeHtml = S.badges.map(b =>
@@ -2490,10 +2666,15 @@ function renderResult() {
   const certInner = isCert ? `
       <div class="cert-top-label">${esc(modLabel)}</div>
       <div class="cert-icon" style="color:${scoreColor}">${certData.icon}</div>
-      <div class="cert-title-sm">Certificado de Aprovação</div>
+      <div class="cert-title-sm">${esc(certInfo.titulo)}</div>
       <div class="cert-student">${esc(name)}</div>
       <div class="cert-rank" style="color:${scoreColor}">${esc(certData.rank)}</div>
       <div class="cert-sub">${esc(certData.sub)} · ${esc(datePT)}</div>
+      <div class="cert-sub" style="margin-top:4px;font-weight:600">
+        ${recorde
+          ? '🎉 Novo recorde pessoal neste módulo'
+          : (melhorPct && melhorPct > pct ? `Seu melhor neste módulo continua sendo ${melhorPct}%` : '')}
+      </div>
       <div class="cert-divider" style="border-color:${scoreColor}"></div>
       <div class="cert-score-row">
         <div class="cert-stat">
@@ -2645,7 +2826,7 @@ function downloadCertCanvas() {
   // Título
   ctx.fillStyle = '#9BA3C4';
   ctx.font      = '13px system-ui, sans-serif';
-  ctx.fillText('CERTIFICADO DE APROVAÇÃO', W / 2, 155);
+  ctx.fillText((certTipo(S.selectedMod).titulo || 'CERTIFICADO').toUpperCase(), W / 2, 155);
 
   // Nome
   ctx.fillStyle = '#E8EAF6';
