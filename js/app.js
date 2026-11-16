@@ -2221,13 +2221,14 @@ function renderStart() {
   const modLabels = { 1: 'ITN', 2: 'SRWE', 3: 'ENSA', 4: 'CERT' };
   // Dentro do módulo o título é "Módulo 2 — SRWE": sem o nome do app (ele pertence à tela
   // de escolha) e sem a contagem de questões (que já aparece nos modos e nos cards).
-  const titleSub = S.selectedMod
-    ? `Módulo ${S.selectedMod} — ${modLabels[S.selectedMod] || ''}`
-    : 'Revisão Completa';
-
   // A descrição do módulo vive AQUI, não na tela de escolha: é onde o aluno já entrou
   // e precisa saber o que vai estudar.
   const defAtual = MOD_DEFS.find(d => d.mod === (S.selectedMod || 0));
+
+  // Título pelo nome do curso, sem o prefixo "Módulo N —" (pedido do Caique)
+  const titleSub = S.selectedMod
+    ? (defAtual ? defAtual.name : (modLabels[S.selectedMod] || ''))
+    : 'Revisão Completa';
   const modDescHtml = defAtual && defAtual.desc
     ? `<p class="start-mod-desc">${esc(defAtual.desc)}</p>` : '';
 
