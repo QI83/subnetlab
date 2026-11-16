@@ -340,7 +340,8 @@ function saveProgress() {
     maxStreak: S.maxStreak,
     correct: S.correct,
     wrong: S.wrong,
-    wrongLog: S.wrongLog.map(w => ({ qId: w.q ? w.q.id : null, userAns: w.userAns })),
+    wrongLog: S.wrongLog.map(w => ({ qId: w.q ? w.q.id : null, qKey: w.q ? qKey(w.q) : null, userAns: w.userAns })),
+    answers: S.answers || {},
     topicStats: S.topicStats,
     timerMode: S.timerMode,
     timerLeft: S.timerLeft,
@@ -358,8 +359,10 @@ function loadProgress() {
     const s = JSON.parse(raw);
     // Reconstruir wrongLog com objetos de questão completos
     s.wrongLog = (s.wrongLog || [])
-      .map(w => ({ q: Q.find(x => x.id === w.qId) || null, userAns: w.userAns }))
+      .map(w => ({ q: (w.qKey ? Q.find(x => qKey(x) === w.qKey) : null) || Q.find(x => x.id === w.qId) || null,
+                   userAns: w.userAns }))
       .filter(w => w.q);
+    if (!s.answers) s.answers = {};
     // Restaurar Infinity
     if (s.lives === -1) s.lives = Infinity;
     if (s.maxLives === -1) s.maxLives = Infinity;
@@ -617,6 +620,7 @@ let S = {
   answered:      false,
   selected:      null,     // índice original selecionado (single)
   multiSel:      [],       // índices originais selecionados (multi)
+  answers:       {},       // {qKey: resposta do usuário} — usado na revisão
   matchSel:      {},       // {pairIdx: optIdx} para match
   shuffledMatchOpts: [],   // opções direita embaralhadas (match)
   optOrder:      null,     // ordem embaralhada das opções (single/multi)
@@ -809,6 +813,7 @@ function startQuiz() {
     answered: false,
     selected: null,
     multiSel: [],
+    answers: {},
     matchSel: {},
     shuffledMatchOpts: [],
     optOrder: null,
@@ -852,6 +857,7 @@ function handleSingle(dispIdx) {
   S.selected    = realIdx;
   S.answered    = true;
   const ok      = realIdx === q.cor;
+  (S.answers || (S.answers = {}))[qKey(q)] = realIdx;
   applyScore(q, ok, dispIdx);
   render();
   saveProgress();
@@ -888,6 +894,7 @@ function handleMultiConfirm() {
   const selSet = new Set(S.multiSel);
   // Considerada correta se selecionou exatamente as corretas
   const ok     = [...corSet].every(c => selSet.has(c)) && selSet.size === corSet.size;
+  (S.answers || (S.answers = {}))[qKey(q)] = [...S.multiSel];
   applyScore(q, ok, null);
   render();
   saveProgress();
@@ -909,6 +916,7 @@ function handleMatchConfirm() {
   if (Object.keys(S.matchSel).length < q.pairs.length) return;
   S.answered = true;
   const allOk = q.pairs.every((p, pi) => S.shuffledMatchOpts[S.matchSel[pi]] === p.r);
+  (S.answers || (S.answers = {}))[qKey(q)] = q.pairs.map((_, pi) => S.shuffledMatchOpts[S.matchSel[pi]] || null);
   applyScore(q, allOk, null);
   render();
   saveProgress();
@@ -942,7 +950,7 @@ function applyScore(q, ok, _dispIdx) {
     S.streak = 0;
     S.xp     = Math.max(0, S.xp - 5);
     S.wrong++;
-    S.wrongLog.push({ q, userAns: null });
+    S.wrongLog.push({ q, userAns: (S.answers && S.answers[qKey(q)]) ?? null });
   }
   // Estatísticas por tópico e por questão
   const tp = q.tp;
@@ -1760,14 +1768,20 @@ async function vincularCodigo(codigoDigitado) {
   }
 
   const linkBtn = document.getElementById('linkBtn');
-  if (linkBtn) { linkBtn.disabled = true; linkBtn.textContent = '…'; }
+  const linkTxt = linkBtn ? linkBtn.textContent : '';
+  if (linkBtn) { linkBtn.disabled = true; linkBtn.textContent = 'Buscando…'; }
 
-  const remoto = await sbPull(normalizado);
+  let remoto = null;
+  try { remoto = await sbPull(normalizado); } catch { remoto = null; }
 
-  if (linkBtn) { linkBtn.disabled = false; linkBtn.textContent = 'Vincular'; }
+  if (linkBtn) { linkBtn.disabled = false; linkBtn.textContent = linkTxt || 'Vincular'; }
 
   if (!remoto) {
-    showAlert('Código não encontrado na nuvem.');
+    // Sem retorno do servidor não dá para saber se o código não existe ou se o
+    // progresso do outro aparelho ainda não subiu — a mensagem diz as duas coisas.
+    showAlert('Não encontramos esse código na nuvem agora.\n\n'
+      + 'Confira se digitou as 16 letras/números certos. Se o código é novo, o outro aparelho precisa estar online '
+      + 'e sincronizado — aguarde alguns segundos e toque em Vincular de novo.');
     return;
   }
 
@@ -2583,8 +2597,8 @@ function downloadCertCanvas() {
     :                          { rank: 'Técnico de Redes', icon: '📡', color: '#A89DF5' };
 
   const name     = getStudent() || 'Aluno';
-  const _mL      = { 1: 'Módulo 1 — ITN', 2: 'Módulo 2 — SRWE', 3: 'Módulo 3 — ENSA', 4: 'Módulo 4 — Preparação para Certificação', 0: 'Revisão Completa' };
-  const modLabel = _mL[S.selectedMod] || 'SubnetLab';
+  const _defM = MOD_DEFS.find(d => d.mod === S.selectedMod);
+  const modLabel = _defM ? _defM.name : 'SubnetLab';
   const datePT   = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   const W = 800, H = 500;
@@ -2710,24 +2724,44 @@ function renderReview() {
   const tagColor = topicColor(q.tp);
   const letters  = 'ABCDEFGHIJKLMNOP';
 
+  // Resposta do usuário (para mostrar "você marcou X" e pintar a escolha errada)
+  const ua = (S.answers || {})[qKey(q)];
+  const uaArr = Array.isArray(ua) ? ua : (ua === undefined || ua === null ? [] : [ua]);
+
   let optsHtml = '';
   if (q.ty === 'single') {
     optsHtml = q.opts.map((opt, i) => {
-      const cls = i === q.cor ? 'opt correct' : 'opt dim';
+      const cls = i === q.cor ? 'opt correct' : (uaArr.includes(i) ? 'opt wrong' : 'opt dim');
       return `<div class="${cls}"><span class="olet">${letters[i]}</span><span>${wrapAcronyms(esc(opt))}</span></div>`;
     }).join('');
   } else if (q.ty === 'multi') {
     optsHtml = q.opts.map((opt, i) => {
-      const cls = q.cor.includes(i) ? 'opt correct' : 'opt dim';
+      const cls = q.cor.includes(i) ? 'opt correct' : (uaArr.includes(i) ? 'opt wrong' : 'opt dim');
       return `<div class="${cls}"><span class="olet">${letters[i]}</span><span>${wrapAcronyms(esc(opt))}</span></div>`;
     }).join('');
   } else if (q.ty === 'match') {
-    optsHtml = q.pairs.map(p =>
-      `<div class="match-row correct">
+    const uaPairs = Array.isArray(ua) ? ua : [];
+    optsHtml = q.pairs.map((p, pi) => {
+      const escolha = uaPairs[pi];
+      const errou   = escolha && escolha !== p.r;
+      return `<div class="match-row correct">
         <div class="match-left">${wrapAcronyms(esc(p.l))}</div>
         <div style="font-size:12px;color:var(--green-text)">✓ ${esc(p.r)}</div>
-      </div>`
-    ).join('');
+        ${errou ? `<div style="font-size:12px;color:var(--red-text);margin-top:4px">✗ Você associou: ${esc(escolha)}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // Linha "sua resposta" para single/multi
+  const lettersAll = 'ABCDEFGHIJKLMNOP';
+  let uaHtml = '';
+  if (uaArr.length && q.ty !== 'match') {
+    const acertou = q.ty === 'single' ? uaArr[0] === q.cor
+                                      : uaArr.slice().sort().join() === q.cor.slice().sort().join();
+    const rotulo  = uaArr.map(i => lettersAll[i]).join(', ');
+    uaHtml = `<div style="margin:10px 0 2px;font-size:13px;color:var(--text2)">
+      Sua resposta: <strong style="color:${acertou ? 'var(--green-text)' : 'var(--red-text)'}">${rotulo} ${acertou ? '✓' : '✗'}</strong>
+    </div>`;
   }
 
   const whyHtml = q.why ? `<div class="fb-why" style="margin-top:10px">
@@ -2760,6 +2794,7 @@ function renderReview() {
       ${figHtml}
     </div>
 
+    ${uaHtml}
     <div class="opts">${optsHtml}</div>
     ${whyHtml}
 
