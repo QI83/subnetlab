@@ -6,7 +6,7 @@
 // O cache-first puro prendia o aluno na versão antiga depois de cada deploy.
 'use strict';
 
-const CACHE_NAME = 'subnetlab-v30';
+const CACHE_NAME = 'subnetlab-v31';
 
 const ASSETS = [
   '.',
@@ -111,6 +111,7 @@ self.addEventListener('fetch', event => {
   if (!event.request.url.startsWith('http') && !event.request.url.startsWith('file')) return;
 
   const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
   const deveBuscarRedePrimeiro =
     event.request.mode === 'navigate' || NETWORK_FIRST.test(url.pathname);
 

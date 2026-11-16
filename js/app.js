@@ -507,12 +507,13 @@ async function sbDeleteCloud(code) {
 }
 
 async function sbRanking() {
+  if (!navigator.onLine) return { ok: false, data: [] };
   const ctrl = new AbortController();
   const tid = setTimeout(() => ctrl.abort(), 8000);
   try {
     const r = await fetch(
       `${SB_URL}/rest/v1/ranking?select=*&order=posicao.asc&limit=50`,
-      { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }, signal: ctrl.signal }
+      { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` }, signal: ctrl.signal, cache: 'no-store' }
     );
     clearTimeout(tid);
     if (!r.ok) return { ok: false, data: [] };
@@ -1447,7 +1448,7 @@ function renderRanking() {
   const topbar = `
     <div class="ranking-topbar">
       <button class="ranking-back" id="btnRankingBack" aria-label="Voltar para módulos">← Voltar</button>
-      <div class="ranking-topbar-title">🏆 RANKING</div>
+      <div class="ranking-topbar-title">🏆 RANKING${st.status === 'offline' ? ' <span class="rank-offline-badge" role="status" aria-label="Sem conexão">📵 offline</span>' : ''}</div>
       <button class="icon-btn theme-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">${darkMode ? '☀️' : '🌙'}</button>
     </div>`;
 

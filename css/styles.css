@@ -1553,6 +1553,19 @@ body {
   padding: 8px 12px;
   margin-bottom: 14px;
 }
+.rank-offline-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: .03em;
+  background: var(--yellow-bg);
+  color: var(--yellow-text);
+  border: .5px solid var(--yellow);
+  margin-left: auto;
+  vertical-align: middle;
+}
 .rank-offline-msg {
   text-align: center;
   padding: 48px 20px;
