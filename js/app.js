@@ -1079,6 +1079,15 @@ function certTipo(mod) {
   return { titulo: 'Certificado de Conclusão de Curso', curso: d.name, tipo: 'curso' };
 }
 
+// Cor do texto do rank na LISTA do perfil: no tema claro o amarelo/verde claros
+// somem no fundo branco, então usamos a variante escura equivalente.
+function rankListColor(pct) {
+  const escuro = { 100: '#F5C842', 90: '#5EE0A8', 80: '#7AB8F5', 0: '#A89DF5' };
+  const claro  = { 100: '#8A6A00', 90: '#0F6B45', 80: '#1E4E8C', 0: '#4B3E9E' };
+  const faixa  = pct === 100 ? 100 : pct >= 90 ? 90 : pct >= 80 ? 80 : 0;
+  return (darkMode ? escuro : claro)[faixa];
+}
+
 function certRank(pct) {
   return pct === 100 ? { rank: 'Mestre CCNA',    icon: '🏆', cor: '#F5C842' }
        : pct >= 90   ? { rank: 'Expert em Redes', icon: '🌟', cor: '#5EE0A8' }
@@ -1299,7 +1308,7 @@ function renderCertListHtml(certs) {
     return `<div class="cert-list-row" data-mod="${mod}" data-pct="${c.pct}" data-acertos="${acertos}" data-total="${total}" data-data="${esc(dataISO)}">
       <div class="cert-list-info">
         <span class="cert-list-mod">${esc(modName)}</span>
-        <span class="cert-list-rank" style="color:${cor}">${c.pct}% · ${esc(rank)}</span>
+        <span class="cert-list-rank" style="color:${rankListColor(c.pct)}">${c.pct}% · ${esc(rank)}</span>
         ${dateStr ? `<span class="cert-list-date">${esc(dateStr)}</span>` : ''}
       </div>
       <div class="cert-list-btns">
