@@ -1189,8 +1189,10 @@ async function carregarNotificacoes() {
 }
 
 function textoConquista(c) {
-  const curso = c.mod === 4 ? 'a preparação para a certificação' : `o curso ${certTipo(c.mod).curso}`;
-  return `${c.nome} finalizou a prova final de ${curso} e conquistou o certificado ${c.rank || 'de aprovação'} (${c.pct}%)`;
+  const alvo = c.mod === 4
+    ? 'da preparação para a certificação'
+    : `do curso ${certTipo(c.mod).curso}`;
+  return `${c.nome} finalizou a prova final ${alvo} e conquistou o certificado ${c.rank || 'de aprovação'} (${c.pct}%)`;
 }
 
 function showNotificacoes() {
