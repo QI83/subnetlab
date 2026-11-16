@@ -1796,6 +1796,7 @@ function renderGuide() {
     { n: '1', title: 'Escolha o módulo',        text: 'SRWE, ENSA, Revisão Completa ou Certificação. O número no card é quantas questões o módulo tem. A barra mostra quanto você já viu.' },
     { n: '2', title: 'Escolha o modo de estudo', text: 'Livre, Prova, Por Tópico, Revisão de Erros ou Revisão Espaçada — ou o Plano de hoje, que monta a sessão sozinho.' },
     { n: '3', title: 'Estude e acompanhe',       text: 'Cada questão tem explicação da resposta. O XP aparece no ranking, e um código guarda seu progresso para você continuar em outro aparelho.' },
+    { n: '4', title: 'Conquiste o certificado',  text: 'Termine uma Prova com 70% ou mais e o certificado sai na hora. Cada módulo tem o seu, e o app guarda sempre a sua melhor nota — refazer e tirar menos não apaga o certificado que você já ganhou.' },
   ].map(s => `<div class="guide-step">
     <div class="guide-step-num">${s.n}</div>
     <div class="guide-step-body"><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>
@@ -1803,7 +1804,7 @@ function renderGuide() {
 
   const modesHtml = [
     { icon: '📚', name: 'Livre',           desc: 'Questões em ordem aleatória, com correção e explicação na hora.',        when: '"quero estudar sem pressão"' },
-    { icon: '⏱', name: 'Prova',            desc: 'Cronômetro, sem feedback até o fim, limite de erros. 70%+ emite certificado.', when: '"quero simular o dia da prova"' },
+    { icon: '⏱', name: 'Prova',            desc: 'Cronômetro, sem feedback até o fim, limite de erros. 70%+ emite o certificado do módulo.', when: '"quero simular o dia da prova"' },
     { icon: '🏷️', name: 'Por Tópico',      desc: 'Você escolhe um assunto (STP, OSPF, ACLs…) e treina só ele.',           when: '"vou mal em VLANs"' },
     { icon: '❌', name: 'Revisão de Erros', desc: 'Só as questões que você já errou, das mais erradas para as menos.',     when: '"quero corrigir o que caiu"' },
     { icon: '🔁', name: 'Revisão Espaçada', desc: 'Questões vencendo hoje, num intervalo que cresce a cada acerto.',       when: '"quero não esquecer o que aprendi"' },
@@ -1820,6 +1821,8 @@ function renderGuide() {
     { icon: '🎯',    name: 'Prontidão',         desc: 'Diz o quanto você está pronto para a prova.' },
     { icon: '📊',    name: 'Stats',             desc: 'Seu desempenho questão por questão.' },
     { icon: '📋',    name: 'Histórico',         desc: 'Todas as sessões que você já fez.' },
+    { icon: '🔔',    name: 'Conquistas',        desc: 'Avisa quando um colega conquista certificado — com nome, curso e nota.' },
+    { icon: '🎓',    name: 'Meus certificados', desc: 'No seu perfil: baixar o PNG, compartilhar ou imprimir (dá para salvar em PDF na impressão).' },
     { icon: '🔑',    name: 'Meu código',        desc: 'O código que leva seu progresso para outro aparelho.' },
     { icon: '🏆',    name: 'Ranking',           desc: 'A classificação da turma por XP.' },
     { icon: '☀️/🌙', name: 'Tema',             desc: 'Troca entre o modo claro e o escuro.' },
@@ -1835,7 +1838,7 @@ function renderGuide() {
     { emoji: '⚡', label: 'XP',                 rule: `Acertar vale <span class="guide-score-hl">+15 XP</span>. Errar desconta <span class="guide-score-hl">5 XP</span> (mínimo zero).` },
     { emoji: '🔥', label: 'Streak',              rule: `Acertos seguidos: <span class="guide-score-hl">+5 XP</span> no 2.° e <span class="guide-score-hl">+10 XP</span> do 3.° em diante.` },
     { emoji: '❤️', label: 'Vidas (só na Prova)', rule: 'Você pode errar até 30% das questões. A sessão encerra quando as vidas zeram.' },
-    { emoji: '🏆', label: 'Certificado',         rule: '70% ou mais no modo Prova gera certificado com rank, disponível para download.' },
+    { emoji: '🎓', label: 'Certificado',         rule: '<span class="guide-score-hl">70%+ no modo Prova</span> gera certificado com rank. Módulos 1 a 3 emitem <em>Conclusão de Curso</em>; a Revisão Completa e a Preparação para Certificação têm os seus. Só a <strong>maior nota</strong> fica guardada.' },
   ].map(s => `<div class="guide-score-card">
     <div class="guide-score-top">
       <div class="guide-score-emoji">${s.emoji}</div>
@@ -1846,7 +1849,7 @@ function renderGuide() {
 
   const progHtml = [
     { icon: '🔑', title: 'Código de acesso', text: 'É o que identifica você — sem senha, sem e-mail. Guarde-o: com ele você recupera tudo em outro celular ou computador.' },
-    { icon: '☁️', title: 'Sincronização',    text: 'Automática quando há internet. Funciona offline: o app salva no aparelho e envia depois.' },
+    { icon: '☁️', title: 'Sincronização',    text: 'Automática quando há internet: o app junta o que você fez em cada aparelho antes de enviar, então nada se perde se estudar em dois. Funciona offline — salva no aparelho e envia quando a conexão volta.' },
     { icon: '🏆', title: 'Ranking',          text: 'Nome, XP e posição. Seu progresso individual nunca é mostrado a ninguém.' },
     { icon: '🗑️', title: 'Apagar da nuvem', text: 'No modal do código você pode apagar os dados do servidor. Os dados deste aparelho ficam.' },
   ].map(p => `<div class="guide-prog-item">
