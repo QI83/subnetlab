@@ -1205,8 +1205,19 @@ body {
   cursor: pointer;
   transition: border-color 0.15s;
 }
-.mod-revisao:hover { border-color: var(--border2); }
+.mod-revisao:hover:not(.mod-revisao--current) { border-color: var(--border2); }
 .mod-revisao:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.mod-revisao--current {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue-bg);
+  background: var(--blue-bg);
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+[data-theme="dark"] .mod-revisao--current {
+  background: linear-gradient(140deg, #1D2235 0%, #191C27 100%);
+}
+.mod-revisao--current .mod-trail-cta { margin-top: 10px; width: 100%; }
 .mod-revisao-body { flex: 1; min-width: 0; }
 .mod-revisao-name  { font-size: 13px; font-weight: 600; color: var(--text); display: block; }
 .mod-revisao-count { font-size: 11px; color: var(--text2); }

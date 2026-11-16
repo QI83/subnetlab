@@ -1247,14 +1247,24 @@ function renderModules() {
     </div>
 
     <div class="mod-trail-hr" style="margin-top:12px"></div>
-    <div class="mod-revisao" data-mod="0" role="button" tabindex="0" aria-label="Revisão completa">
+    ${S.pendingMod === 0 ? `
+    <div class="mod-revisao mod-revisao--current" data-mod="0" role="button" tabindex="0" aria-label="Revisão completa" aria-pressed="true">
+      <span class="mod-trail-icon mod-trail-icon-sm">🎯</span>
+      <div class="mod-revisao-body">
+        <span class="mod-revisao-name">Revisão completa</span>
+        <span class="mod-revisao-count">${revProg.seen} de ${revProg.total} questões · ${revProg.pct}%</span>
+        <div class="mod-trail-pbar"><div class="mod-trail-pfill" style="width:${revProg.pct}%"></div></div>
+      </div>
+      <button class="mod-trail-cta" aria-label="Entrar na revisão completa">${revProg.seen > 0 ? 'Continuar' : 'Iniciar'} <span>→</span></button>
+    </div>` : `
+    <div class="mod-revisao" data-mod="0" role="button" tabindex="0" aria-label="Revisão completa" aria-pressed="false">
       <span class="mod-trail-icon mod-trail-icon-sm">🎯</span>
       <div class="mod-revisao-body">
         <span class="mod-revisao-name">Revisão completa</span>
         <span class="mod-revisao-count">${revProg.seen} de ${revProg.total} questões · ${revProg.pct}%</span>
       </div>
       <span class="mod-revisao-arrow">›</span>
-    </div>
+    </div>`}
   </div>`;
 }
 
@@ -1293,12 +1303,12 @@ function bindModules() {
     });
   });
 
-  // Revisão completa: direct entry (unchanged shortcut)
+  // Revisão completa: tap to SELECT (expand), enter via CTA (same pattern as module cards)
   document.querySelectorAll('.mod-revisao[data-mod]').forEach(el => {
-    const activate = () => enterMod(parseInt(el.dataset.mod, 10) || 0);
-    el.addEventListener('click', activate);
+    const select = () => { S.pendingMod = 0; render(); };
+    el.addEventListener('click', select);
     el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); }
     });
   });
 
