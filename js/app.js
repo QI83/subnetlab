@@ -460,6 +460,27 @@ function snapshot() {
 async function sbPush() {
   const code = getCode();
   if (!code) return false;
+
+  // ANTES de enviar, junta com o que está na nuvem. Sem isto, um aparelho com
+  // dados antigos sobrescreve o progresso que outro aparelho acabou de gravar
+  // (último-a-enviar-vence). Falha de rede aqui não impede o envio.
+  try {
+    const row = await sbPull(code);
+    if (row) {
+      const remote = { ...(row.dados || {}), xp: row.xp || 0 };
+      const local  = { qStats, spaced, history: getHistory(), xp: getXpTotal() };
+      const { merged, changed } = mergeSnapshots(local, remote);
+      if (changed) {
+        qStats = merged.qStats;
+        spaced = merged.spaced;
+        localStorage.setItem(KEY.qstats,  JSON.stringify(qStats));
+        localStorage.setItem(KEY.spaced,  JSON.stringify(spaced));
+        localStorage.setItem(KEY.history, JSON.stringify(merged.history));
+        localStorage.setItem('sl_xp_total', String(merged.xp));
+      }
+    }
+  } catch { /* segue com o envio */ }
+
   const ctrl = new AbortController();
   const tid = setTimeout(() => ctrl.abort(), 8000);
   try {
@@ -511,6 +532,75 @@ async function sbDeleteCloud(code) {
   } catch { clearTimeout(tid); return false; }
 }
 
+// ── BIDIRECTIONAL SYNC ───────────────────────────────────────────────
+function mergeSnapshots(local, remote) {
+  let changed = false;
+
+  // qStats: keep the record with higher `a`; tie → higher `c`
+  const mergedQStats = { ...local.qStats };
+  for (const [k, rv] of Object.entries(remote.qStats || {})) {
+    const lv = local.qStats[k];
+    if (!lv || rv.a > lv.a || (rv.a === lv.a && rv.c > lv.c)) {
+      mergedQStats[k] = rv;
+      if (!lv || lv.a !== rv.a || lv.c !== rv.c) changed = true;
+    }
+  }
+
+  // spaced {int, due, ease, reps}: keep the record with higher `reps`; tie → higher `ease`
+  const mergedSpaced = { ...local.spaced };
+  for (const [k, rv] of Object.entries(remote.spaced || {})) {
+    const lv = local.spaced[k];
+    if (!lv || rv.reps > lv.reps || (rv.reps === lv.reps && rv.ease > lv.ease)) {
+      mergedSpaced[k] = rv;
+      if (!lv || lv.reps !== rv.reps || lv.ease !== rv.ease) changed = true;
+    }
+  }
+
+  // history: union by `${date}|${total}`, newest first, capped at 20
+  const localHistory = local.history || [];
+  const seen = new Set(localHistory.map(h => `${h.date}|${h.total}`));
+  const mergedHistory = [...localHistory];
+  for (const h of (remote.history || [])) {
+    const key = `${h.date}|${h.total}`;
+    if (!seen.has(key)) { mergedHistory.push(h); seen.add(key); changed = true; }
+  }
+  mergedHistory.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  if (mergedHistory.length > 20) mergedHistory.length = 20;
+
+  // xp: take the max
+  const mergedXp = Math.max(local.xp || 0, remote.xp || 0);
+  if (mergedXp > (local.xp || 0)) changed = true;
+
+  return { merged: { qStats: mergedQStats, spaced: mergedSpaced, history: mergedHistory, xp: mergedXp }, changed };
+}
+
+async function syncPullMerge() {
+  const code = getCode();
+  if (!code || !navigator.onLine) return;
+  if (_syncRunning) return;
+  _syncRunning = true;
+  try {
+    const row = await sbPull(code);
+    if (!row) return;
+    const remote = { ...(row.dados || {}), xp: row.xp || 0 };
+    const local  = { qStats, spaced, history: getHistory(), xp: getXpTotal() };
+    const { merged, changed } = mergeSnapshots(local, remote);
+    if (changed) {
+      qStats = merged.qStats;
+      spaced = merged.spaced;
+      localStorage.setItem(KEY.qstats,   JSON.stringify(qStats));
+      localStorage.setItem(KEY.spaced,   JSON.stringify(spaced));
+      localStorage.setItem(KEY.history,  JSON.stringify(merged.history));
+      localStorage.setItem('sl_xp_total', String(merged.xp));
+      if (S.screen === 'modules' || S.screen === 'start') render();
+      await sbPush();
+      setSyncStatus('ok');
+    }
+  } finally {
+    _syncRunning = false;
+  }
+}
+
 async function sbRanking() {
   if (!navigator.onLine) return { ok: false, data: [] };
   const ctrl = new AbortController();
@@ -530,6 +620,8 @@ async function sbRanking() {
 // ── SYNC STATUS ───────────────────────────────────────────────────────
 let syncStatus = '';
 let syncStatusTimer = null;
+let _syncRunning = false;
+let _lastAutoSync = 0;
 
 function setSyncStatus(s) {
   syncStatus = s;
@@ -3978,7 +4070,21 @@ document.addEventListener('DOMContentLoaded', () => {
   render();
   registerSW();
 
+  // Silent background sync on boot — does not block first render
+  if (getCode()) syncPullMerge();
+
   window.addEventListener('online', () => { if (getCode()) sbPush(); });
+
+  // Auto-sync when user returns to the tab/window (throttled, never during quiz)
+  function _maybeAutoSync() {
+    if (S.screen === 'quiz') return;
+    const now = Date.now();
+    if (now - _lastAutoSync < 20000) return;
+    _lastAutoSync = now;
+    syncPullMerge();
+  }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') _maybeAutoSync(); });
+  window.addEventListener('focus', _maybeAutoSync);
 
   // Tooltips de siglas — clicar em .acr mostra definição
   document.addEventListener('click', e => {
