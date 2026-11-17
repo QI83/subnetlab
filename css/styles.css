@@ -549,6 +549,7 @@ body {
 .search-num  { font-size: 10px; color: var(--text3); margin-bottom: 3px; }
 .search-text { font-size: 13px; color: var(--text); line-height: 1.5; }
 .search-tag  { display: inline-block; font-size: 10px; font-weight: 600; padding: 1px 8px; border-radius: 20px; margin-top: 4px; }
+.gabarito-badge { font-size: 11px; color: var(--text3); background: var(--bg2); border: .5px solid var(--border); border-radius: var(--radius-sm); padding: 5px 10px; margin-bottom: 10px; text-align: center; }
 
 /* ── FAVORITO ────────────────────────────────────────────────────── */
 .fav-btn {

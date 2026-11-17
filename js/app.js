@@ -757,6 +757,7 @@ let S = {
   searchQuery:   '',
   selectedMod:   0,
   pendingMod:    null,     // transient: módulo selecionado na trilha, não persistido
+  gabaritoId:    null,     // transient: questão em consulta gabarito (nunca conta XP/stats)
   planIds:       [],       // índices do plano corrente (persistido para resumeQuiz)
   cert:          null,     // {elegivel, pct, melhor, novo, sincronizado}
   notif:         null,     // últimas conquistas dos colegas
@@ -1578,6 +1579,7 @@ function render() {
   stopCountdownTick();   // re-armado por bindStart quando a tela start renderizar
   const app = document.getElementById('app');
   if (!app) return;
+  if (S.screen !== 'search') S.gabaritoId = null;
 
   if (S.screen === 'splash')  { app.innerHTML = renderSplash();            bindSplash();  return; }
   if (S.screen === 'modules') { app.innerHTML = renderModules();           bindModules(); return; }
@@ -1885,7 +1887,7 @@ function renderGuide() {
   </div>`).join('');
 
   const buttonsHtml = [
-    { icon: '🔍',    name: 'Buscar',           desc: 'Procura uma palavra em todas as questões.' },
+    { icon: '🔍',    name: 'Gabarito',          desc: 'Procura qualquer questão do módulo e mostra a resposta certa com a explicação — modo consulta, não conta XP.' },
     { icon: '📖',    name: 'Glossário',         desc: 'Explica as siglas do CCNA (VLAN, STP, OSPF…).' },
     { icon: '🎯',    name: 'Prontidão',         desc: 'Diz o quanto você está pronto para a prova.' },
     { icon: '📅',    name: 'Data da prova',     desc: 'Marca o dia do exame. Enquanto não marcar, nada aparece; depois, a contagem fica no topo do módulo.' },
@@ -2585,7 +2587,7 @@ function renderStart() {
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
       <button class="btn" id="modulesBtn" style="padding:3px 10px;font-size:11px" title="Voltar para a seleção de módulos" aria-label="Voltar para a seleção de módulos">←<span class="modules-btn-lbl"> Módulos</span></button>
       <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-        <button class="icon-btn" id="searchBtn" title="Buscar questões" aria-label="Buscar questões">🔍</button>
+        <button class="icon-btn" id="searchBtn" title="Gabarito (consultar resposta)" aria-label="Gabarito (consultar resposta)">🔍</button>
         <button class="icon-btn" id="glossBtn"  title="Glossário de siglas" aria-label="Glossário de siglas">📖</button>
         <button class="icon-btn" id="readyBtn"  title="Relatório de prontidão" aria-label="Relatório de prontidão">🎯</button>
         <button class="icon-btn" id="cdBtn"     title="Data da prova" aria-label="Configurar data da prova">📅</button>
@@ -3360,10 +3362,9 @@ function bindHistory() {
   });
 }
 
-// ── BUSCA ─────────────────────────────────────────────────────────────
-function renderSearch() {
-  const q   = S.searchQuery.toLowerCase().trim();
-  const results = q.length >= 2
+// ── GABARITO / BUSCA ──────────────────────────────────────────────────
+function _searchResults(q) {
+  return q.length >= 2
     ? Q.filter(item =>
         item.text.toLowerCase().includes(q) ||
         (item.opts || []).some(o => o.toLowerCase().includes(q)) ||
@@ -3371,10 +3372,97 @@ function renderSearch() {
         item.tp.toLowerCase().includes(q)
       ).slice(0, 30)
     : [];
+}
 
+function renderSearch() {
+  const q       = S.searchQuery.toLowerCase().trim();
+  const results = _searchResults(q);
+
+  // ── Detail / Gabarito view ──────────────────────────────────────────
+  if (S.gabaritoId !== null) {
+    const gq = Q.find(x => x.id === S.gabaritoId);
+    if (gq) {
+      const gabIdx   = results.findIndex(x => x.id === S.gabaritoId);
+      const tagColor = topicColor(gq.tp);
+      const letters  = 'ABCDEFGHIJKLMNOP';
+
+      let optsHtml = '';
+      if (gq.ty === 'single') {
+        optsHtml = gq.opts.map((opt, i) => {
+          const cls = i === gq.cor ? 'opt correct' : 'opt dim';
+          return `<div class="${cls}"><span class="olet">${letters[i]}</span><span>${wrapAcronyms(esc(opt))}</span></div>`;
+        }).join('');
+      } else if (gq.ty === 'multi') {
+        optsHtml = gq.opts.map((opt, i) => {
+          const cls = gq.cor.includes(i) ? 'opt correct' : 'opt dim';
+          return `<div class="${cls}"><span class="olet">${letters[i]}</span><span>${wrapAcronyms(esc(opt))}</span></div>`;
+        }).join('');
+      } else if (gq.ty === 'match') {
+        optsHtml = gq.pairs.map(p =>
+          `<div class="match-row correct">
+            <div class="match-left">${wrapAcronyms(esc(p.l))}</div>
+            <div style="font-size:12px;color:var(--green-text)">✓ ${esc(p.r)}</div>
+          </div>`
+        ).join('');
+      }
+
+      let figHtml = '';
+      if (gq.code) {
+        figHtml = `<pre class="qcode" aria-label="Tela de comandos da questão">${esc(gq.code)}</pre>`;
+      } else if (gq.fig) {
+        figHtml = `<div class="qfig" id="gab-qfig" role="button" tabindex="0" aria-label="Ampliar imagem">
+          <img src="${esc(gq.fig)}" alt="${esc(gq.figAlt || '')}" decoding="async" style="max-width:100%">
+        </div>`;
+      }
+
+      const whyHtml = gq.why ? `<div class="fb-why" style="margin-top:10px">
+        <div class="fb-why-lbl">Explicação</div>
+        ${wrapAcronyms(esc(gq.why))}
+      </div>` : '';
+
+      const prevDis = results.length === 0 || gabIdx <= 0 ? 'disabled' : '';
+      const nextDis = results.length === 0 || gabIdx < 0 || gabIdx >= results.length - 1 ? 'disabled' : '';
+      const counter = gabIdx >= 0 && results.length > 0 ? `${gabIdx + 1} / ${results.length}` : '';
+
+      const navHtml = results.length > 1 ? `<div class="review-nav">
+        <button class="btn" id="gabPrev" ${prevDis} aria-label="Questão anterior">← Anterior</button>
+        <span class="review-ctr">${counter}</span>
+        <button class="btn" id="gabNext" ${nextDis} aria-label="Próxima questão">Próxima →</button>
+      </div>` : '';
+
+      return `<div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <button class="btn" id="gabaritoBack" style="padding:5px 12px;font-size:12px" aria-label="Voltar para a busca">← Voltar para a busca</button>
+          <h2 style="font-size:16px;font-weight:700">📖 Gabarito</h2>
+        </div>
+        <div style="position:relative;display:flex;align-items:center;margin-bottom:12px">
+          <input class="search-box" id="searchInput" type="search" placeholder="Buscar questão, alternativa ou tópico…"
+            value="${esc(S.searchQuery)}" autocomplete="off" aria-label="Campo de busca"
+            style="flex:1;${S.searchQuery ? 'padding-right:44px' : ''}">
+          ${S.searchQuery ? `<button id="clearSearch" style="position:absolute;right:0;top:0;bottom:0;width:44px;min-width:44px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center" aria-label="Limpar busca">✕</button>` : ''}
+        </div>
+        ${navHtml}
+        <div class="gabarito-badge">Somente consulta — não conta XP nem estatística</div>
+        <div class="qcard">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span class="qtag" style="background:${tagColor}22;color:${tagColor};border:.5px solid ${tagColor}44">${esc(gq.tp)}</span>
+            <span class="qnum">#${gq.id}</span>
+          </div>
+          <p class="qtext">${wrapAcronyms(esc(gq.text))}</p>
+          ${figHtml}
+        </div>
+        <div class="opts">${optsHtml}</div>
+        ${whyHtml}
+      </div>`;
+    }
+    // question not found — fall through to list
+    S.gabaritoId = null;
+  }
+
+  // ── List view ──────────────────────────────────────────────────────
   const listHtml = results.length
     ? results.map(item => {
-        const col = topicColor(item.tp);
+        const col   = topicColor(item.tp);
         const isFav = favorites.has(item.id);
         return `<div class="search-item" data-id="${item.id}" role="button" tabindex="0">
           <div class="search-num">#${item.id} · ${item.ty === 'single' ? 'Escolha única' : item.ty === 'multi' ? 'Múltipla escolha' : 'Correspondência'}</div>
@@ -3392,10 +3480,10 @@ function renderSearch() {
   return `<div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
       <button class="btn" id="backFromSearch" style="padding:5px 12px;font-size:12px" aria-label="Voltar">← Voltar</button>
-      <h2 style="font-size:16px;font-weight:700">🔍 Buscar</h2>
+      <h2 style="font-size:16px;font-weight:700">📖 Gabarito</h2>
     </div>
     <div style="position:relative;display:flex;align-items:center;margin-bottom:0">
-      <input class="search-box" id="searchInput" type="search" placeholder="Buscar por texto, tópico, resposta…"
+      <input class="search-box" id="searchInput" type="search" placeholder="Buscar questão, alternativa ou tópico…"
         value="${esc(S.searchQuery)}" autocomplete="off" aria-label="Campo de busca"
         style="flex:1;${S.searchQuery ? 'padding-right:44px' : ''}">
       ${S.searchQuery ? `<button id="clearSearch" style="position:absolute;right:0;top:0;bottom:0;width:44px;min-width:44px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center" aria-label="Limpar busca">✕</button>` : ''}
@@ -3405,10 +3493,40 @@ function renderSearch() {
 }
 
 function bindSearch() {
-  document.getElementById('backFromSearch')?.addEventListener('click', () => { S.screen = 'start'; render(); });
+  // Gabarito navigation (detail view only)
+  document.getElementById('gabaritoBack')?.addEventListener('click', () => { S.gabaritoId = null; render(); });
+
+  document.getElementById('gabPrev')?.addEventListener('click', () => {
+    const results = _searchResults(S.searchQuery.toLowerCase().trim());
+    const idx = results.findIndex(x => x.id === S.gabaritoId);
+    if (idx > 0) { S.gabaritoId = results[idx - 1].id; render(); }
+  });
+
+  document.getElementById('gabNext')?.addEventListener('click', () => {
+    const results = _searchResults(S.searchQuery.toLowerCase().trim());
+    const idx = results.findIndex(x => x.id === S.gabaritoId);
+    if (idx >= 0 && idx < results.length - 1) { S.gabaritoId = results[idx + 1].id; render(); }
+  });
+
+  document.getElementById('gab-qfig')?.addEventListener('click', () => {
+    const gq = Q.find(x => x.id === S.gabaritoId);
+    if (gq?.fig) showLightbox(gq.fig, gq.figAlt);
+  });
+
+  // Acronym tooltips in detail view
+  document.querySelectorAll('.acr').forEach(span => {
+    span.addEventListener('click', e => {
+      e.stopPropagation();
+      showAlert(`${span.textContent}\n\n${span.dataset.def}`);
+    });
+  });
+
+  // List view handlers
+  document.getElementById('backFromSearch')?.addEventListener('click', () => { S.gabaritoId = null; S.screen = 'start'; render(); });
 
   document.getElementById('clearSearch')?.addEventListener('click', () => {
     S.searchQuery = '';
+    S.gabaritoId = null;
     render();
   });
 
@@ -3417,20 +3535,18 @@ function bindSearch() {
     inp.focus();
     inp.addEventListener('input', e => {
       S.searchQuery = e.target.value;
-      const q   = S.searchQuery.toLowerCase().trim();
-      const results = q.length >= 2
-        ? Q.filter(item =>
-            item.text.toLowerCase().includes(q) ||
-            (item.opts || []).some(o => o.toLowerCase().includes(q)) ||
-            (item.why || '').toLowerCase().includes(q) ||
-            item.tp.toLowerCase().includes(q)
-          ).slice(0, 30)
-        : [];
+      // Leaving detail view on new input
+      if (S.gabaritoId !== null) {
+        S.gabaritoId = null;
+        render();
+        return;
+      }
+      const q       = S.searchQuery.toLowerCase().trim();
+      const results = _searchResults(q);
 
-      const col  = topicColor;
       const listHtml = results.length
         ? results.map(item => {
-            const c   = col(item.tp);
+            const c     = topicColor(item.tp);
             const isFav = favorites.has(item.id);
             return `<div class="search-item" data-id="${item.id}" role="button" tabindex="0">
               <div class="search-num">#${item.id}</div>
@@ -3445,7 +3561,6 @@ function bindSearch() {
             ? `<p style="color:var(--yellow-text,#b45309);font-size:13px">Digite ao menos 2 caracteres.</p>`
             : `<p style="color:var(--text3);font-size:12px">Digite ao menos 2 caracteres para buscar.</p>`;
 
-      // Update clear button visibility
       const clearBtn = document.getElementById('clearSearch');
       if (S.searchQuery && !clearBtn) {
         const wrapper = inp.parentElement;
@@ -3454,7 +3569,7 @@ function bindSearch() {
         btn.setAttribute('aria-label', 'Limpar busca');
         btn.style.cssText = 'position:absolute;right:0;top:0;bottom:0;width:44px;min-width:44px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center';
         btn.textContent = '✕';
-        btn.addEventListener('click', () => { S.searchQuery = ''; render(); });
+        btn.addEventListener('click', () => { S.searchQuery = ''; S.gabaritoId = null; render(); });
         wrapper.appendChild(btn);
         inp.style.paddingRight = '44px';
       } else if (!S.searchQuery && clearBtn) {
@@ -3473,23 +3588,8 @@ function bindSearchResults() {
   document.querySelectorAll('.search-item').forEach(item => {
     const activate = () => {
       const id = parseInt(item.dataset.id);
-      const qi = Q.findIndex(x => x.id === id);
-      if (qi < 0) return;
-      // Iniciar modo livre com apenas esta questão
-      S.order = [qi];
-      S.qi    = 0;
-      S.startMode = 'free';
-      S.screen    = 'quiz';
-      S.answered  = false;
-      S.selected  = null;
-      S.multiSel  = [];
-      S.matchSel  = {};
-      S.shuffledMatchOpts = [];
-      S.optOrder  = null;
-      S.xp = 0; S.lives = Infinity; S.maxLives = Infinity;
-      S.streak = 0; S.maxStreak = 0; S.correct = 0; S.wrong = 0;
-      S.badges = []; S.wrongLog = []; S.topicStats = {};
-      S.timerMode = 'free'; S.timerLeft = 0;
+      if (!Q.some(x => x.id === id)) return;
+      S.gabaritoId = id;
       render();
     };
     item.addEventListener('click', activate);
