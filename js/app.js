@@ -1619,7 +1619,7 @@ const MOD_DEFS = [
     mod: 4,
     icon: '🎓',
     name: 'Preparação para a Certificação',
-    abbr: 'CERT',
+    abbr: '200-301 CCNA',
     desc: 'Exames finais dos três cursos do CCNA reunidos, mais o exame prático de certificação 200-301.',
   },
   {
@@ -1760,7 +1760,7 @@ function renderModules() {
     </div>
 
     <div class="mod-sec-hdr">Sua Trilha</div>
-    <div class="mod-sec-sub">Do ITN à certificação 200-301</div>
+    <div class="mod-sec-sub">Da introdução de Redes à Certificação CCNA</div>
 
     <div class="mod-trail">
       <div class="mod-trail-vline"></div>
@@ -1769,19 +1769,21 @@ function renderModules() {
 
     <div class="mod-trail-hr" style="margin-top:12px"></div>
     ${S.pendingMod === 0 ? `
-    <div class="mod-revisao mod-revisao--current" data-mod="0" role="button" tabindex="0" aria-label="Revisão completa" aria-pressed="true">
+    <div class="mod-revisao mod-revisao--current" data-mod="0" role="button" tabindex="0" aria-label="Revisão Completa" aria-pressed="true">
       <span class="mod-trail-icon mod-trail-icon-sm">🎯</span>
       <div class="mod-revisao-body">
-        <span class="mod-revisao-name">Revisão completa</span>
+        <span class="mod-revisao-name">Revisão Completa</span>
+        <span class="mod-revisao-desc">Combinação de todos os módulos, do ITN ao ENSA.</span>
         <span class="mod-revisao-count">${revProg.seen} de ${revProg.total} questões · ${revProg.pct}%</span>
         <div class="mod-trail-pbar"><div class="mod-trail-pfill" style="width:${revProg.pct}%"></div></div>
       </div>
       <button class="mod-trail-cta" aria-label="Entrar na revisão completa">${revProg.seen > 0 ? 'Continuar' : 'Iniciar'} <span>→</span></button>
     </div>` : `
-    <div class="mod-revisao" data-mod="0" role="button" tabindex="0" aria-label="Revisão completa" aria-pressed="false">
+    <div class="mod-revisao" data-mod="0" role="button" tabindex="0" aria-label="Revisão Completa" aria-pressed="false">
       <span class="mod-trail-icon mod-trail-icon-sm">🎯</span>
       <div class="mod-revisao-body">
-        <span class="mod-revisao-name">Revisão completa</span>
+        <span class="mod-revisao-name">Revisão Completa</span>
+        <span class="mod-revisao-desc">Combinação de todos os módulos, do ITN ao ENSA.</span>
         <span class="mod-revisao-count">${revProg.seen} de ${revProg.total} questões · ${revProg.pct}%</span>
       </div>
       <span class="mod-revisao-arrow">›</span>
@@ -2564,7 +2566,7 @@ function renderStart() {
   }).join('');
 
   // Módulos disponíveis
-  const modLabels = { 1: 'ITN', 2: 'SRWE', 3: 'ENSA', 4: 'CERT' };
+  const modLabels = { 1: 'ITN', 2: 'SRWE', 3: 'ENSA', 4: '200-301 CCNA' };
   // Dentro do módulo o título é "Módulo 2 — SRWE": sem o nome do app (ele pertence à tela
   // de escolha) e sem a contagem de questões (que já aparece nos modos e nos cards).
   // A descrição do módulo vive AQUI, não na tela de escolha: é onde o aluno já entrou

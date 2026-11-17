@@ -5,7 +5,10 @@
 </p>
 
 
-Simulador de estudos para o **CCNA** (Cisco Certified Network Associate) — feito para a turma do SENAI Vila Mariana.
+Simulador de estudos para o **CCNA** (Cisco Certified Network Associate).
+
+Projeto pensado e iniciado na turma de CCNA do **professor David de Oliveira**, do
+**SENAI Vila Mariana — SP**, como homenagem ao professor e aos alunos de 2026.
 
 Treine para as provas do curso e para a certificação com questões em **português**, explicação da resposta e progresso salvo no seu aparelho.
 
