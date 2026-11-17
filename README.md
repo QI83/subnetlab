@@ -174,6 +174,26 @@ Passo a passo:
 5. Referencie: `fig: "img/m3-q021.webp"` + `figAlt` com descrição curta e fiel.
 6. Sem figura na fonte? Deixe `fig` vazio — **não invente**.
 
+## Smoke test de UI
+
+```bash
+node tools/smoke-ui.js          # headless, ~25 s
+node tools/smoke-ui.js --headed # com janela, para acompanhar
+```
+
+Zero dependências: usa o `WebSocket` nativo do Node 21+ para falar CDP com o Chromium, e sobe o
+servidor estático sozinho (não precisa de `python -m http.server`). O binário do navegador é procurado
+em `CHROME_PATH`, no Chromium do Hermes e nos caminhos padrão.
+
+Percorre o caminho que mais quebrou: carrega o app → login → **selecionar módulo sem entrar** → entra pelo
+CTA → responde 3 questões (tratando múltipla escolha e associação) → encerra a sessão → abre o **Gabarito**
+→ busca, confere o destaque da resposta, a explicação e o aviso de consulta → navega entre 3 questões →
+volta para a lista. Sai com código 1 se qualquer passo falhar, e falha também em qualquer erro de JS.
+
+A verificação mais importante é a do Gabarito: compara `sl_qstats`, `sl_xp_total`, `sl_history` e
+`sl_spaced` **antes e depois** de consultar, byte a byte. Validado por teste negativo — injetando uma
+escrita no gabarito, o smoke falha apontando a diferença exata.
+
 ## Validar o conteúdo
 
 ```bash
