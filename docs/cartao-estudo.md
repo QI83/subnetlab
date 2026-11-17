@@ -6,7 +6,7 @@ Ele é escrito para **lembrar rápido**, não para ser completo — o completo j
 
 ---
 
-## Estrutura (7 blocos, nesta ordem)
+## Estrutura (8 blocos, nesta ordem)
 
 **1. Título curto e concreto**
 Não é o nome do capítulo. É o que o aluno vai conseguir fazer depois de ler.
@@ -28,10 +28,21 @@ O que fixa. Precisa ser do mundo do aluno, não do mundo da rede.
 **5. Onde a prova cobra (2–3 bullets)**
 O ângulo da banca: a pegadinha típica, o detalhe que separa "quase certo" de "certo".
 
-**6. Comando ou diagrama (1 bloco)**
-CLI curto (máx. 6 linhas) ou diagrama nosso, desenhado no padrão do app. Nunca captura de tela do curso.
+**6. Comando comentado (1 bloco)**
+CLI curto (máx. 6 linhas), com o **prompt de cada modo** (`Switch(config)#` → `Switch(config-if)#`) e uma nota
+de uma linha dizendo **para que serve** aquele comando. O prompt não é enfeite: é ele que ensina que `switchport`
+só existe dentro da interface. Nunca captura de tela do curso.
 
-**7. Recuperação ativa (3 perguntas)**
+**7. Agora você (1 desafio de digitação)**
+O aluno **digita** o comando (ou o JSON) que resolve a situação, com três apoios: **Conferir**, **Ver dica** e
+**Ver resposta**. A validação precisa ser por *intenção*, não por texto exato:
+- aceitar abreviação (`conf t`, `int gi0/1`, `sw mo tr`), minúsculas, espaços extras e prompt colado;
+- exigir a ordem correta de modo (comando de interface digitado antes de entrar na interface = erro explicado,
+  não "errado");
+- no lugar de "errado", dizer **o que faltou** ("falta permitir as VLANs 10, 20 e 99 — você listou 10,20");
+- nunca bloquear: quem travou usa "Ver dica" e depois "Ver resposta" e segue.
+
+**8. Recuperação ativa (3 perguntas)**
 Abertas, com resposta escondida atrás de um "ver resposta". Não é múltipla escolha: escrever/mentalizar é
 o que consolida. Nada de XP — leitura não é desempenho.
 
@@ -101,3 +112,8 @@ interface Gi0/1
 - **Linguagem:** segunda pessoa, presente, frase curta. Zero "é importante ressaltar".
 - **Tamanho:** máximo ~250 palavras no corpo. Passou disso, divide.
 - **Se o cartão não responde "onde a prova cobra", ele ainda não está pronto.**
+- **Todo cartão com comando tem desafio.** Ler comando sem digitar não fixa sintaxe — e é justamente onde o
+  aluno trava na prova prática.
+- **Desafio é sobre intenção, não sobre decorar string.** Se a validação reprova uma abreviação válida do IOS,
+  o cartão está ensinando errado.
+- **O desafio não dá XP.** Acertar aqui é leitura com prática, não desempenho — a mesma regra dos cartões.
