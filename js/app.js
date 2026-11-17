@@ -363,7 +363,10 @@ function topicColor(tp) {
 function corDoNome(nome) {
   let h = 0;
   for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) % 360;
-  return `hsl(${h}, 62%, 48%)`;
+  // 58% de saturação e 28% de luminosidade: com 48% as iniciais brancas davam
+  // 1,9:1 nos verdes/amarelos (WCAG pede 4.5:1). Nesta faixa todo matiz fica
+  // escuro o bastante para o branco passar, mantendo cores distintas por aluno.
+  return `hsl(${h}, 58%, 28%)`;
 }
 
 function iniciais(nome) {
@@ -1184,7 +1187,7 @@ function showLivesOut() {
       <button class="btn pri" id="lo-cont">Continuar</button>
     </div>
   </div>`;
-  document.body.appendChild(el);
+  mountModal(el);
   el.querySelector('#lo-end').onclick  = () => { el.remove(); finishQuiz(); };
   el.querySelector('#lo-cont').onclick = () => { el.remove(); S.lives = Infinity; };
 }
@@ -1298,6 +1301,48 @@ function scoreColorUI(pct) {
     return pct === 100 ? '#F5C842' : pct >= 90 ? '#5EE0A8' : pct >= 70 ? '#7AB8F5' : '#F08080';
   }
   return pct === 100 ? '#8A6A00' : pct >= 90 ? '#0F6B45' : pct >= 70 ? '#1E4E8C' : '#B23B3B';
+}
+
+// Cor do TEXTO de percentual por desempenho. As cores usadas nas barras
+// (#1D9E75 / #BA7517 / #A32D2D) somem quando viram texto de 11px no fundo escuro
+// (medido 3,1:1). Aqui devolvemos variantes legíveis nos dois temas; as barras
+// continuam com a cor saturada.
+function pctText(p) {
+  if (darkMode) return p >= 80 ? '#5EE0A8' : p >= 60 ? '#F5C842' : '#F08080';
+  return p >= 80 ? '#0F6B45' : p >= 60 ? '#8A6A00' : '#B23B3B';
+}
+
+// Cor do texto (iniciais) sobre o avatar. corDoNome() devolve de verde claro a
+// vinho; branco fixo dá 1,9:1 no verde claro. Escolhe entre branco e tinta
+// escura pela luminância do fundo — vale para qualquer cor futura da paleta.
+function corTextoAvatar(cor) {
+  let r, g, b;
+  const str = String(cor || '').trim();
+  const hex = str.match(/^#([0-9a-f]{6})$/i);
+  const hsl = str.match(/^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%/i);
+  if (hex) {
+    const h = hex[1];
+    r = parseInt(h.slice(0, 2), 16) / 255;
+    g = parseInt(h.slice(2, 4), 16) / 255;
+    b = parseInt(h.slice(4, 6), 16) / 255;
+  } else if (hsl) {
+    const hh = parseFloat(hsl[1]) / 360, sat = parseFloat(hsl[2]) / 100, li = parseFloat(hsl[3]) / 100;
+    const q = li < 0.5 ? li * (1 + sat) : li + sat - li * sat;
+    const pp = 2 * li - q;
+    const f = t => {
+      if (t < 0) t += 1; if (t > 1) t -= 1;
+      if (t < 1 / 6) return pp + (q - pp) * 6 * t;
+      if (t < 1 / 2) return q;
+      if (t < 2 / 3) return pp + (q - pp) * (2 / 3 - t) * 6;
+      return pp;
+    };
+    r = f(hh + 1 / 3); g = f(hh); b = f(hh - 1 / 3);
+  } else {
+    return '#FFFFFF';
+  }
+  const lin = c => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  const L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  return L > 0.42 ? '#10131F' : '#FFFFFF';
 }
 
 function certSlug(mod) {
@@ -1630,7 +1675,7 @@ function showNotificacoes() {
       <button class="btn pri" id="notifOk" style="min-width:90px">Fechar</button>
     </div>
   </div>`;
-  document.body.appendChild(el);
+  mountModal(el);
   el.querySelector('#notifOk').onclick = () => el.remove();
   el.addEventListener('click', e => { if (e.target === el) el.remove(); });
 
@@ -1779,7 +1824,7 @@ function renderModules() {
       const ctaLabel = seen > 0 ? 'Continuar' : 'Iniciar';
       return `<div class="mod-trail-step">
         <div class="mod-trail-marker ${markerClass}">${markerInner}</div>
-        <div class="mod-trail-card mod-trail-card--current" data-mod="${def.mod}" role="button" tabindex="0" aria-label="${esc(def.name)}" aria-pressed="true">
+        <div class="mod-trail-card mod-trail-card--current" data-mod="${def.mod}">
           <div class="mod-trail-row">
             <span class="mod-trail-icon">${def.icon}</span>
             <span class="mod-trail-name">${esc(def.abbr)}</span>
@@ -1796,16 +1841,16 @@ function renderModules() {
     const pctColor = pct >= 80 ? 'var(--green-text)' : pct > 0 ? 'var(--blue-text)' : 'var(--text3)';
     return `<div class="mod-trail-step">
       <div class="mod-trail-marker ${markerClass}">${markerInner}</div>
-      <div class="mod-trail-card" data-mod="${def.mod}" role="button" tabindex="0" aria-label="${esc(def.name)}" aria-pressed="false">
-        <div class="mod-trail-compact-row">
+      <button type="button" class="mod-trail-card mod-trail-card--btn" data-mod="${def.mod}" aria-label="Selecionar módulo ${esc(def.name)}">
+        <span class="mod-trail-compact-row">
           <span class="mod-trail-icon mod-trail-icon-sm">${def.icon}</span>
-          <div class="mod-trail-compact-body">
-            <div class="mod-trail-compact-name">${esc(def.abbr)} <span class="mod-trail-compact-meta">· ${seen} de ${total} questões</span></div>
-            <div class="mod-trail-pbar mod-trail-pbar--thin"><div class="mod-trail-pfill" style="width:${pct}%"></div></div>
-          </div>
+          <span class="mod-trail-compact-body">
+            <span class="mod-trail-compact-name">${esc(def.abbr)} <span class="mod-trail-compact-meta">· ${seen} de ${total} questões</span></span>
+            <span class="mod-trail-pbar mod-trail-pbar--thin"><span class="mod-trail-pfill" style="width:${pct}%"></span></span>
+          </span>
           <span class="mod-trail-compact-pct" style="color:${pctColor}">${pct}%</span>
-        </div>
-      </div>
+        </span>
+      </button>
     </div>`;
   }).join('');
 
@@ -1841,7 +1886,7 @@ function renderModules() {
 
     <div class="mod-trail-hr" style="margin-top:12px"></div>
     ${S.pendingMod === 0 ? `
-    <div class="mod-revisao mod-revisao--current" data-mod="0" role="button" tabindex="0" aria-label="Revisão Completa" aria-pressed="true">
+    <div class="mod-revisao mod-revisao--current" data-mod="0">
       <span class="mod-trail-icon mod-trail-icon-sm">🎯</span>
       <div class="mod-revisao-body">
         <span class="mod-revisao-name">Revisão Completa</span>
@@ -1851,15 +1896,15 @@ function renderModules() {
       </div>
       <button class="mod-trail-cta" aria-label="Entrar na revisão completa">${revProg.seen > 0 ? 'Continuar' : 'Iniciar'} <span>→</span></button>
     </div>` : `
-    <div class="mod-revisao" data-mod="0" role="button" tabindex="0" aria-label="Revisão Completa" aria-pressed="false">
+    <button type="button" class="mod-revisao mod-revisao--btn" data-mod="0" aria-label="Selecionar Revisão Completa">
       <span class="mod-trail-icon mod-trail-icon-sm">🎯</span>
-      <div class="mod-revisao-body">
+      <span class="mod-revisao-body">
         <span class="mod-revisao-name">Revisão Completa</span>
         <span class="mod-revisao-desc">Combinação de todos os módulos, do ITN ao ENSA.</span>
         <span class="mod-revisao-count">${revProg.seen} de ${revProg.total} questões · ${revProg.pct}%</span>
-      </div>
+      </span>
       <span class="mod-revisao-arrow">›</span>
-    </div>`}
+    </button>`}
   </div>`;
 }
 
@@ -1882,12 +1927,14 @@ function bindModules() {
   };
 
   // Module cards: tap to SELECT (expand), not enter
+  // Selecionar (mouse ou teclado): o card não selecionado é um <button>, então
+  // Enter/Espaço já disparam o click nativo. O card selecionado é um <div> com o
+  // CTA dentro — div clicável não aninha controles (era violação de acessibilidade).
   document.querySelectorAll('.mod-trail-card[data-mod]').forEach(el => {
     const mod = parseInt(el.dataset.mod, 10);
-    const select = () => { S.pendingMod = mod; render(); };
-    el.addEventListener('click', select);
-    el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); }
+    el.addEventListener('click', e => {
+      if (e.target.closest('.mod-trail-cta')) return;   // o CTA tem o seu próprio handler
+      S.pendingMod = mod; render();
     });
   });
 
@@ -1902,10 +1949,9 @@ function bindModules() {
 
   // Revisão completa: tap to SELECT (expand), enter via CTA (same pattern as module cards)
   document.querySelectorAll('.mod-revisao[data-mod]').forEach(el => {
-    const select = () => { S.pendingMod = 0; render(); };
-    el.addEventListener('click', select);
-    el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); }
+    el.addEventListener('click', e => {
+      if (e.target.closest('.mod-trail-cta')) return;
+      S.pendingMod = 0; render();
     });
   });
 
@@ -2163,7 +2209,7 @@ function renderRanking() {
     const fontSize = pos === 1 ? '16px' : '13px';
     return `<div class="podium-card podium-${cls}${isMe ? ' podium-me' : ''}" style="animation-delay:${delay}ms">
       <div class="podium-medal">${medalEmoji[pos] || '🏅'}</div>
-      <div class="rank-avatar" style="background:${cor};width:${avatarSize}px;height:${avatarSize}px;font-size:${fontSize}">${esc(ini)}</div>
+      <div class="rank-avatar" style="background:${cor};color:${corTextoAvatar(cor)};width:${avatarSize}px;height:${avatarSize}px;font-size:${fontSize}">${esc(ini)}</div>
       <div class="podium-name" title="${esc(item.nome)}">${esc(nomeTrunc)}</div>
       <div class="podium-xp">${formatXP(item.xp)}</div>
     </div>`;
@@ -2201,7 +2247,7 @@ function renderRanking() {
     return `<div class="rank-row${isMe ? ' rank-row-me' : ''}" style="animation-delay:${delay}ms">
       <div class="rank-row-body">
         <span class="rank-pos">${item.posicao}</span>
-        <div class="rank-avatar" style="background:${cor};width:32px;height:32px;font-size:12px">${esc(ini)}</div>
+        <div class="rank-avatar" style="background:${cor};color:${corTextoAvatar(cor)};width:32px;height:32px;font-size:12px">${esc(ini)}</div>
         <span class="rank-name">${nameHtml}</span>
         <div class="rank-xp-wrap">
           <span class="rank-xp-val">${formatXP(item.xp)}</span>
@@ -2227,7 +2273,7 @@ function renderRanking() {
         <div class="rank-row rank-row-me">
           <div class="rank-row-body">
             <span class="rank-pos" style="color:var(--text3)">?</span>
-            <div class="rank-avatar" style="background:${cor};width:32px;height:32px;font-size:12px">${esc(ini)}</div>
+            <div class="rank-avatar" style="background:${cor};color:${corTextoAvatar(cor)};width:32px;height:32px;font-size:12px">${esc(ini)}</div>
             <span class="rank-name">${nameHtml}</span>
             <div class="rank-xp-wrap">
               ${myXP > 0 ? `<span class="rank-xp-val">${formatXP(myXP)}</span><span class="rank-xp-suf">XP</span>` : ''}
@@ -2397,7 +2443,7 @@ async function vincularCodigo(codigoDigitado) {
       <button class="btn" id="merge-cancel">Cancelar</button>
     </div>
   </div>`;
-  document.body.appendChild(el);
+  mountModal(el);
 
   el.querySelector('#merge-cancel').onclick = () => el.remove();
   el.addEventListener('click', e => { if (e.target === el) el.remove(); });
@@ -2562,7 +2608,7 @@ function renderStart() {
         return `<div class="evo-row">
           <div class="evo-label" title="${esc(tp)}">${esc(tp)}</div>
           <div class="evo-bar-wrap"><div class="evo-bar-fill" style="width:${p}%;background:${col}"></div></div>
-          <div class="evo-pct" style="color:${col}">${p}%</div>
+          <div class="evo-pct" style="color:${pctText(p)}">${p}%</div>
         </div>`;
       }).join('');
       evoHtml = `<p class="sec-hdr">📈 Desempenho por Tópico</p>
@@ -2777,7 +2823,7 @@ function renderHUD() {
     <div class="hc" title="Nível">
       <span class="hc-l">Nível</span>
       <span class="hc-v">${esc(lv.n)}</span>
-      <div class="lv-bar" role="progressbar" aria-valuenow="${lvPct}" aria-valuemin="0" aria-valuemax="100">
+      <div class="lv-bar" role="progressbar" aria-label="Progresso para o próximo nível" aria-valuenow="${lvPct}" aria-valuemin="0" aria-valuemax="100">
         <div class="lv-fill" style="width:${lvPct}%"></div>
       </div>
     </div>
@@ -2788,7 +2834,7 @@ function renderHUD() {
     <div style="flex:1"></div>
     <div class="hc"><span class="hc-l">${S.qi + 1}/${S.order.length}</span></div>
   </div>
-  <div class="pbar" role="progressbar" aria-valuenow="${S.qi}" aria-valuemax="${S.order.length}">
+  <div class="pbar" role="progressbar" aria-label="Progresso da sessão" aria-valuenow="${S.qi}" aria-valuemin="0" aria-valuemax="${S.order.length}">
     <div class="pfill" style="width:${(S.qi / S.order.length) * 100}%"></div>
   </div>`;
 }
@@ -2842,7 +2888,7 @@ function renderQuizQuestion() {
 
   return `<div class="qcard">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <span class="qtag" style="background:${tagColor}22;color:${tagColor};border:.5px solid ${tagColor}44">${esc(q.tp)}</span>
+      <span class="qtag" style="background:${tagColor}22;color:var(--text);border:.5px solid ${tagColor}66;border-left:3px solid ${tagColor}">${esc(q.tp)}</span>
       <span class="qnum">#${q.id}</span>
       <span style="flex:1"></span>
       <button class="fav-btn${isFav ? ' fav-on' : ''}" id="favBtn" data-id="${q.id}" aria-label="${isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}">${isFav ? '⭐' : '☆'}</button>
@@ -3080,7 +3126,7 @@ function renderResult() {
     return `<div class="topic-row">
       <div class="topic-name" title="${esc(tp)}">${esc(tp)}</div>
       <div class="topic-bar-wrap"><div class="topic-bar-fill" style="width:${p}%;background:${col}"></div></div>
-      <div class="topic-pct" style="color:${col}">${p}%</div>
+      <div class="topic-pct" style="color:${pctText(p)}">${p}%</div>
     </div>`;
   }).join('');
 
@@ -3349,7 +3395,7 @@ function renderReview() {
 
     <div class="qcard">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <span class="qtag" style="background:${tagColor}22;color:${tagColor};border:.5px solid ${tagColor}44">${esc(q.tp)}</span>
+        <span class="qtag" style="background:${tagColor}22;color:var(--text);border:.5px solid ${tagColor}66;border-left:3px solid ${tagColor}">${esc(q.tp)}</span>
         <span class="qnum">#${q.id}</span>
       </div>
       <p class="qtext">${wrapAcronyms(esc(q.text))}</p>
@@ -3515,7 +3561,7 @@ function renderSearch() {
         <div class="gabarito-badge">Somente consulta — não conta XP nem estatística</div>
         <div class="qcard">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span class="qtag" style="background:${tagColor}22;color:${tagColor};border:.5px solid ${tagColor}44">${esc(gq.tp)}</span>
+            <span class="qtag" style="background:${tagColor}22;color:var(--text);border:.5px solid ${tagColor}66;border-left:3px solid ${tagColor}">${esc(gq.tp)}</span>
             <span class="qnum">#${gq.id}</span>
           </div>
           <p class="qtext">${wrapAcronyms(esc(gq.text))}</p>
@@ -3684,7 +3730,7 @@ function showAlert(msg) {
       <button class="btn pri" id="alertOk" style="min-width:80px">OK</button>
     </div>
   </div>`;
-  document.body.appendChild(el);
+  mountModal(el);
   el.querySelector('#alertOk').onclick = () => el.remove();
   el.addEventListener('click', e => { if (e.target === el) el.remove(); });
 }
@@ -3701,11 +3747,67 @@ function showConfirm(title, msg, onOk) {
       <button class="btn pri" id="confOk">Confirmar</button>
     </div>
   </div>`;
-  document.body.appendChild(el);
+  mountModal(el);
   el.querySelector('#confOk').onclick    = () => { el.remove(); onOk(); };
   el.querySelector('#confCancel').onclick = () => el.remove();
   el.addEventListener('click', e => { if (e.target === el) el.remove(); });
 }
+
+
+// ── ACESSIBILIDADE DOS MODAIS ───────────────────────────────────────
+// Todo modal nasce de createElement + appendChild em body. Em vez de repetir
+// atributos em vários lugares, mountModal() centraliza: role=dialog, nome
+// acessível do título, foco preso dentro da caixa, Esc fecha e o foco volta
+// para quem abriu. Sem isso o leitor de tela não anuncia que abriu uma janela.
+function a11yModal(el) {
+  const box = el.querySelector('.cmodal') || el;
+  box.setAttribute('role', 'dialog');
+  box.setAttribute('aria-modal', 'true');
+  const titulo = box.querySelector('.cmodal-title');
+  if (titulo) {
+    if (!titulo.id) titulo.id = 'mt' + Math.random().toString(36).slice(2, 8);
+    box.setAttribute('aria-labelledby', titulo.id);
+  } else {
+    box.setAttribute('aria-label', 'Janela');
+  }
+  box.setAttribute('tabindex', '-1');
+  el._prevFocus = document.activeElement;
+
+  const focaveis = () => [...box.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  )].filter(x => x.offsetParent !== null || x === document.activeElement);
+
+  setTimeout(() => { const f = focaveis(); (f[0] || box).focus(); }, 30);
+
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      const fechar = box.querySelector('#confCancel, #notifOk, #alertOk, #rankClose, .cmodal-x');
+      if (fechar) fechar.click(); else el.remove();
+      return;
+    }
+    if (e.key === 'Tab') {
+      const f = focaveis();
+      if (!f.length) return;
+      const primeiro = f[0], ultimo = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === primeiro) { e.preventDefault(); ultimo.focus(); }
+      else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primeiro.focus(); }
+    }
+  });
+}
+
+function mountModal(el) {
+  document.body.appendChild(el);
+  a11yModal(el);
+}
+
+// Devolution do foco: quando o modal sai do DOM, volta para quem o abriu
+new MutationObserver(muts => {
+  muts.forEach(m => m.removedNodes.forEach(n => {
+    if (n.nodeType === 1 && n._prevFocus && document.contains(n._prevFocus)) {
+      try { n._prevFocus.focus(); } catch {}
+    }
+  }));
+}).observe(document.body, { childList: true });
 
 function copyFallback(text, btn) {
   const ta = document.createElement('textarea');
@@ -3760,7 +3862,7 @@ function showCodigoModal(allowSetSeen) {
     </div>
   </div>`;
 
-  document.body.appendChild(el);
+  mountModal(el);
   setTimeout(() => el.querySelector('#code-copy').focus(), 50);
 
   el.querySelector('#code-copy').onclick = () => {
@@ -3862,7 +3964,7 @@ function showProfileModal() {
     </div>
   </div>`;
 
-  document.body.appendChild(el);
+  mountModal(el);
   setTimeout(() => el.querySelector('#profileChangeName').focus(), 50);
 
   el.querySelector('#profileClose').onclick = () => el.remove();
@@ -3936,7 +4038,7 @@ function showLightbox(src, alt) {
   el.id = 'lb-overlay';
   el.innerHTML = `<img src="${esc(src)}" alt="${esc(alt || 'Imagem')}" loading="lazy">`;
   el.addEventListener('click', () => el.remove());
-  document.body.appendChild(el);
+  mountModal(el);
   el.focus();
 }
 
@@ -3954,7 +4056,7 @@ function promptExamDate() {
       <button class="btn pri" id="edOk">Salvar</button>
     </div>
   </div>`;
-  document.body.appendChild(el);
+  mountModal(el);
   el.querySelector('#edOk').onclick = () => {
     const val = el.querySelector('#examDateInp').value;
     if (val) { saveExamDate(val); render(); }
@@ -3999,7 +4101,7 @@ function showGlossary() {
     <div class="gloss-count" id="gloss-count"></div>
     <div class="gloss-list" id="gloss-list" role="list"></div>
   </div>`;
-  document.body.appendChild(el);
+  mountModal(el);
 
   function filtered() {
     const q = searchVal.toLowerCase();
@@ -4069,7 +4171,7 @@ function showReadiness() {
         <button class="gloss-close" id="ready-close" aria-label="Fechar">✕</button></div>
       <div class="ready-body"><div class="ready-no-data">🔍 Nenhuma sessão completa ainda.<br>Conclua ao menos uma vez<br>para gerar seu relatório.</div></div>
     </div>`;
-    document.body.appendChild(el);
+    mountModal(el);
     el.querySelector('#ready-close').onclick = () => el.remove();
     el.addEventListener('click', e => { if (e.target === el) el.remove(); });
     return;
@@ -4107,7 +4209,7 @@ function showReadiness() {
       return `<div class="ready-topic-row">
         <span class="ready-tp-name">${esc(x.tp)}</span>
         <div class="ready-tp-bar"><div class="ready-tp-fill" style="width:${x.pct}%;background:${col}"></div></div>
-        <span class="ready-tp-pct" style="color:${col}">${x.pct}%</span>
+        <span class="ready-tp-pct" style="color:${pctText(x.pct)}">${x.pct}%</span>
       </div>`;
     }).join('');
   }
@@ -4161,7 +4263,7 @@ function showReadiness() {
     </div>
   </div>`;
 
-  document.body.appendChild(el);
+  mountModal(el);
   el.querySelector('#ready-close').onclick = () => el.remove();
   el.addEventListener('click', e => { if (e.target === el) el.remove(); });
 }
@@ -4192,7 +4294,7 @@ function showQStats() {
             <span class="qstat-id">#${q.id}</span>
             <span class="qstat-text">${esc(q.text.slice(0, 55))}…</span>
             <div class="qstat-bar"><div class="qstat-fill" style="width:${pct}%;background:${col}"></div></div>
-            <span class="qstat-pct" style="color:${col}">${pct}%</span>
+            <span class="qstat-pct" style="color:${pctText(pct)}">${pct}%</span>
           </div>`;
         }).join('')
     : '<p style="color:var(--text2);font-size:13px;padding:20px">Nenhuma questão tentada ainda.</p>';
@@ -4207,7 +4309,7 @@ function showQStats() {
     <div class="gloss-list">${rows}</div>
   </div>`;
 
-  document.body.appendChild(el);
+  mountModal(el);
   el.querySelector('#qstats-close').onclick = () => el.remove();
   el.addEventListener('click', e => { if (e.target === el) el.remove(); });
 }
@@ -4351,7 +4453,7 @@ document.addEventListener('DOMContentLoaded', () => {
       box-shadow:0 4px 20px rgba(0,0,0,.5);text-align:center;
     `;
     el.innerHTML = `<strong style="color:#7AB8F5">${esc(acr.textContent)}</strong><br>${esc(def).replace(' — ', '<br>')}`;
-    document.body.appendChild(el);
+    mountModal(el);
     setTimeout(() => el.remove(), 4000);
   });
 });

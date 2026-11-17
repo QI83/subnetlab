@@ -244,6 +244,10 @@ async function waitForDevtoolsUrl(proc, ms = 20000) {
     await evaluate("document.querySelector('#startBtn')?.click(); 1");
     await waitFor("S.screen === 'quiz' && document.querySelectorAll('.opt,.match-row').length > 0", 'primeira questão');
     check('quiz abriu', (await evaluate('S.screen')) === 'quiz');
+    const barrasInfo = await evaluate(`(() => {
+      const el = [...document.querySelectorAll('[role=progressbar]')];
+      return el.filter(b => b.getAttribute('aria-label') || b.getAttribute('aria-labelledby')).length + '/' + el.length;
+    })()`);
 
     for (let i = 0; i < 3; i++) {
       const antes = await evaluate('S.qi');
@@ -338,7 +342,36 @@ async function waitForDevtoolsUrl(proc, ms = 20000) {
     await waitFor("document.querySelectorAll('.search-item').length > 0", 'volta para a lista');
     check('voltar mantém os resultados', (await evaluate("document.querySelectorAll('.search-item').length")) > 0);
 
-    // ── 7. nenhum erro de JS no caminho inteiro ─────────────────────────
+    // ── 7. acessibilidade que já regrediu uma vez ──────────────────────
+    await evaluate("S.gabaritoId = null; S.screen = 'modules'; render(); 1");
+    await sleep(900);
+    const cardTag = await evaluate(
+      "[...document.querySelectorAll('.mod-trail-card[data-mod]')].map(c => c.tagName)");
+    check('card selecionável é <button> (sem controle aninhado)',
+      cardTag.filter(t => t === 'BUTTON').length >= 1, cardTag.join(','));
+    const focaveis = await evaluate(`(() => {
+      const b = [...document.querySelectorAll('.mod-trail-card[data-mod]')]
+        .find(c => c.tagName === 'BUTTON');
+      return b ? (b.getAttribute('aria-label') || '') : '';
+    })()`);
+    check('card tem nome acessível', /Selecionar/.test(focaveis), focaveis);
+
+    const barras = barrasInfo;
+    check('barras de progresso com nome acessível',
+      barras !== '0/0' && !barras.startsWith('0/'), barras);
+
+    await evaluate("S.screen = 'modules'; render(); 1"); await sleep(800);
+    await evaluate("document.querySelector('#modNotif')?.click(); 1");
+    await sleep(1200);
+    const dlg = await evaluate(`(() => {
+      const b = document.querySelector('.cmodal');
+      return b ? [b.getAttribute('role'), b.getAttribute('aria-modal'),
+        (b.getAttribute('aria-labelledby') || b.getAttribute('aria-label') || '') ? 'nome' : ''].join('|') : 'sem modal';
+    })()`);
+    check('modal é role=dialog com nome e aria-modal', dlg === 'dialog|true|nome', dlg);
+    await evaluate("document.querySelector('#notifOk')?.click(); 1"); await sleep(600);
+
+    // ── 8. nenhum erro de JS no caminho inteiro ─────────────────────────
     check('sem erro de JS', jsErrors.length === 0, jsErrors.slice(0, 3).join(' | '));
   } catch (err) {
     fail('execução', err.message);

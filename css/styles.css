@@ -48,7 +48,9 @@
   --border2:  #B0B8E0;
   --text:     #111827;
   --text2:    #374151;
-  --text3:    #6B7280;
+  /* #6B7280 dava 4,3:1 sobre #F0F2FF (e menos ainda sobre --bg3) nos rótulos de
+     11px em caixa alta. #4B5563 mantém o tom apagado com ~7:1. */
+  --text3:    #4B5563;
   --green-bg: #DCFCE7;
   --green-text: #166534;
   --red-bg:   #FEE2E2;
@@ -213,7 +215,11 @@ body {
 .opt.correct .olet { background: var(--green); color: #fff; border-color: var(--green); }
 .opt.wrong    { background: var(--red-bg)   !important; border-color: var(--red)   !important; }
 .opt.wrong .olet   { background: var(--red);   color: #fff; border-color: var(--red); }
-.opt.dim      { opacity: .45; }
+/* Antes era opacity: .45 — o texto caía para ~1.9:1 e ficava ilegível (WCAG exige
+   4.5:1). De-emphasize sem esconder: cor secundária + borda neutra, e só a letra
+   da alternativa (o "A", "B"...) fica mais discreta. */
+.opt.dim      { color: var(--text2); border-color: var(--border); background: var(--bg2); }
+.opt.dim .olet { opacity: .65; }
 .opt.sel      { background: var(--blue-bg)  !important; border-color: var(--blue)  !important; }
 .opt.sel .olet { background: var(--blue); color: #fff; border-color: var(--blue); }
 
@@ -1490,7 +1496,9 @@ body {
   font-size: 9px;
   font-weight: 800;
   letter-spacing: .07em;
-  color: var(--accent);
+  /* var(--accent) sobre o próprio tint dava ~2,6:1; o token de texto do verde
+     é medido para os dois temas e passa em 4.5:1 */
+  color: var(--green-text);
   background: rgba(29, 158, 117, .15);
   border-radius: 3px;
   padding: 1px 5px;
@@ -1899,3 +1907,29 @@ body {
 .cert-list-date { font-size: 11px; color: var(--text3); }
 .cert-list-btns { display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; }
 .cert-list-empty { font-size: 12px; color: var(--text3); padding: 8px 0; line-height: 1.5; }
+
+/* Cards que viraram <button> (acessibilidade: div com role=button aninhava o CTA).
+   Reset necessário para o botão não herdar fonte, cor e alinhamento padrão. */
+.mod-trail-card--btn,
+.mod-revisao--btn {
+  display: block;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.mod-trail-card--btn .mod-trail-compact-row { width: 100%; }
+.mod-revisao--btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.mod-revisao--btn:hover { border-color: var(--border2); }

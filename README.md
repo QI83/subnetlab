@@ -174,6 +174,27 @@ Passo a passo:
 5. Referencie: `fig: "img/m3-q021.webp"` + `figAlt` com descrição curta e fiel.
 6. Sem figura na fonte? Deixe `fig` vazio — **não invente**.
 
+## Acessibilidade
+
+Auditado com **axe-core 4.10** (WCAG 2.1 A + AA) nas telas de login, trilha, escolha de modo, quiz, resultado,
+gabarito, ranking, perfil, guia e nos modais — nos **dois temas**. Estado atual: zero violações.
+
+O que foi corrigido (e por quê, para não voltar):
+
+- **Cards da trilha eram `div role="button"` com um botão dentro** — controle aninhado, proibido. Agora: card
+  não selecionado é um `<button>` de verdade ("Selecionar módulo X"); o selecionado é um `div` com o CTA.
+  Seleção por teclado funciona com Enter/Espaço e o foco tem contorno visível.
+- **Modais sem papel** — todos passam por `mountModal()`: `role="dialog"`, `aria-modal="true"`, nome vindo do
+  título, foco preso dentro da caixa, `Esc` fecha e o foco volta para quem abriu.
+- **Barras de progresso sem nome** — `aria-label` em "Progresso para o próximo nível" e "Progresso da sessão".
+- **Contraste**: `--text3` do tema claro (#6B7280 → #4B5563), texto do percentual por desempenho com variante
+  por tema (`pctText`), iniciais do avatar com cor calculada pela luminância do fundo (`corTextoAvatar`), cores
+  de `corDoNome` escurecidas (48% → 28% de luminosidade), tag de tópico com texto neutro e faixa colorida, e
+  alternativa apagada (`.opt.dim`) sem `opacity` — o texto estava em ~1,9:1.
+
+Regra: **cor usada em barra não serve como cor de texto** no tamanho em que o app usa (11–13px). Precisa de
+variante mais clara (tema escuro) ou mais escura (tema claro), e a checagem é sempre medida, não estimada.
+
 ## Smoke test de UI
 
 ```bash
