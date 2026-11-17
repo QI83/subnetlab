@@ -41,17 +41,17 @@ begin
   h := encode(digest(upper(regexp_replace(p_code, '[^A-Za-z0-9]', '', 'g')), 'sha256'), 'hex');
 
   -- Teto de XP derivado do próprio progresso: cada resposta registrada em
-  -- qStats vale no máximo 25 XP (15 base + 10 de sequência). Damos 30 por
-  -- resposta, mais 1000 de folga para bônus, e um teto absoluto de 100k.
-  -- Consequência: enviar xp = 999999 sem ter milhares de respostas
-  -- registradas passa a ser limitado, não aceito.
+  -- qStats vale no máximo 25 XP (15 base + 10 de sequência). Damos 25 por
+  -- resposta, mais 200 de folga, e um teto absoluto de 100k. A folga é
+  -- pequena de propósito: com 1000 de folga, quem não respondeu nada ainda
+  -- entrava no ranking com 1000 XP — o suficiente para liderar turma nova.
   select coalesce(sum(
            case when (e.val ->> 'a') ~ '^[0-9]+$' then (e.val ->> 'a')::int else 0 end
          ), 0)
     into v_tent
     from jsonb_each(coalesce(p_dados -> 'qStats', '{}'::jsonb)) as e(k, val);
 
-  v_teto := least(1000 + 30 * v_tent, 100000);
+  v_teto := least(200 + 25 * v_tent, 100000);
   v_xp   := least(greatest(coalesce(p_xp, 0), 0), v_teto);
 
   insert into public.alunos (code_hash, nome, xp, dados)
@@ -110,9 +110,9 @@ $function$;
 -- ============================================================
 -- 3) Conferência rápida (opcional): rode depois para ver o efeito
 -- ============================================================
--- Deve retornar 1000 (teto de quem não tem resposta registrada) e não estourar:
+-- Deve gravar 200 (teto de quem não tem resposta registrada) e não estourar:
 --   select public.sync_put('ZZZZ-ZZZZ-ZZZZ-ZZZZ', 'Teste Teto', 999999, '{}'::jsonb);
---   select xp from public.alunos where nome = 'Teste Teto';   -- espera 1000
+--   select xp from public.alunos where nome = 'Teste Teto';   -- espera 200
 -- Deve falhar com "pct invalido":
 --   select public.conquista_add('ZZZZ-ZZZZ-ZZZZ-ZZZZ', 'Teste', 3, 999, 'Mestre CCNA');
 -- Limpeza do teste:
