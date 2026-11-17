@@ -454,7 +454,10 @@ function addXpTotal(xp) {
 
 // ── SNAPSHOT / SUPABASE FETCH ─────────────────────────────────────────
 function snapshot() {
-  return { qStats, spaced, history: getHistory() };
+  // Regra do projeto: todo estado de progresso novo entra no snapshot E no backup.
+  // `certs` ficou de fora desde que nasceu — trocar de aparelho perdia o certificado
+  // local (a nuvem tinha, mas offline e rollback ficavam cegos).
+  return { qStats, spaced, history: getHistory(), certs: getCerts() };
 }
 
 async function sbPush() {
@@ -468,7 +471,7 @@ async function sbPush() {
     const row = await sbPull(code);
     if (row) {
       const remote = { ...(row.dados || {}), xp: row.xp || 0 };
-      const local  = { qStats, spaced, history: getHistory(), xp: getXpTotal() };
+      const local  = { qStats, spaced, history: getHistory(), certs: getCerts(), xp: getXpTotal() };
       const { merged, changed } = mergeSnapshots(local, remote);
       if (changed) {
         qStats = merged.qStats;
@@ -476,6 +479,7 @@ async function sbPush() {
         localStorage.setItem(KEY.qstats,  JSON.stringify(qStats));
         localStorage.setItem(KEY.spaced,  JSON.stringify(spaced));
         localStorage.setItem(KEY.history, JSON.stringify(merged.history));
+        if (merged.certs) localStorage.setItem(KEY.certs, JSON.stringify(merged.certs));
         localStorage.setItem('sl_xp_total', String(merged.xp));
       }
     }
@@ -567,6 +571,16 @@ function mergeSnapshots(local, remote) {
     }
   }
 
+  // certs: melhor nota por módulo, nunca a última gravada
+  const mergedCerts = { ...(local.certs || {}) };
+  for (const [mod, rc] of Object.entries(remote.certs || {})) {
+    const lc = mergedCerts[mod];
+    if (!lc || (rc.pct || 0) > (lc.pct || 0)) {
+      mergedCerts[mod] = rc;
+      if (!lc || lc.pct !== rc.pct) changed = true;
+    }
+  }
+
   // history: union by `${date}|${total}`, newest first, capped at 20
   const localHistory = local.history || [];
   const seen = new Set(localHistory.map(h => `${h.date}|${h.total}`));
@@ -582,7 +596,7 @@ function mergeSnapshots(local, remote) {
   const mergedXp = Math.max(local.xp || 0, remote.xp || 0);
   if (mergedXp > (local.xp || 0)) changed = true;
 
-  return { merged: { qStats: mergedQStats, spaced: mergedSpaced, history: mergedHistory, xp: mergedXp }, changed };
+  return { merged: { qStats: mergedQStats, spaced: mergedSpaced, history: mergedHistory, certs: mergedCerts, xp: mergedXp }, changed };
 }
 
 async function syncPullMerge() {
@@ -594,7 +608,7 @@ async function syncPullMerge() {
     const row = await sbPull(code);
     if (!row) return;
     const remote = { ...(row.dados || {}), xp: row.xp || 0 };
-    const local  = { qStats, spaced, history: getHistory(), xp: getXpTotal() };
+    const local  = { qStats, spaced, history: getHistory(), certs: getCerts(), xp: getXpTotal() };
     const { merged, changed } = mergeSnapshots(local, remote);
     if (changed) {
       qStats = merged.qStats;
@@ -602,6 +616,7 @@ async function syncPullMerge() {
       localStorage.setItem(KEY.qstats,   JSON.stringify(qStats));
       localStorage.setItem(KEY.spaced,   JSON.stringify(spaced));
       localStorage.setItem(KEY.history,  JSON.stringify(merged.history));
+      if (merged.certs) localStorage.setItem(KEY.certs, JSON.stringify(merged.certs));
       localStorage.setItem('sl_xp_total', String(merged.xp));
       if (S.screen === 'modules' || S.screen === 'start') render();
       await sbPush();
@@ -667,6 +682,7 @@ function exportData() {
     spaced,
     xpTotal: getXpTotal(),
     favs: [...favorites],
+    certs: getCerts(),
     dark: darkMode,
   };
   const filename = `subnetlab_progresso_${new Date().toISOString().slice(0, 10)}.json`;
@@ -699,6 +715,9 @@ function importData(file) {
       }
       if (d.spaced) { spaced = d.spaced; localStorage.setItem(KEY.spaced, JSON.stringify(spaced)); }
       if (typeof d.xpTotal === 'number') localStorage.setItem('sl_xp_total', String(d.xpTotal));
+      // Certificado é "melhor nota vence" — importar um backup antigo não pode apagar
+      // um certificado melhor que já está neste aparelho (mesma regra da nuvem).
+      aplicarCerts(d.certs);
       showAlert('✅ Progresso importado com sucesso!');
       render();
     } catch {
@@ -1325,6 +1344,21 @@ function saveCertLocal(mod, info) {
   c[mod] = info;
   localStorage.setItem(KEY.certs, JSON.stringify(c));
   return true;
+}
+
+// Aplica um mapa de certificados de fora (nuvem ou backup) mantendo o MELHOR por módulo.
+// Reaproveitado pelo import, pelo merge do sync e pelos dois caminhos do vínculo de código —
+// antes cada um fazia a sua própria lista de campos e `certs` ficou de fora dos três.
+function aplicarCerts(mapa) {
+  if (!mapa || typeof mapa !== 'object') return false;
+  const at = getCerts();
+  let mudou = false;
+  for (const [mod, c] of Object.entries(mapa)) {
+    if (!c || typeof c !== 'object') continue;
+    if (!at[mod] || (c.pct || 0) > (at[mod].pct || 0)) { at[mod] = c; mudou = true; }
+  }
+  if (mudou) localStorage.setItem(KEY.certs, JSON.stringify(at));
+  return mudou;
 }
 
 function bestCertPct(mod) {
@@ -2299,6 +2333,7 @@ async function vincularCodigo(codigoDigitado) {
     if (dados?.qStats) { qStats = dados.qStats; localStorage.setItem(KEY.qstats, JSON.stringify(qStats)); }
     if (dados?.spaced) { spaced = dados.spaced; localStorage.setItem(KEY.spaced, JSON.stringify(spaced)); }
     if (dados?.history) localStorage.setItem(KEY.history, JSON.stringify(dados.history));
+    aplicarCerts(dados?.certs);
     if (xp) localStorage.setItem('sl_xp_total', String(xp));
     if (!getStudent() && nome) saveStudent(nome);
     showAlert('✅ Progresso da nuvem aplicado!');
@@ -2335,6 +2370,9 @@ async function vincularCodigo(codigoDigitado) {
     }
     spaced = mergedSpaced;
     localStorage.setItem(KEY.spaced, JSON.stringify(spaced));
+
+    // Certificados: melhor nota por módulo, dos dois lados
+    aplicarCerts(dados?.certs);
 
     // XP total: use the higher value
     const localXp = getXpTotal();
