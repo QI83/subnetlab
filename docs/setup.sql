@@ -16,15 +16,16 @@ create extension if not exists pgcrypto;
 
 -- ============================================================
 -- 1) ALUNOS — um registro por aluno
---    Colunas visíveis ao app: nome, xp, dados, criado_em, atualizado_em.
---    Não há coluna "code" ou "code_hash" — o código de acesso é
---    passado como argumento às RPCs e tratado internamente por elas
---    (hash SHA-256 guardado em dados->>'_h', nunca exposto).
+--    Colunas: nome, xp, dados, code_hash, criado_em, atualizado_em.
+--    O código de acesso NUNCA é guardado em claro: as RPCs recebem o
+--    código, calculam SHA-256 do valor normalizado e gravam em code_hash.
+--    Essa coluna não tem grant para anon, então a chave pública não a lê.
 -- ============================================================
 create table if not exists public.alunos (
   nome          text        not null check (char_length(nome) between 2 and 30),
   xp            integer     not null default 0 check (xp >= 0),
   dados         jsonb       not null default '{}'::jsonb,
+  code_hash     text        not null,          -- sha256(hex) do código normalizado
   criado_em     timestamptz not null default now(),
   atualizado_em timestamptz not null default now()
 );
@@ -33,8 +34,8 @@ create table if not exists public.alunos (
 -- 2) Índices — lookup por código interno + ordenação do ranking
 -- ============================================================
 
--- Índice de lookup (precisa existir antes das sync RPCs serem chamadas)
-create unique index if not exists alunos_h_idx   on public.alunos ((dados->>'_h'));
+-- Unicidade do código: é o que faz o upsert por code_hash funcionar
+create unique index if not exists alunos_code_hash_idx on public.alunos (code_hash);
 -- Índice para o ranking (ORDER BY xp DESC)
 create        index if not exists alunos_xp_idx  on public.alunos (xp desc);
 
@@ -73,13 +74,14 @@ begin
 
   h := encode(digest(upper(regexp_replace(p_code, '[^A-Za-z0-9]', '', 'g')), 'sha256'), 'hex');
 
-  insert into public.alunos (nome, xp, dados)
+  insert into public.alunos (nome, xp, dados, code_hash)
   values (
     trim(p_nome),
     greatest(coalesce(p_xp, 0), 0),
-    coalesce(p_dados, '{}'::jsonb) || jsonb_build_object('_h', h)
+    coalesce(p_dados, '{}'::jsonb),
+    h
   )
-  on conflict ((dados->>'_h')) do update
+  on conflict (code_hash) do update
     set nome          = excluded.nome,
         xp            = excluded.xp,
         dados         = excluded.dados,
@@ -88,7 +90,7 @@ end;
 $$;
 
 -- ============================================================
--- 5) sync_get — lê o snapshot (sem expor o _h interno)
+-- 5) sync_get — lê o snapshot do aluno pelo hash do código
 -- ============================================================
 create or replace function public.sync_get(p_code text)
 returns table (nome text, xp integer, dados jsonb, atualizado_em timestamptz)
@@ -103,9 +105,9 @@ begin
   h := encode(digest(upper(regexp_replace(p_code, '[^A-Za-z0-9]', '', 'g')), 'sha256'), 'hex');
 
   return query
-    select a.nome, a.xp, (a.dados - '_h'), a.atualizado_em
+    select a.nome, a.xp, a.dados, a.atualizado_em
     from public.alunos a
-    where a.dados->>'_h' = h;
+    where a.code_hash = h;
 end;
 $$;
 
@@ -123,7 +125,7 @@ begin
     return;
   end if;
   h := encode(digest(upper(regexp_replace(p_code, '[^A-Za-z0-9]', '', 'g')), 'sha256'), 'hex');
-  delete from public.alunos where dados->>'_h' = h;
+  delete from public.alunos where code_hash = h;
 end;
 $$;
 
@@ -132,7 +134,7 @@ $$;
 --    security_invoker = true: a view executa com os privilégios
 --    de quem a lê (anon), não do dono. Sem isso o Supabase Advisor
 --    marca "Security Definer View" como Critical — e a view
---    bypassaria o RLS expondo dados (onde está o identificador).
+--    bypassaria o RLS expondo dados e code_hash.
 -- ============================================================
 create or replace view public.ranking
   with (security_invoker = true) as

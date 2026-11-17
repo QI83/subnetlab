@@ -6,9 +6,9 @@ Integração em produção. Este documento descreve o esquema atual e as regras 
 
 ### `public.alunos`
 
-Um registro por aluno. O código de acesso é passado como argumento às RPCs — não existe coluna `code`
-na tabela. O identificador interno é derivado do código dentro das funções `security definer`
-e nunca fica exposto pela API pública.
+Um registro por aluno. Não existe coluna `code`: o código em claro só viaja como argumento das RPCs, que
+calculam SHA-256 do valor normalizado (maiúsculas, sem hífens) e gravam em **`code_hash`**. Essa coluna não
+tem `grant` para `anon`, então nem a chave pública nem a view `ranking` conseguem lê-la.
 
 | Coluna | Tipo | Detalhe |
 |---|---|---|
@@ -72,7 +72,7 @@ grant select (nome, xp) on public.alunos to anon;
 ```
 
 **Sem esse grant a view retorna vazio** (RLS bloqueia). Com um grant amplo (`grant select on alunos to anon`)
-a chave pública passaria a ler `dados` — expondo o identificador interno. O grant por coluna fecha esse vetor.
+a chave pública passaria a ler `dados` e `code_hash`. O grant por coluna fecha esse vetor.
 
 ## RPCs
 

@@ -107,7 +107,7 @@ Não há login — quem tem o código acessa o progresso, então ele deve ser tr
 
 | Tabela | Colunas | Uso |
 |---|---|---|
-| `alunos` | `nome, xp, dados, criado_em, atualizado_em` | progresso por aluno. O **código de acesso vive dentro do JSON `dados`** (não há coluna `code`) |
+| `alunos` | `nome, xp, dados, code_hash, criado_em, atualizado_em` | progresso por aluno. Não existe coluna `code`: o código vai em claro só como argumento da RPC, que grava o **SHA-256 em `code_hash`** (sem grant para `anon`) |
 | `certificados` | `code, mod, pct, acertos, total, rank, emitido_em, atualizado_em` (PK `code+mod`) | melhor nota por módulo |
 | `conquistas` | `id, code, nome, mod, pct, rank, criado_em` | feed global que alimenta o sino |
 | `ranking` (view) | `nome, xp, posicao` | classificação da turma (`security_invoker`, sem colunas sensíveis) |
