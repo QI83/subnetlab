@@ -589,6 +589,12 @@ body {
   font-family: var(--font);
   flex-shrink: 0;
 }
+/* Em telas estreitas o rótulo do "← Módulos" sai e sobra só a seta: com 5 ícones na
+   mesma linha a fileira passava do limite em 320px (medido: 302px de 296px úteis). */
+@media (max-width: 350px) {
+  .modules-btn-lbl { display: none; }
+}
+
 .icon-btn:hover { background: var(--bg3); border-color: #5A6080; color: var(--text); }
 .icon-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 

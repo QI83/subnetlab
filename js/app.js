@@ -1888,6 +1888,7 @@ function renderGuide() {
     { icon: '🔍',    name: 'Buscar',           desc: 'Procura uma palavra em todas as questões.' },
     { icon: '📖',    name: 'Glossário',         desc: 'Explica as siglas do CCNA (VLAN, STP, OSPF…).' },
     { icon: '🎯',    name: 'Prontidão',         desc: 'Diz o quanto você está pronto para a prova.' },
+    { icon: '📅',    name: 'Data da prova',     desc: 'Marca o dia do exame. Enquanto não marcar, nada aparece; depois, a contagem fica no topo do módulo.' },
     { icon: '📊',    name: 'Stats',             desc: 'Seu desempenho questão por questão.' },
     { icon: '📋',    name: 'Histórico',         desc: 'Todas as sessões que você já fez.' },
     { icon: '🔔',    name: 'Conquistas',        desc: 'Avisa quando um colega conquista certificado — com nome, curso e nota.' },
@@ -2412,12 +2413,9 @@ function startCountdownTick() {
 
 function renderCountdown() {
   const dStr = getExamDate();
-  if (!dStr) {
-    return `<div class="countdown-box" style="justify-content:center;gap:12px">
-      <span style="font-size:12px;color:var(--text3)">📅 Nenhuma data de prova configurada.</span>
-      <button class="btn" id="cdSet" style="padding:4px 10px;font-size:11px;flex-shrink:0">Definir data</button>
-    </div>`;
-  }
+  // Sem data configurada o bloco inteiro desaparece (pedido do Caique: "se não, não mostrar
+  // nada na tela"). Quem configura é o 📅 da topbar; o espaço vertical fica para o conteúdo.
+  if (!dStr) return '';
   const examStr = new Date(dStr + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   const diff = new Date(dStr + 'T08:00:00') - new Date();
 
@@ -2585,11 +2583,12 @@ function renderStart() {
 
   return `<div class="start-wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
-      <button class="btn" id="modulesBtn" style="padding:3px 10px;font-size:11px" title="Voltar para a seleção de módulos" aria-label="Voltar para a seleção de módulos">← Módulos</button>
+      <button class="btn" id="modulesBtn" style="padding:3px 10px;font-size:11px" title="Voltar para a seleção de módulos" aria-label="Voltar para a seleção de módulos">←<span class="modules-btn-lbl"> Módulos</span></button>
       <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
         <button class="icon-btn" id="searchBtn" title="Buscar questões" aria-label="Buscar questões">🔍</button>
         <button class="icon-btn" id="glossBtn"  title="Glossário de siglas" aria-label="Glossário de siglas">📖</button>
         <button class="icon-btn" id="readyBtn"  title="Relatório de prontidão" aria-label="Relatório de prontidão">🎯</button>
+        <button class="icon-btn" id="cdBtn"     title="Data da prova" aria-label="Configurar data da prova">📅</button>
         <button class="icon-btn theme-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">${darkMode ? '☀️' : '🌙'}</button>
       </div>
     </div>
@@ -2660,6 +2659,7 @@ function bindStart() {
 
   document.getElementById('cdSet')?.addEventListener('click', promptExamDate);
   document.getElementById('cdEdit')?.addEventListener('click', promptExamDate);
+  document.getElementById('cdBtn')?.addEventListener('click', promptExamDate);
   startCountdownTick();
 
   // Cards de modo
