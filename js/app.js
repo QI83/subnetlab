@@ -2587,9 +2587,9 @@ function renderStart() {
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
       <button class="btn" id="modulesBtn" style="padding:3px 10px;font-size:11px" title="Voltar para a seleção de módulos" aria-label="Voltar para a seleção de módulos">← Módulos</button>
       <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-        <button class="btn" id="searchBtn" style="padding:5px 11px;font-size:12px" title="Buscar questões" aria-label="Buscar questões">🔍</button>
-        <button class="btn" id="glossBtn"  style="padding:5px 11px;font-size:12px" title="Glossário de siglas" aria-label="Glossário de siglas">📖</button>
-        <button class="btn" id="readyBtn"  style="padding:5px 11px;font-size:12px" title="Relatório de prontidão" aria-label="Relatório de prontidão">🎯</button>
+        <button class="icon-btn" id="searchBtn" title="Buscar questões" aria-label="Buscar questões">🔍</button>
+        <button class="icon-btn" id="glossBtn"  title="Glossário de siglas" aria-label="Glossário de siglas">📖</button>
+        <button class="icon-btn" id="readyBtn"  title="Relatório de prontidão" aria-label="Relatório de prontidão">🎯</button>
         <button class="icon-btn theme-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">${darkMode ? '☀️' : '🌙'}</button>
       </div>
     </div>
