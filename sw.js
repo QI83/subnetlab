@@ -6,7 +6,7 @@
 // O cache-first puro prendia o aluno na versão antiga depois de cada deploy.
 'use strict';
 
-const CACHE_NAME = 'subnetlab-v50';
+const CACHE_NAME = 'subnetlab-v51';
 
 const ASSETS = [
   '.',

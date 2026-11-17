@@ -83,7 +83,6 @@ manifest.json       PWA
 sw.js               service worker (offline)
 sql/certificados.sql  tabelas e RPCs de certificados/conquistas (rodar no Supabase)
 docs/               especificação da v2.0 e mídia
-prototype/          protótipos isolados (não integrados ao app)
 reference/          simulador original (histórico)
 BRIEF.md            especificação técnica do projeto
 ```
