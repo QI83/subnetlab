@@ -741,6 +741,7 @@ let S = {
   planIds:       [],       // índices do plano corrente (persistido para resumeQuiz)
   cert:          null,     // {elegivel, pct, melhor, novo, sincronizado}
   notif:         null,     // últimas conquistas dos colegas
+  notifStale:    false,    // true = a lista veio de uma sessão anterior e pode estar velha
 };
 
 // ── 7. TIMER ────────────────────────────────────────────────────────
@@ -1199,6 +1200,16 @@ function certRank(pct) {
        :               { rank: 'Técnico de Redes', icon: '📡', cor: '#A89DF5' };
 }
 
+// Cor da nota/rank no DOM do resultado. Igual ao rankListColor: o azul/verde/amarelo
+// claros foram escolhidos para o fundo escuro e somem no tema claro (medido 1,88:1
+// no rank e no %). O canvas NÃO usa esta função — ele desenha sempre em fundo escuro.
+function scoreColorUI(pct) {
+  if (darkMode) {
+    return pct === 100 ? '#F5C842' : pct >= 90 ? '#5EE0A8' : pct >= 70 ? '#7AB8F5' : '#F08080';
+  }
+  return pct === 100 ? '#8A6A00' : pct >= 90 ? '#0F6B45' : pct >= 70 ? '#1E4E8C' : '#B23B3B';
+}
+
 function certSlug(mod) {
   return ({ 0: 'revisao', 1: 'itn', 2: 'srwe', 3: 'ensa', 4: 'cert' })[mod] || 'subnetlab';
 }
@@ -1460,8 +1471,15 @@ function ultimaNotifVista() {
 
 async function carregarNotificacoes() {
   const lista = await sbConquistasList(getCode(), 30);
-  if (!lista) return;                       // offline: mantém o que houver
+  if (!lista) {
+    // Offline: mantém a lista em memória, mas MARCA que ela não é atual. Sem essa
+    // marca o sino exibia conquistas de minutos (ou horas) atrás como se fossem agora,
+    // sem nenhum aviso — o mesmo defeito que o ranking já teve com a lista em cache.
+    S.notifStale = Array.isArray(S.notif) && S.notif.length > 0;
+    return;
+  }
   S.notif = lista;
+  S.notifStale = false;
   const vistas = ultimaNotifVista();
   const novas  = lista.filter(c => Number(c.id) > vistas).length;
   const b = document.getElementById('notifBadge');
@@ -1482,6 +1500,9 @@ function textoConquista(c) {
 function showNotificacoes() {
   closeAllModals();
   const lista = Array.isArray(S.notif) ? S.notif : null;   // null = ainda não carregou / falhou
+  const avisoVelho = (lista && S.notifStale)
+    ? `<p style="color:var(--text3);font-size:11px;margin:0 0 10px;display:flex;gap:6px;align-items:center">📵 Sem conexão agora — mostrando o que foi carregado nesta sessão.</p>`
+    : '';
   const itens = lista === null
     ? `<p style="color:var(--text2);font-size:13px">Não foi possível carregar as conquistas agora. Verifique a conexão e tente de novo.</p>`
     : !lista.length
@@ -1499,7 +1520,7 @@ function showNotificacoes() {
   el.id = 'notif-overlay';
   el.innerHTML = `<div class="cmodal" style="max-width:420px">
     <div class="cmodal-title">🔔 Conquistas dos colegas</div>
-    <div class="notif-list">${itens}</div>
+    <div class="notif-list">${avisoVelho}${itens}</div>
     <div style="margin-top:16px;text-align:right">
       <button class="btn pri" id="notifOk" style="min-width:90px">Fechar</button>
     </div>
@@ -2918,7 +2939,7 @@ function renderResult() {
   // Aprovação é pela NOTA (>=70%), não por ainda ter vidas restantes
   const passed = pct >= 70;
 
-  const scoreColor = pct === 100 ? '#F5C842' : pct >= 90 ? '#5EE0A8' : pct >= 70 ? '#7AB8F5' : '#F08080';
+  const scoreColor = scoreColorUI(pct);
   const certBorder = scoreColor + '88';
 
   const certInfo  = certTipo(S.selectedMod);
