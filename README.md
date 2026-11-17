@@ -175,6 +175,30 @@ Passo a passo:
 5. Referencie: `fig: "img/m3-q021.webp"` + `figAlt` com descrição curta e fiel.
 6. Sem figura na fonte? Deixe `fig` vazio — **não invente**.
 
+## Validar o conteúdo
+
+```bash
+node tools/validar-conteudo.js
+```
+
+Verifica o banco de questões dos módulos 2, 3 e 4. Falha com exit 1 se encontrar **erros** (exit 0 se só avisos).
+
+O que é checado como ERROR:
+- `id` duplicado no mesmo módulo ou não-inteiro-positivo
+- campos obrigatórios ausentes (`tp`, `ty`, `text`, `why`)
+- `ty` desconhecido (esperado `single | multi | match`)
+- `single`: `opts` com menos de 2 itens ou `cor` fora do intervalo
+- `multi`: `cor` não-array, índice fora do intervalo ou duplicado
+- `match`: `pairs` com menos de 2 pares ou par com `l`/`r` vazio
+- `fig` referenciando arquivo que não existe em `img/`
+
+Avisos (WARN, não falha): texto duplicado, `tp` com espaços, `opts` duplicados, imagens órfãs em `img/`.
+
+```
+node tools/validar-conteudo.js --quiet   # só erros
+node tools/validar-conteudo.js --help
+```
+
 ## Rodar localmente
 
 Nenhum build, nenhuma dependência. Duplo clique em `index.html`.

@@ -2250,7 +2250,7 @@ window.QUESTIONS_M4 = [
   "text": "Como são calculadas as transmissões de dados de rede?",
   "opts": [
    "goodput + latência = largura de banda",
-   "taxa de transferência + taxa de transferência = largura de banda",
+   "goodput - sobrecarga de tráfego = largura de banda",
    "taxa de transferência + taxa de transferência = largura de banda",
    "goodput + sobrecarga de tráfego = taxa de transferência"
   ],

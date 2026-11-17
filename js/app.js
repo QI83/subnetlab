@@ -259,6 +259,76 @@ function shuffle(arr) {
   return a;
 }
 
+// ── PESO DOS DOMÍNIOS DO EXAME ──────────────────────────────────────
+// O 200-301 não sorteia tópicos por igual: o blueprint da Cisco dá peso a cada
+// domínio. Sortear uniforme inflava VLAN/ACL (temos muitas) e quase ignorava
+// Fundamentos. Os pesos abaixo são os oficiais (v1.1), em %.
+const EXAM_DOMAINS = [
+  { key: 'fund',   pct: 20, topics: ['Arquitetura', 'Troubleshooting'] },
+  { key: 'access', pct: 20, topics: ['VLANs', 'Inter-VLAN', 'Switching', 'STP', 'EtherChannel', 'WLAN', 'Tabela MAC', 'Segurança L2'] },
+  { key: 'ipconn', pct: 25, topics: ['Roteamento', 'OSPF', 'FHRP'] },
+  { key: 'ipserv', pct: 10, topics: ['Gerência', 'QoS', 'DHCPv4', 'NAT', 'WAN'] },
+  { key: 'sec',    pct: 15, topics: ['Segurança', 'ACLs'] },
+  { key: 'auto',   pct: 10, topics: ['Automação', 'SDN/Cloud'] },
+];
+let DOMAIN_OF_TOPIC = null;
+
+function domainOf(tp) {
+  if (!DOMAIN_OF_TOPIC) {
+    DOMAIN_OF_TOPIC = {};
+    EXAM_DOMAINS.forEach(d => d.topics.forEach(t => { DOMAIN_OF_TOPIC[t] = d.key; }));
+  }
+  return DOMAIN_OF_TOPIC[tp] || 'fund';   // tópico novo cai em Fundamentos, nunca fora da conta
+}
+
+// Sorteia n questões do pool respeitando o peso de cada domínio. Domínio sem
+// questões suficientes entrega tudo o que tem e a sobra vai para quem ainda tem
+// espaço (na ordem do peso) — nunca trava nem devolve menos que o pedido quando
+// o pool é maior que n.
+function weightedDraw(pool, n) {
+  if (n >= pool.length) return shuffle(pool.slice());
+  const grupos = {};
+  EXAM_DOMAINS.forEach(d => { grupos[d.key] = []; });
+  pool.forEach(i => { grupos[domainOf(Q[i].tp)].push(i); });
+
+  const cotas = {};
+  let soma = 0;
+  EXAM_DOMAINS.forEach(d => { cotas[d.key] = Math.floor(n * d.pct / 100); soma += cotas[d.key]; });
+
+  // maior resto (12,5 vira 13 quando sobra vaga)
+  const restos = EXAM_DOMAINS
+    .map(d => ({ k: d.key, r: n * d.pct / 100 - cotas[d.key] }))
+    .sort((a, b) => b.r - a.r);
+  for (let i = 0; soma < n && i < restos.length; i++) {
+    const k = restos[i].k;
+    if (cotas[k] < grupos[k].length) { cotas[k]++; soma++; }
+  }
+
+  // domínio com menos questões que a cota: pega todas e redistribui a falta
+  let falta = 0;
+  EXAM_DOMAINS.forEach(d => {
+    const k = d.key;
+    if (cotas[k] > grupos[k].length) { falta += cotas[k] - grupos[k].length; cotas[k] = grupos[k].length; }
+  });
+  let guard = 0;
+  while (falta > 0 && guard++ < 50) {
+    const comEspaco = EXAM_DOMAINS
+      .filter(d => cotas[d.key] < grupos[d.key].length)
+      .sort((a, b) => b.pct - a.pct);
+    if (!comEspaco.length) break;
+    for (const d of comEspaco) {
+      if (falta <= 0) break;
+      if (cotas[d.key] < grupos[d.key].length) { cotas[d.key]++; falta--; }
+    }
+  }
+
+  let out = [];
+  EXAM_DOMAINS.forEach(d => {
+    out = out.concat(shuffle(grupos[d.key].slice()).slice(0, cotas[d.key]));
+  });
+  return shuffle(out);
+}
+
 // Escapa caracteres HTML para prevenir XSS
 function esc(s) {
   if (s == null) return '';
@@ -912,7 +982,7 @@ function startQuiz() {
     // Revisão Completa (sem módulo escolhido): a Prova é uma amostra de 60 questões
     // sorteadas do banco; o modo Livre continua apresentando todas, aleatoriamente.
     if (mode === 'timed' && !S.selectedMod && pool.length > 60) {
-      pool = shuffle(pool).slice(0, 60);
+      pool = weightedDraw(pool, 60);   // 60 com o peso dos domínios do 200-301
     }
   }
 
