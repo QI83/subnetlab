@@ -2015,7 +2015,7 @@ function renderRanking() {
 
   if (st.status === 'loading') {
     return `<div class="ranking-wrap">${topbar}
-      <p class="ranking-kicker">SUBNETLAB · CCNA v7 · Turma SENAI</p>
+      <p class="ranking-kicker">SUBNETLAB · CCNA v7</p>
       <div class="ranking-skeleton">
         <div class="rank-skel-podium">
           <div class="skel-block" style="height:125px"></div>
@@ -2035,7 +2035,7 @@ function renderRanking() {
 
   if (st.status === 'empty' || (!lista.length && st.status !== 'offline')) {
     return `<div class="ranking-wrap">${topbar}
-      <p class="ranking-kicker">SUBNETLAB · CCNA v7 · Turma SENAI</p>
+      <p class="ranking-kicker">SUBNETLAB · CCNA v7</p>
       <div class="rank-empty">
         <div class="rank-empty-icon">🏆</div>
         <div class="rank-empty-title">Ninguém no ranking ainda</div>
@@ -2047,7 +2047,7 @@ function renderRanking() {
 
   if (st.status === 'offline' && !lista.length) {
     return `<div class="ranking-wrap">${topbar}
-      <p class="ranking-kicker">SUBNETLAB · CCNA v7 · Turma SENAI</p>
+      <p class="ranking-kicker">SUBNETLAB · CCNA v7</p>
       <div class="rank-offline-msg">📵 Ranking indisponível offline.</div>
     </div>`;
   }
@@ -2166,7 +2166,7 @@ function renderRanking() {
 
   return `<div class="ranking-wrap">
     ${topbar}
-    <p class="ranking-kicker">SUBNETLAB · CCNA v7 · Turma SENAI</p>
+    <p class="ranking-kicker">SUBNETLAB · CCNA v7</p>
     ${statsLine}
     ${offlineBanner}
     ${podiumHTML}
