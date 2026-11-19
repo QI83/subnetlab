@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SubnetLab: jogos de aquecimento (protótipo)</title>
+<meta name="theme-color" content="#0F1117">
+<style>
+  :root{
+    --bg:#0F1117; --bg2:#12172B; --bg3:#1A1D2F; --border:#232841; --border2:#2E3550;
+    --text:#E8EAF6; --text2:#A8AFC7; --text3:#8A93AE;
+    --green:#2ECC8F; --green-text:#5EE0A8; --green-bg:#0E2A22; --green-line:#1E5A47;
+    --blue-text:#7AB8F5; --blue-bg:#12203A; --blue-line:#24406B;
+    --red-text:#F08080; --red-bg:#2A1315; --red-line:#5A2126;
+    --yellow:#F5C842; --radius:13px;
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+  .wrap{max-width:560px;margin:0 auto;padding:0 16px calc(28px + env(safe-area-inset-bottom))}
+  .topbar{display:flex;align-items:center;gap:10px;padding:14px 0 8px;position:sticky;top:0;background:var(--bg);z-index:5}
+  .topbar h1{font-size:15px;font-weight:800}
+  .back{width:38px;height:38px;border-radius:50%;border:1px solid var(--border2);background:transparent;color:var(--text2);
+        display:grid;place-items:center;cursor:pointer;padding:0;line-height:0}
+  .back svg{width:15px;height:15px;display:block}
+  .back[hidden]{display:none}
+  .stat{margin-left:auto;font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums}
+  .lead{font-size:12.5px;color:var(--text3);line-height:1.5;margin:2px 0 14px}
+  .lead b{color:var(--text2)}
+
+  .sec{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin:20px 0 10px}
+  .card{display:block;width:100%;text-align:left;background:var(--bg2);border:1px solid var(--border);
+        border-radius:var(--radius);padding:14px;color:inherit;font:inherit;cursor:pointer;margin-bottom:8px}
+  .card:hover{border-color:var(--border2)}
+  .card .t{font-size:14.5px;font-weight:800;display:flex;align-items:center;gap:8px}
+  .card .d{font-size:12px;color:var(--text3);margin-top:3px;line-height:1.45}
+  .card .b{font-size:11px;font-weight:700;color:var(--green-text);margin-top:7px}
+
+  /* pareamento */
+  .timer{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .tbar{flex:1;height:6px;background:var(--bg3);border-radius:4px;overflow:hidden}
+  .tfill{height:100%;background:var(--green);transition:width .9s linear}
+  .tnum{font-size:12px;color:var(--text2);font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .col{display:flex;flex-direction:column;gap:8px}
+  .pill{width:100%;min-height:58px;padding:10px;border-radius:12px;border:1px solid var(--border2);background:var(--bg2);
+        color:var(--text);font:600 12.5px/1.35 inherit;cursor:pointer;text-align:left}
+  .pill.term{font-family:var(--mono);font-weight:700;letter-spacing:.02em;text-transform:uppercase;font-size:12px;display:flex;align-items:center}
+  .pill.sel{border-color:var(--blue);background:var(--blue-bg)}
+  .pill.done{background:var(--green-bg);border-color:var(--green-line);color:var(--green-text);cursor:default;opacity:.85}
+  .pill.wrong{background:var(--red-bg);border-color:var(--red-line);color:var(--red-text);animation:shake .3s}
+  @keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+
+  /* ordem */
+  .steps{display:flex;flex-direction:column;gap:8px}
+  .step{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:var(--bg2);
+        border:1px solid var(--border2);border-radius:12px;padding:11px 12px;color:var(--text);font:600 13px/1.4 inherit;cursor:pointer}
+  .step .num{flex:0 0 24px;height:24px;border-radius:50%;background:var(--bg3);color:var(--text3);display:grid;
+             place-items:center;font:800 11px/1 inherit}
+  .step.placed{border-color:var(--green-line);background:var(--green-bg);color:var(--green-text);cursor:default}
+  .step.placed .num{background:var(--green);color:#04150F}
+  .step.bad{background:var(--red-bg);border-color:var(--red-line);color:var(--red-text);animation:shake .3s}
+
+  .fb{min-height:20px;font-size:12.5px;margin-top:12px;color:var(--text3)}
+  .fb.ok{color:var(--green-text)}
+  .fb.no{color:var(--red-text)}
+
+  .btn{font:800 13px/1 inherit;padding:13px;border-radius:11px;border:none;background:var(--green);color:#04150F;
+       width:100%;cursor:pointer;margin-top:10px}
+  .btn.ghost{background:transparent;border:1px solid var(--border2);color:var(--text2);font-weight:700}
+  .note{font-size:11px;line-height:1.45;color:var(--text3);margin-top:12px;text-align:center}
+
+  .end{text-align:center;padding:22px 6px}
+  .end .big{font-size:46px;font-weight:800;color:var(--green-text);line-height:1}
+  .end .sub{font-size:13px;color:var(--text2);margin:8px 0 16px}
+  .rec{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);border-top:1px solid var(--border);padding-top:10px;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <button class="back" id="backBtn" aria-label="Voltar" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <h1 id="title">Aquecimento</h1>
+    <span class="stat" id="stat"></span>
+  </div>
+  <div id="view"></div>
+</div>
+
+<script>
+'use strict';
+
+/* ── conteúdo ──────────────────────────────────────────────────────────────
+   Siglas vêm do glossário do app (ACRONYMS). Aqui estão as 30 que mais caem.
+   Processos vêm das explicações das questões, na ordem correta.            */
+
+const SIGLAS = [
+  ['VLAN','Rede local virtual, separa o switch em domínios lógicos'],
+  ['TRUNK','Link que carrega várias VLANs com tag 802.1Q'],
+  ['STP','Evita laço de camada 2 bloqueando portas redundantes'],
+  ['OSPF','Roteamento de estado de link, padrão aberto'],
+  ['HSRP','Gateway redundante Cisco com IP e MAC virtuais'],
+  ['VRRP','Gateway redundante padrão aberto (IEEE)'],
+  ['DHCP','Entrega IP, máscara, gateway e DNS automaticamente'],
+  ['NAT','Traduz endereços privados em públicos'],
+  ['ACL','Lista que permite ou nega tráfego por critério'],
+  ['DTP','Negocia automaticamente se a porta vira trunk'],
+  ['VTP','Propaga a lista de VLANs entre switches Cisco'],
+  ['SVI','Interface virtual do switch usada como gateway'],
+  ['CAM','Memória do switch que guarda MAC por porta'],
+  ['ARP','Descobre o MAC a partir do IP na rede local'],
+  ['CDP','Protocolo Cisco que descobre vizinhos diretos'],
+  ['LLDP','Descoberta de vizinhos, padrão aberto (IEEE)'],
+  ['EtherChannel','Agrupa vários links físicos em um lógico'],
+  ['LACP','Negocia agregação de links, padrão IEEE'],
+  ['PAgP','Negocia agregação de links, proprietário Cisco'],
+  ['PoE','Entrega energia elétrica pelo cabo de rede'],
+  ['WLC','Controlador que gerencia vários pontos de acesso'],
+  ['SSID','Nome da rede sem fio anunciado pelo AP'],
+  ['WPA2','Segurança WiFi com AES, a mais usada hoje'],
+  ['QoS','Prioriza tipos de tráfego em congestionamento'],
+  ['NTP','Sincroniza o relógio dos equipamentos'],
+  ['SNMP','Monitora e gerencia equipamentos pela rede'],
+  ['SSH','Acesso remoto criptografado ao CLI'],
+  ['TACACS+','Servidor AAA da Cisco, criptografa tudo'],
+  ['RADIUS','Servidor AAA aberto, criptografa só a senha'],
+  ['FHRP','Nome genérico dos protocolos de gateway redundante']
+];
+
+const PROCESSOS = [
+  { nome: 'Failover do HSRP',
+    passos: ['O roteador ativo falha',
+             'O standby para de receber hello e espera o hold time',
+             'O standby assume o papel ativo',
+             'Responde pelo IP e MAC virtuais do grupo'] },
+  { nome: 'DHCP: as quatro mensagens',
+    passos: ['Discover: cliente procura servidor',
+             'Offer: servidor oferece um IP',
+             'Request: cliente pede oficialmente',
+             'Acknowledge: servidor confirma a concessão'] },
+  { nome: 'Boot do switch',
+    passos: ['POST testa o hardware',
+             'Boot loader é carregado da ROM',
+             'Boot loader inicializa a CPU e a flash',
+             'O IOS é carregado e assume o controle',
+             'O arquivo de configuração é aplicado'] },
+  { nome: 'Adjacência OSPF',
+    passos: ['Down: nenhum hello recebido',
+             'Init: hello recebido, vizinho ainda não me vê',
+             '2-Way: os dois se veem',
+             'ExStart e Exchange: negociação e troca de DBD',
+             'Full: bases sincronizadas'] },
+  { nome: 'Router-on-a-stick',
+    passos: ['Criar a subinterface no roteador',
+             'Aplicar encapsulation dot1Q com o número da VLAN',
+             'Atribuir o endereço IP do gateway da VLAN',
+             'Configurar a porta do switch como trunk',
+             'Ativar a subinterface com no shutdown'] }
+];
+
+const KEY = 'bib_jogos';
+const salvo = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return {}; } };
+const gravar = obj => localStorage.setItem(KEY, JSON.stringify({ ...salvo(), ...obj }));
+
+let screen = 'hub';
+const $ = s => document.querySelector(s);
+const view = $('#view'), titulo = $('#title'), statEl = $('#stat'), back = $('#backBtn');
+
+/* ── utilidades ─────────────────────────────────────────────────────────── */
+const shuffle = a => { const x = a.slice(); for (let i = x.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [x[i], x[j]] = [x[j], x[i]]; } return x; };
+const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+
+/* ── hub ────────────────────────────────────────────────────────────────── */
+function renderHub() {
+  screen = 'hub';
+  titulo.textContent = 'Aquecimento';
+  statEl.textContent = '';
+  back.hidden = true;
+  const s = salvo();
+
+  view.innerHTML = `
+    <p class="lead">Dois jogos curtos para esquentar antes de estudar. <b>Não contam XP</b> e não entram no ranking:
+       são treino de memória, não desempenho.</p>
+
+    <button class="card" id="jogoPares">
+      <div class="t">⚡ Pareamento em 60s</div>
+      <div class="d">Cinco siglas e cinco definições. Toque na sigla e depois no significado certo antes do tempo acabar.</div>
+      ${s.melhorPares ? `<div class="b">melhor: 5 pares em ${fmt(s.melhorPares)}</div>` : ''}
+    </button>
+
+    <button class="card" id="jogoOrdem">
+      <div class="t">🔢 Ordem dos passos</div>
+      <div class="d">Cinco cartões embaralhados de um processo real: toque na sequência certa.</div>
+      ${s.melhorOrdem ? `<div class="b">melhor: ${fmt(s.melhorOrdem)}</div>` : ''}
+    </button>
+
+    <p class="note">Protótipo para avaliação. O conteúdo vem do glossário e das explicações do simulador.</p>`;
+
+  $('#jogoPares').addEventListener('click', iniciarPares);
+  $('#jogoOrdem').addEventListener('click', () => iniciarOrdem());
+}
+
+/* ── jogo 1: pareamento ─────────────────────────────────────────────────── */
+let pares = null;
+function iniciarPares() {
+  const escolhidas = shuffle(SIGLAS).slice(0, 5);
+  pares = {
+    tempo: 60, restante: 60, feitos: 0,
+    termos: shuffle(escolhidas), defs: shuffle(escolhidas),
+    selTermo: null, selDef: null, rodando: true, timer: null
+  };
+  screen = 'pares';
+  titulo.textContent = 'Pareamento';
+  back.hidden = false;
+  pintarPares();
+  pares.timer = setInterval(() => {
+    pares.restante--;
+    const barra = $('#tfill');
+    if (barra) barra.style.width = (pares.restante / 60 * 100) + '%';
+    const num = $('#tnum');
+    if (num) num.textContent = pares.restante + 's';
+    if (pares.restante <= 0) fimPares(false);
+  }, 1000);
+}
+
+function pintarPares() {
+  view.innerHTML = `
+    <div class="timer">
+      <div class="tbar"><div class="tfill" id="tfill" style="width:100%"></div></div>
+      <span class="tnum" id="tnum">60s</span>
+    </div>
+    <div class="grid" id="grade">
+      <div class="col" id="colTermos"></div>
+      <div class="col" id="colDefs"></div>
+    </div>
+    <div class="fb" id="fb" role="status" aria-live="polite">Toque numa sigla e depois no significado.</div>`;
+
+  const ct = $('#colTermos'), cd = $('#colDefs');
+  pares.termos.forEach(([sigla], i) => {
+    const b = document.createElement('button');
+    b.className = 'pill term'; b.textContent = sigla; b.dataset.sigla = sigla;
+    b.addEventListener('click', () => escolherTermo(b));
+    ct.appendChild(b);
+  });
+  pares.defs.forEach(([sigla, def]) => {
+    const b = document.createElement('button');
+    b.className = 'pill'; b.textContent = def; b.dataset.sigla = sigla;
+    b.addEventListener('click', () => escolherDef(b));
+    cd.appendChild(b);
+  });
+}
+
+function escolherTermo(btn) {
+  if (!pares.rodando || btn.classList.contains('done')) return;
+  document.querySelectorAll('.pill.term').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  pares.selTermo = btn;
+  if (pares.selDef) conferirPares();
+}
+
+function escolherDef(btn) {
+  if (!pares.rodando || btn.classList.contains('done')) return;
+  if (!pares.selTermo) { $('#fb').textContent = 'Primeiro escolha uma sigla à esquerda.'; return; }
+  pares.selDef = btn;
+  conferirPares();
+}
+
+function conferirPares() {
+  const t = pares.selTermo, d = pares.selDef;
+  if (t.dataset.sigla === d.dataset.sigla) {
+    t.classList.add('done'); d.classList.add('done');
+    t.classList.remove('sel');
+    pares.feitos++;
+    $('#fb').className = 'fb ok';
+    $('#fb').textContent = `${pares.feitos} de 5 pares. ${t.dataset.sigla} é isso mesmo.`;
+    pares.selTermo = null; pares.selDef = null;
+    if (pares.feitos === 5) fimPares(true);
+  } else {
+    d.classList.add('wrong');
+    setTimeout(() => d.classList.remove('wrong'), 320);
+    $('#fb').className = 'fb no';
+    $('#fb').textContent = 'Não é esse. Tente outra definição.';
+    pares.selDef = null;
+  }
+}
+
+function fimPares(venceu) {
+  pares.rodando = false;
+  clearInterval(pares.timer);
+  const usou = 60 - pares.restante;
+  const s = salvo();
+  if (venceu && (!s.melhorPares || usou < s.melhorPares)) gravar({ melhorPares: usou });
+
+  view.innerHTML = `
+    <div class="end">
+      <div class="big">${pares.feitos}/5</div>
+      <div class="sub">${venceu ? `Todos os pares em ${fmt(usou)}.` : 'O tempo acabou. Tente de novo: são 60 segundos.'}</div>
+      <button class="btn" id="deNovo">Jogar de novo</button>
+      <button class="btn ghost" id="voltar">Voltar ao aquecimento</button>
+      <div class="note">Pareamento treina reconhecimento, não substitui responder questão.</div>
+    </div>`;
+  back.hidden = false;
+  $('#deNovo').addEventListener('click', iniciarPares);
+  $('#voltar').addEventListener('click', renderHub);
+}
+
+/* ── jogo 2: ordem ──────────────────────────────────────────────────────── */
+let ordem = null;
+function iniciarOrdem(indice) {
+  const idx = indice === undefined ? Math.random() * PROCESSOS.length | 0 : indice;
+  const proc = PROCESSOS[idx];
+  ordem = {
+    proc, pos: 0, erros: 0, inicio: Date.now(),
+    cartoes: shuffle(proc.passos.map((p, i) => ({ texto: p, correto: i })))
+  };
+  screen = 'ordem';
+  titulo.textContent = 'Ordem dos passos';
+  back.hidden = false;
+  pintarOrdem();
+}
+
+function pintarOrdem() {
+  view.innerHTML = `
+    <p class="lead">Processo: <b>${ordem.proc.nome}</b>. Toque nos cartões na ordem correta.</p>
+    <div class="steps" id="passos"></div>
+    <div class="fb" id="fb" role="status" aria-live="polite">Comece pelo que acontece primeiro.</div>`;
+  const cont = $('#passos');
+  ordem.cartoes.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.className = 'step';
+    // o número só aparece quando o passo é colocado; antes disso é um marcador neutro,
+    // senão o aluno acha que 1..5 já indica a ordem
+    b.innerHTML = `<span class="num" aria-hidden="true">•</span><span>${c.texto}</span>`;
+    b.dataset.pos = i;
+    b.addEventListener('click', () => escolherPasso(b, c));
+    cont.appendChild(b);
+  });
+}
+
+function escolherPasso(btn, cartao) {
+  if (btn.classList.contains('placed')) return;
+  if (cartao.correto === ordem.pos) {
+    btn.classList.add('placed');
+    btn.querySelector('.num').textContent = ordem.pos + 1;
+    ordem.pos++;
+    $('#fb').className = 'fb ok';
+    $('#fb').textContent = `Certo: este é o passo ${ordem.pos}.`;
+    if (ordem.pos === ordem.proc.passos.length) fimOrdem();
+  } else {
+    ordem.erros++;
+    btn.classList.add('bad');
+    setTimeout(() => btn.classList.remove('bad'), 320);
+    $('#fb').className = 'fb no';
+    $('#fb').textContent = `Ainda não. Você está no passo ${ordem.pos + 1}.`;
+  }
+}
+
+function fimOrdem() {
+  const segs = Math.round((Date.now() - ordem.inicio) / 1000);
+  const s = salvo();
+  if (!s.melhorOrdem || segs < s.melhorOrdem) gravar({ melhorOrdem: segs });
+
+  view.innerHTML = `
+    <div class="end">
+      <div class="big">${ordem.erros === 0 ? '✓' : ordem.erros}</div>
+      <div class="sub">${ordem.erros === 0 ? 'Sequência completa sem errar.' : `Sequência completa com ${ordem.erros} tentativa(s) no lugar errado.`} Tempo: ${fmt(segs)}.</div>
+      <button class="btn" id="outro">Outro processo</button>
+      <button class="btn ghost" id="voltar">Voltar ao aquecimento</button>
+      <div class="note">Errar aqui mostra onde o processo ainda está embaralhado na cabeça.</div>
+    </div>`;
+  $('#outro').addEventListener('click', () => iniciarOrdem());
+  $('#voltar').addEventListener('click', renderHub);
+}
+
+/* ── navegação ──────────────────────────────────────────────────────────── */
+back.addEventListener('click', () => { if (pares) { pares.rodando = false; clearInterval(pares.timer); } renderHub(); });
+renderHub();
+</script>
+</body>
+</html>
