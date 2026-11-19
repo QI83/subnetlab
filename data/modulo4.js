@@ -14,7 +14,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 1,
   "sub": "descrição do banco de dados",
-  "why": "O pacote DBD (Descrição do Banco de Dados) carrega apenas um resumo do LSDB — os cabeçalhos dos LSAs — para que o vizinho compare com o seu próprio banco e só peça o que estiver faltando. É a etapa de 'comparar antes de copiar'."
+  "why": "O pacote DBD (Descrição do Banco de Dados) carrega apenas um resumo do LSDB (os cabeçalhos dos LSAs) para que o vizinho compare com o seu próprio banco e só peça o que estiver faltando. É a etapa de 'comparar antes de copiar'."
  },
  {
   "id": 2,
@@ -143,7 +143,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 1,
   "sub": "show ip ospf interface serial 0/0/0",
-  "why": "O comando show ip ospf interface serial 0/0/0 exibe, entre outras informações, os temporizadores Hello e Dead configurados naquela interface específica — exatamente o que se quer verificar no link WAN ponto a ponto."
+  "why": "O comando show ip ospf interface serial 0/0/0 exibe, entre outras informações, os temporizadores Hello e Dead configurados naquela interface específica, exatamente o que se quer verificar no link WAN ponto a ponto."
  },
  {
   "id": 8,
@@ -164,7 +164,7 @@ window.QUESTIONS_M4 = [
    4
   ],
   "sub": "Escolha 2 alternativas",
-  "why": "O router ID identifica unicamente cada roteador dentro do domínio OSPF e é usado como critério de desempate na eleição do DR/BDR. Ele não define rotas nem áreas — serve para identificar e eleger."
+  "why": "O router ID identifica unicamente cada roteador dentro do domínio OSPF e é usado como critério de desempate na eleição do DR/BDR. Ele não define rotas nem áreas: serve para identificar e eleger."
  },
  {
   "id": 9,
@@ -873,7 +873,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 3,
   "sub": "Pedir ao usuário para emitir o comando ipconfig.",
-  "why": "O primeiro passo é verificar a configuração IP da estação com ipconfig — endereço, máscara e gateway. Sem esses dados não é possível saber se o problema é de endereçamento, de rede ou de impressora."
+  "why": "O primeiro passo é verificar a configuração IP da estação com ipconfig: endereço, máscara e gateway. Sem esses dados não é possível saber se o problema é de endereçamento, de rede ou de impressora."
  },
  {
   "id": 47,
@@ -907,7 +907,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 0,
   "sub": "As interfaces seriais não estão na mesma área.",
-  "why": "As interfaces seriais de R1 e R2 estão configuradas em áreas OSPF diferentes. OSPF só forma adjacência entre interfaces na mesma área — por isso a adjacência não estabelece.",
+  "why": "As interfaces seriais de R1 e R2 estão configuradas em áreas OSPF diferentes. OSPF só forma adjacência entre interfaces na mesma área. Por isso a adjacência não estabelece.",
   "fig": "img/m3-q048.webp",
   "figAlt": "Topologia OSPF: R2 na Area 0 e R1 na Area 1, com os blocos de configuração OSPF de cada roteador"
  },
@@ -964,7 +964,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 1,
   "sub": "tipo 2",
-  "why": "O hypervisor Tipo 2 roda como um aplicativo sobre um sistema operacional hospedeiro — é o caso de VirtualBox ou VMware Workstation instalados no Windows do notebook. O Tipo 1 roda direto no hardware."
+  "why": "O hypervisor Tipo 2 roda como um aplicativo sobre um sistema operacional hospedeiro, como o VirtualBox ou o VMware Workstation instalados no Windows do notebook. O Tipo 1 roda direto no hardware."
  },
  {
   "id": 52,
@@ -1052,7 +1052,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 2,
   "sub": "Encapsulamento de quadro a cada hop",
-  "why": "O endereço IP origem nunca muda durante o roteamento (permanece 10.1.1.10 — host A). O MAC origem, porém, é substituído a cada hop: ao chegar ao host B o MAC origem é o da interface de saída do último roteador (00E0.FE91.7799).",
+  "why": "O endereço IP origem nunca muda durante o roteamento (permanece 10.1.1.10, o host A). O MAC origem, porém, é substituído a cada hop: ao chegar ao host B, o MAC origem é o da interface de saída do último roteador (00E0.FE91.7799).",
   "fig": "img/srwe-q001.webp",
   "figAlt": "Figura da questão 1 do exame final SRWE"
  },
@@ -1246,7 +1246,7 @@ window.QUESTIONS_M4 = [
    4
   ],
   "sub": "Benefícios da segmentação com switch L2",
-  "why": "Um switch L2 cria um domínio de colisão por porta (mais domínios, não menos). Os benefícios reais da segmentação são: (1) melhorar a largura de banda — cada porta tem largura de banda dedicada; (2) isolar o tráfego entre segmentos — frames só cruzam para outras portas quando necessário."
+  "why": "Um switch L2 cria um domínio de colisão por porta (mais domínios, não menos). Os benefícios reais da segmentação são: (1) melhorar a largura de banda, já que cada porta tem largura de banda dedicada; (2) isolar o tráfego entre segmentos, porque frames só cruzam para outras portas quando necessário."
  },
  {
   "id": 66,
@@ -1413,7 +1413,7 @@ window.QUESTIONS_M4 = [
    1
   ],
   "sub": "Flags SD e D no show etherchannel summary",
-  "why": "O flag 'S' indica Layer 2 e 'D' indica Down. 'Po2(SD)' significa que o port-channel 2 está inativo (Down). As portas Fa0/1(D) e Fa0/2(D) também estão inativas. O ID do port-channel é 2 (Po2). O EtherChannel está inoperante — não há protocolo (−) negociando."
+  "why": "O flag 'S' indica Layer 2 e 'D' indica Down. 'Po2(SD)' significa que o port-channel 2 está inativo (Down). As portas Fa0/1(D) e Fa0/2(D) também estão inativas. O ID do port-channel é 2 (Po2). O EtherChannel está inoperante porque nenhum protocolo (−) está negociando."
  },
  {
   "id": 75,
@@ -1430,7 +1430,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 0,
   "sub": "RSTP: funções de portas: raiz, designada, alternativa",
-  "why": "B (S2→S1): porta raiz de S2 — melhor caminho ao root. D (S3→S1): porta raiz de S3. C (S2→hosts): porta designada — único switch no segmento de acesso. A (S2↔S3): como S2 tem melhor caminho ao root que S3 nesse segmento, S2 vence e sua porta seria designada — mas como S3 também conecta diretamente ao root (via D), S2's porta A pode ser alternativa. A ordem correta é: A=alternativa, B=raiz, C=designada, D=raiz.",
+  "why": "B (S2→S1): porta raiz de S2, o melhor caminho ao root. D (S3→S1): porta raiz de S3. C (S2→hosts): porta designada, por ser o único switch no segmento de acesso. A (S2↔S3): como S2 tem melhor caminho ao root que S3 nesse segmento, S2 vence e sua porta seria designada; mas como S3 também conecta diretamente ao root (via D), a porta A de S2 pode ser alternativa. A ordem correta é: A=alternativa, B=raiz, C=designada, D=raiz.",
   "fig": "img/srwe-q020.webp",
   "figAlt": "Figura da questão 20 do exame final SRWE"
  },
@@ -1491,7 +1491,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 0,
   "sub": "AAA: ordem: autenticação → autorização → contabilidade",
-  "why": "No modelo AAA: (A) Autenticação verifica a identidade; (A) Autorização determina o que o usuário autenticado pode fazer — ocorre imediatamente após autenticação bem-sucedida; (A) Contabilidade registra o que foi feito. A autorização só acontece após a identidade ser confirmada."
+  "why": "No modelo AAA: (A) Autenticação verifica a identidade; (A) Autorização determina o que o usuário autenticado pode fazer, e ocorre imediatamente após a autenticação bem-sucedida; (A) Contabilidade registra o que foi feito. A autorização só acontece após a identidade ser confirmada."
  },
  {
   "id": 79,
@@ -1526,7 +1526,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 2,
   "sub": "Flooding de broadcast pelo switch",
-  "why": "Um frame de broadcast é sempre encaminhado a todas as portas do switch, exceto a porta de entrada. O PC3 enviou o broadcast pela Fa0/4, portanto o switch encaminha para Fa0/1 (servidor DHCP), Fa0/2 (PC1) e Fa0/3 (PC2) — todas as outras portas exceto a de entrada.",
+  "why": "Um frame de broadcast é sempre encaminhado a todas as portas do switch, exceto a porta de entrada. O PC3 enviou o broadcast pela Fa0/4, portanto o switch encaminha para Fa0/1 (servidor DHCP), Fa0/2 (PC1) e Fa0/3 (PC2), todas as outras portas exceto a de entrada.",
   "fig": "img/srwe-q025.webp",
   "figAlt": "Figura da questão 25 do exame final SRWE"
  },
@@ -1581,7 +1581,7 @@ window.QUESTIONS_M4 = [
    }
   ],
   "sub": "Cut-through vs Store-and-forward",
-  "why": "Cut-through inicia o encaminhamento assim que lê o MAC destino — menor latência, maior desempenho, mas pode propagar frames com erros. Store-and-forward aguarda o frame completo para verificar o FCS (CRC) — maior latência, mas garante que apenas frames válidos são encaminhados."
+  "why": "Cut-through inicia o encaminhamento assim que lê o MAC de destino: menor latência e maior desempenho, mas pode propagar frames com erros. Store-and-forward aguarda o frame completo para verificar o FCS (CRC): maior latência, mas garante que apenas frames válidos são encaminhados."
  },
  {
   "id": 83,
@@ -1687,7 +1687,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 0,
   "sub": "Endereços link-local IPv6: fe80::/10",
-  "why": "Endereços com prefixo fe80::/10 são link-local — válidos apenas no segmento de rede local e não roteáveis. São usados para comunicação entre vizinhos (NDP, routing protocols). São configurados automaticamente em toda interface IPv6 habilitada. ff00::/8 é multicast; 2001::/3 é unicast global; fc::/7 é unicast local único (ULA)."
+  "why": "Endereços com prefixo fe80::/10 são link-local: válidos apenas no segmento local e não roteáveis. Servem para comunicação entre vizinhos (NDP, protocolos de roteamento) e são configurados automaticamente em toda interface IPv6 habilitada. ff00::/8 é multicast; 2001::/3 é unicast global; fc::/7 é unicast local único (ULA)."
  },
  {
   "id": 89,
@@ -1738,7 +1738,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 0,
   "sub": "SSH: acesso remoto seguro e criptografado",
-  "why": "SSH (Secure Shell) criptografa todo o tráfego da sessão, incluindo credenciais. Telnet transmite tudo em texto claro, sendo vulnerável a sniffing. 802.1x é usado para autenticação de acesso à porta (não gerenciamento remoto). ACL nas VTY restringe quem pode acessar, mas não criptografa a sessão — deve ser combinada com SSH."
+  "why": "SSH (Secure Shell) criptografa todo o tráfego da sessão, incluindo credenciais. Telnet transmite tudo em texto claro, sendo vulnerável a sniffing. 802.1x serve para autenticação de acesso à porta, não para gerenciamento remoto. Uma ACL nas VTY restringe quem pode acessar, mas não criptografa a sessão: precisa ser combinada com SSH."
  },
  {
   "id": 92,
@@ -1962,7 +1962,7 @@ window.QUESTIONS_M4 = [
    3
   ],
   "sub": "VTP modos servidor e transparente: gerenciamento de VLANs",
-  "why": "No modo servidor VTP: VLANs podem ser criadas/modificadas/deletadas localmente e as mudanças são propagadas pelo domínio VTP. No modo transparente: VLANs são gerenciadas localmente (criadas/modificadas/deletadas) mas as mudanças NÃO são propagadas — o switch apenas encaminha mensagens VTP. No modo cliente: não é possível modificar VLANs."
+  "why": "No modo servidor VTP: VLANs podem ser criadas/modificadas/deletadas localmente e as mudanças são propagadas pelo domínio VTP. No modo transparente, as VLANs são gerenciadas localmente, mas as mudanças NÃO são propagadas: o switch apenas repassa as mensagens VTP. No modo cliente: não é possível modificar VLANs."
  },
  {
   "id": 103,
@@ -2024,7 +2024,7 @@ window.QUESTIONS_M4 = [
    }
   ],
   "sub": "HSRP failover: sequência de 3 etapas",
-  "why": "O processo de failover HSRP: (1) o roteador ativo falha; (2) o roteador standby detecta a falha ao não receber mensagens Hello dentro do hold time; (3) o standby assume o papel ativo, respondendo pelo IP e MAC virtuais do grupo — transparente para os hosts da rede."
+  "why": "O processo de failover HSRP: (1) o roteador ativo falha; (2) o roteador standby detecta a falha ao não receber mensagens Hello dentro do hold time; (3) o standby assume o papel ativo, respondendo pelo IP e MAC virtuais do grupo, o que é transparente para os hosts da rede."
  },
  {
   "id": 106,
@@ -2058,7 +2058,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 1,
   "sub": "WPA2 PSK: chave pré-compartilhada para autenticação",
-  "why": "No modo WPA2 Personal (PSK — Pre-Shared Key), todos os dispositivos usam a mesma senha (passphrase) configurada no ponto de acesso. O usuário precisa conhecer essa chave para se conectar. Não há servidor de autenticação. WPA2 Enterprise (com RADIUS/802.1X) usa credenciais individuais por usuário."
+  "why": "No modo WPA2 Personal (PSK, Pre-Shared Key), todos os dispositivos usam a mesma senha (passphrase) configurada no ponto de acesso. O usuário precisa conhecer essa chave para se conectar. Não há servidor de autenticação. WPA2 Enterprise (com RADIUS/802.1X) usa credenciais individuais por usuário."
  },
  {
   "id": 108,
@@ -2092,7 +2092,7 @@ window.QUESTIONS_M4 = [
   ],
   "cor": 0,
   "sub": "Flooding de frames multicast pelo switch",
-  "why": "Por padrão (sem IGMP snooping), um switch trata frames com endereço MAC multicast de forma similar a broadcasts: encaminha para todas as portas ativas exceto a porta de entrada (flooding). O switch não aprende endereços multicast na tabela CAM a partir do endereço destino — apenas aprende o MAC origem."
+  "why": "Por padrão (sem IGMP snooping), um switch trata frames com endereço MAC multicast de forma similar a broadcasts: encaminha para todas as portas ativas exceto a porta de entrada (flooding). O switch não aprende endereços multicast na tabela CAM a partir do endereço de destino: aprende apenas o MAC de origem."
  },
  {
   "id": 110,
@@ -2116,7 +2116,7 @@ window.QUESTIONS_M4 = [
    2
   ],
   "sub": "Switch L3 inter-VLAN: criar VLANs, SVIs e atribuir portas",
-  "why": "Para roteamento inter-VLAN em um switch L3: (1) criar as VLANs (vlan <id>); (2) criar SVIs (interface vlan <id> + ip address) — uma por VLAN para ser o gateway; (3) atribuir as portas de acesso às VLANs corretas (switchport access vlan). Também é necessário 'ip routing', mas as três etapas essenciais listadas são as três primeiras."
+  "why": "Para roteamento inter-VLAN em um switch L3: (1) criar as VLANs (vlan <id>); (2) criar SVIs (interface vlan <id> + ip address), uma por VLAN, para ser o gateway; (3) atribuir as portas de acesso às VLANs corretas (switchport access vlan). Também é necessário 'ip routing', mas as três etapas essenciais listadas são as três primeiras."
  },
  {
   "id": 111,
@@ -2255,7 +2255,7 @@ window.QUESTIONS_M4 = [
    "goodput + sobrecarga de tráfego = taxa de transferência"
   ],
   "cor": 3,
-  "why": "A taxa de transferência (throughput) representa o total de dados efetivamente transmitidos na rede, composto pelo goodput — os dados úteis recebidos pela aplicação — mais a sobrecarga de tráfego (cabeçalhos de protocolo, retransmissões, sinalizações). O goodput é sempre menor que o throughput justamente porque parte da capacidade é consumida por essa sobrecarga. A relação goodput + sobrecarga = taxa de transferência descreve corretamente como a transmissão real é calculada."
+  "why": "A taxa de transferência (throughput) representa o total de dados efetivamente transmitidos na rede, composto pelo goodput (os dados úteis recebidos pela aplicação) mais a sobrecarga de tráfego (cabeçalhos de protocolo, retransmissões, sinalizações). O goodput é sempre menor que o throughput justamente porque parte da capacidade é consumida por essa sobrecarga. A relação goodput + sobrecarga = taxa de transferência descreve corretamente como a transmissão real é calculada."
  },
  {
   "id": 119,
@@ -2329,7 +2329,7 @@ window.QUESTIONS_M4 = [
    4
   ],
   "sub": "Escolha as alternativas corretas",
-  "why": "A virtualização permite executar várias máquinas virtuais simultaneamente em um único host físico, reduzindo custos de hardware e melhorando o aproveitamento dos recursos. Além disso, uma VM é abstraída do hardware subjacente — seu sistema operacional e aplicações não dependem de uma plataforma física específica, o que possibilita migrá-la entre servidores diferentes sem reconfigurações. Esses dois benefícios são os fundamentos da virtualização em ambientes corporativos."
+  "why": "A virtualização permite executar várias máquinas virtuais simultaneamente em um único host físico, reduzindo custos de hardware e melhorando o aproveitamento dos recursos. Além disso, uma VM é abstraída do hardware subjacente: seu sistema operacional e aplicações não dependem de uma plataforma física específica, o que possibilita migrá-la entre servidores diferentes sem reconfigurações."
  },
  {
   "id": 123,
@@ -2549,7 +2549,7 @@ window.QUESTIONS_M4 = [
    3
   ],
   "sub": "Escolha as alternativas corretas",
-  "why": "O modo autônomo do FlexConnect é ativado quando o AP perde contato com a WLC. Nesse modo, o AP mantém a rede operacional realizando autenticação de clientes localmente — sem precisar consultar a WLC — e comutando o tráfego de dados dos clientes diretamente na rede local. Funções que dependem de comunicação ativa com a WLC, como roaming entre APs de sites distintos, não estão disponíveis nesse modo."
+  "why": "O modo autônomo do FlexConnect é ativado quando o AP perde contato com a WLC. Nesse modo, o AP mantém a rede operacional realizando autenticação de clientes localmente (sem precisar consultar a WLC) e comutando o tráfego de dados dos clientes diretamente na rede local. Funções que dependem de comunicação ativa com a WLC, como roaming entre APs de sites distintos, não estão disponíveis nesse modo."
  },
  {
   "id": 135,
@@ -2581,7 +2581,7 @@ window.QUESTIONS_M4 = [
    "Que o dispositivo C1 está conectado ao dispositivo B1 por meio da porta Fa0/3."
   ],
   "cor": 1,
-  "why": "Na saída do comando show lldp neighbors, a letra B representa uma bridge — ou seja, um switch. A letra R representa um roteador. Se o vizinho for um access point WLAN, usa-se a letra W. O dispositivo A1 está conectado à porta Fa0/1 do B1. O A1 também está conectado à Fa0/3 do C1, e por isso o C1 não pode se conectar ao B1 por essa mesma porta Fa0/3.",
+  "why": "Na saída do comando show lldp neighbors, a letra B representa uma bridge, ou seja, um switch. A letra R representa um roteador. Se o vizinho for um access point WLAN, usa-se a letra W. O dispositivo A1 está conectado à porta Fa0/1 do B1. O A1 também está conectado à Fa0/3 do C1, e por isso o C1 não pode se conectar ao B1 por essa mesma porta Fa0/3.",
   "fig": "img/cert-q021.webp",
   "figAlt": "Figura da questão 21 do exame de certificação 200-301"
  },
@@ -2701,7 +2701,7 @@ window.QUESTIONS_M4 = [
    "métrica"
   ],
   "cor": 1,
-  "why": "Quando um roteador aprende rotas para o mesmo destino por protocolos diferentes, ele usa a distância administrativa (DA) para escolher qual rota instalar na tabela de roteamento. A DA indica o grau de confiabilidade de cada fonte de roteamento — quanto menor o valor, maior a confiança (por exemplo, OSPF tem DA 110, enquanto RIP tem DA 120). A métrica, por sua vez, é usada para comparar rotas dentro de um mesmo protocolo, não entre protocolos distintos."
+  "why": "Quando um roteador aprende rotas para o mesmo destino por protocolos diferentes, ele usa a distância administrativa (DA) para escolher qual rota instalar na tabela de roteamento. A DA indica o grau de confiabilidade de cada fonte de roteamento: quanto menor o valor, maior a confiança (por exemplo, OSPF tem DA 110, enquanto RIP tem DA 120). A métrica, por sua vez, é usada para comparar rotas dentro de um mesmo protocolo, não entre protocolos distintos."
  },
  {
   "id": 144,
@@ -2790,7 +2790,7 @@ window.QUESTIONS_M4 = [
    "uma rota aprendida dinamicamente por meio do protocolo de roteamento OSPF"
   ],
   "cor": 3,
-  "why": "Uma rota de host é um endereço IPv4 com máscara de 32 bits, ou um IPv6 com máscara de 128 bits. Quando uma interface ativa recebe um endereço IPv4 ou IPv6, uma rota de host local é adicionada automaticamente à tabela e marcada com L. Em rotas estáticas IPv6, o próximo salto pode ser o link-local do vizinho — nesse caso é obrigatório informar o tipo e o número da interface local."
+  "why": "Uma rota de host é um endereço IPv4 com máscara de 32 bits, ou um IPv6 com máscara de 128 bits. Quando uma interface ativa recebe um endereço IPv4 ou IPv6, uma rota de host local é adicionada automaticamente à tabela e marcada com L. Em rotas estáticas IPv6, o próximo salto pode ser o link-local do vizinho. Nesse caso é obrigatório informar o tipo e o número da interface local."
  },
  {
   "id": 148,
@@ -2844,7 +2844,7 @@ window.QUESTIONS_M4 = [
    5
   ],
   "sub": "Escolha as alternativas corretas",
-  "why": "Uma pesquisa recursiva ocorre quando a entrada na tabela de roteamento aponta para um próximo salto especificado por endereço IP (e não por interface diretamente conectada), obrigando o roteador a realizar uma segunda busca na tabela para determinar por qual interface alcançar aquele próximo salto. As redes 10.0.0.0/8 e 192.168.2.0/24 possuem esse tipo de entrada — com endereço IP de próximo salto —, enquanto as demais redes da tabela estão associadas diretamente a interfaces de saída.",
+  "why": "Uma pesquisa recursiva ocorre quando a entrada na tabela de roteamento aponta para um próximo salto especificado por endereço IP (e não por interface diretamente conectada), obrigando o roteador a realizar uma segunda busca na tabela para determinar por qual interface alcançar aquele próximo salto. As redes 10.0.0.0/8 e 192.168.2.0/24 possuem esse tipo de entrada (com endereço IP de próximo salto), enquanto as demais redes da tabela estão associadas diretamente a interfaces de saída.",
   "fig": "img/cert-q035.webp",
   "figAlt": "Figura da questão 35 do exame de certificação 200-301"
  },
@@ -3109,7 +3109,7 @@ window.QUESTIONS_M4 = [
    "Análise de ACL"
   ],
   "cor": 0,
-  "why": "O recurso de tradução do Cisco IBNS permite que os operadores de rede expressem o comportamento esperado da rede — aquele que melhor atende ao objetivo do negócio."
+  "why": "O recurso de tradução do Cisco IBNS permite que os operadores de rede expressem o comportamento esperado da rede, aquele que melhor atende ao objetivo do negócio."
  },
  {
   "id": 167,
@@ -3226,7 +3226,7 @@ window.QUESTIONS_M4 = [
    "Ataque de privação do DHCP"
   ],
   "cor": 0,
-  "why": "O ataque de salto de VLAN (VLAN hopping) explora a sinalização de tronco 802.1Q para fazer o tráfego de uma VLAN alcançar outra VLAN sem passar por um roteador. As duas técnicas mais comuns são o switch spoofing — em que o atacante negocia um tronco com o switch — e o double tagging — em que dois cabeçalhos 802.1Q são inseridos no quadro para enganar o switch. Isso viola o isolamento de camada 2 que as VLANs foram projetadas para fornecer."
+  "why": "O ataque de salto de VLAN (VLAN hopping) explora a sinalização de tronco 802.1Q para fazer o tráfego de uma VLAN alcançar outra VLAN sem passar por um roteador. As duas técnicas mais comuns são o switch spoofing, em que o atacante negocia um tronco com o switch, e o double tagging, em que dois cabeçalhos 802.1Q são inseridos no quadro para enganar o switch. Isso viola o isolamento de camada 2 que as VLANs foram projetadas para fornecer."
  },
  {
   "id": 174,
@@ -3275,7 +3275,7 @@ window.QUESTIONS_M4 = [
    "Corrupção de dados"
   ],
   "cor": 0,
-  "why": "Uma incompatibilidade duplex acontece quando um lado da conexão está em full-duplex e o outro em half-duplex. A causa típica é configuração manual errada da interface — velocidade ou duplex fixados em um lado e autonegociação no outro. Em casos raros pode ser falha de autonegociação. O sintoma engana porque a comunicação continua funcionando, só com lentidão, colisões e erros de CRC."
+  "why": "Uma incompatibilidade duplex acontece quando um lado da conexão está em full-duplex e o outro em half-duplex. A causa típica é configuração manual errada da interface, com velocidade ou duplex fixados em um lado e autonegociação no outro. Em casos raros pode ser falha de autonegociação. O sintoma engana porque a comunicação continua funcionando, só com lentidão, colisões e erros de CRC."
  },
  {
   "id": 177,
@@ -3307,7 +3307,7 @@ window.QUESTIONS_M4 = [
    "nuvem privada"
   ],
   "cor": 3,
-  "why": "A nuvem privada é destinada a uma organização ou entidade específica, como o governo. Pode ser montada na rede privada da própria empresa — embora seja cara de construir e manter — ou gerenciada por uma organização externa com segurança de acesso rigorosa. Nuvem pública é compartilhada; híbrida combina as duas; comunitária é dividida entre organizações com interesses comuns."
+  "why": "A nuvem privada é destinada a uma organização ou entidade específica, como o governo. Pode ser montada na rede privada da própria empresa (embora seja cara de construir e manter), ou gerenciada por uma organização externa com segurança de acesso rigorosa. Nuvem pública é compartilhada; híbrida combina as duas; comunitária é dividida entre organizações com interesses comuns."
  },
  {
   "id": 179,
@@ -3323,7 +3323,7 @@ window.QUESTIONS_M4 = [
    "Ele pode ser usado por telefones IP, permitindo que eles sejam instalados em qualquer lugar onde haja um cabo Ethernet."
   ],
   "cor": 3,
-  "why": "O PoE entrega energia ao dispositivo pelo próprio cabo Ethernet, não pela rede elétrica. Isso permite instalar telefones IP e pontos de acesso sem fio em qualquer lugar onde haja um cabo de rede, sem precisar de tomada. Só portas específicas do switch suportam PoE — não qualquer porta por comando IOS. O pass-through PoE é suportado pelos compactos Catalyst 2960-C e 3560-C."
+  "why": "O PoE entrega energia ao dispositivo pelo próprio cabo Ethernet, não pela rede elétrica. Isso permite instalar telefones IP e pontos de acesso sem fio em qualquer lugar onde haja um cabo de rede, sem precisar de tomada. Só portas específicas do switch suportam PoE, e não qualquer porta por comando IOS. O pass-through PoE é suportado pelos compactos Catalyst 2960-C e 3560-C."
  },
  {
   "id": 180,
@@ -3399,7 +3399,7 @@ window.QUESTIONS_M4 = [
    2
   ],
   "sub": "Escolha as alternativas corretas",
-  "why": "Todas as portas do switch ligadas ao WLC precisam estar em modo trunk e agrupadas com EtherChannel. O trunk carrega as várias VLANs das WLANs e o EtherChannel forma o enlace lógico único que dá balanceamento de carga e redundância. O WLC não suporta PAgP nem LACP para esse agrupamento — ele usa LAG."
+  "why": "Todas as portas do switch ligadas ao WLC precisam estar em modo trunk e agrupadas com EtherChannel. O trunk carrega as várias VLANs das WLANs e o EtherChannel forma o enlace lógico único que dá balanceamento de carga e redundância. O WLC não suporta PAgP nem LACP para esse agrupamento: ele usa LAG."
  },
  {
   "id": 184,
@@ -3431,7 +3431,7 @@ window.QUESTIONS_M4 = [
    "Há um risco de segurança porque a VLAN de gerenciamento e a VLAN nativa são as mesmas."
   ],
   "cor": 3,
-  "why": "Se todas as portas estão na VLAN 1 (padrão), nenhuma VLAN nativa foi atribuída explicitamente e não há outras VLANs ativas. Logo, a VLAN nativa acabou sendo a mesma da VLAN de gerenciamento — o que é considerado risco de segurança. Por padrão, todo o tráfego de controle da camada 2 já está associado à VLAN 1."
+  "why": "Se todas as portas estão na VLAN 1 (padrão), nenhuma VLAN nativa foi atribuída explicitamente e não há outras VLANs ativas. Logo, a VLAN nativa acabou sendo a mesma da VLAN de gerenciamento, o que é considerado risco de segurança. Por padrão, todo o tráfego de controle da camada 2 já está associado à VLAN 1."
  },
  {
   "id": 186,
@@ -3447,7 +3447,7 @@ window.QUESTIONS_M4 = [
    "Uma VLAN separada deve ser utilizada para transportar quadros não marcados de maneira a evitar a contenção da largura de banda nas VLANs de dados."
   ],
   "cor": 3,
-  "why": "Quando uma porta trunk recebe quadros sem marcação (incomum em redes bem projetadas), ela os encaminha para a VLAN nativa. Movendo a VLAN nativa para fora das VLANs de dados, esses quadros não marcados não disputam largura de banda com o tráfego de dados. A VLAN nativa não foi criada para transportar tráfego de gerenciamento — ela existe por compatibilidade com cenários de LAN legados."
+  "why": "Quando uma porta trunk recebe quadros sem marcação (incomum em redes bem projetadas), ela os encaminha para a VLAN nativa. Movendo a VLAN nativa para fora das VLANs de dados, esses quadros não marcados não disputam largura de banda com o tráfego de dados. A VLAN nativa não foi criada para transportar tráfego de gerenciamento. Ela existe por compatibilidade com cenários de LAN legados."
  },
  {
   "id": 187,
@@ -3463,7 +3463,7 @@ window.QUESTIONS_M4 = [
    "endereços do próximo salto"
   ],
   "cor": 0,
-  "why": "Uma rota estática padrão funciona como gateway de último recurso: encaminha o tráfego de destino desconhecido para um próximo salto ou interface de saída. As outras opções são apenas campos da tabela de roteamento — o próximo salto e a interface de saída dizem para onde mandar o pacote já roteado, e a origem da rota indica de onde a rota foi aprendida."
+  "why": "Uma rota estática padrão funciona como gateway de último recurso: encaminha o tráfego de destino desconhecido para um próximo salto ou interface de saída. As outras opções são apenas campos da tabela de roteamento: o próximo salto e a interface de saída dizem para onde mandar o pacote já roteado, e a origem da rota indica de onde a rota foi aprendida."
  },
  {
   "id": 188,
@@ -3502,7 +3502,7 @@ window.QUESTIONS_M4 = [
    "Use uma interface de loopback configurada com o endereço IP mais alto no roteador."
   ],
   "cor": 2,
-  "why": "O router ID identifica unicamente o roteador no domínio OSPF. Ele pode ser atribuído automaticamente (IP mais alto de uma interface, ou de uma loopback) ou definido manualmente com o comando router-id. A Cisco recomenda o router-id explícito porque ele não muda quando uma interface cai — o que facilita a identificação durante o troubleshooting."
+  "why": "O router ID identifica unicamente o roteador no domínio OSPF. Ele pode ser atribuído automaticamente (IP mais alto de uma interface, ou de uma loopback) ou definido manualmente com o comando router-id. A Cisco recomenda o router-id explícito porque ele não muda quando uma interface cai, o que facilita a identificação durante o troubleshooting."
  },
  {
   "id": 190,
@@ -3518,7 +3518,7 @@ window.QUESTIONS_M4 = [
    "roteamento unicast-ipv6"
   ],
   "cor": 3,
-  "why": "O comando ipv6 unicast-routing habilita o roteamento IPv6 no roteador. Sem ele, o equipamento tem endereços IPv6 nas interfaces mas não encaminha pacotes entre redes. O ipv6 enable ativa IPv6 numa interface; o ipv6 address atribui endereço; o ipv6 route cria rota estática — nenhum deles liga o roteamento globalmente."
+  "why": "O comando ipv6 unicast-routing habilita o roteamento IPv6 no roteador. Sem ele, o equipamento tem endereços IPv6 nas interfaces mas não encaminha pacotes entre redes. O ipv6 enable ativa IPv6 numa interface; o ipv6 address atribui endereço; o ipv6 route cria rota estática; nenhum deles liga o roteamento globalmente."
  },
  {
   "id": 191,
@@ -3610,7 +3610,7 @@ window.QUESTIONS_M4 = [
    3
   ],
   "sub": "Escolha as alternativas corretas",
-  "why": "A autenticação AAA baseada em servidor usa um servidor externo TACACS+ ou RADIUS para manter o banco de usuários e senhas. Quando o cliente se conecta a um dispositivo com AAA habilitado, o dispositivo consulta esses servidores para autenticar. SSH é acesso remoto, SNMP é gerenciamento e 802.1x é o padrão de controle de acesso por porta — nenhum dos três é o protocolo de servidor AAA."
+  "why": "A autenticação AAA baseada em servidor usa um servidor externo TACACS+ ou RADIUS para manter o banco de usuários e senhas. Quando o cliente se conecta a um dispositivo com AAA habilitado, o dispositivo consulta esses servidores para autenticar. SSH é acesso remoto, SNMP é gerenciamento e 802.1x é o padrão de controle de acesso por porta; nenhum dos três é o protocolo de servidor AAA."
  },
  {
   "id": 196,
@@ -3642,7 +3642,7 @@ window.QUESTIONS_M4 = [
    "sistemas de controle de acesso"
   ],
   "cor": 0,
-  "why": "Os sistemas de prevenção de intrusões (IPS) identificam ameaças de propagação rápida — como ataques zero-day — e as bloqueiam antes que entrem na rede corporativa. Firewalls filtram grandes volumes de tráfego com granularidade, as ACLs filtram por endereço IP e aplicação, e as VPNs dão acesso remoto seguro. Nenhum deles tem o papel de detectar e impedir a intrusão."
+  "why": "Os sistemas de prevenção de intrusões (IPS) identificam ameaças de propagação rápida (como ataques zero-day) e as bloqueiam antes que entrem na rede corporativa. Firewalls filtram grandes volumes de tráfego com granularidade, as ACLs filtram por endereço IP e aplicação, e as VPNs dão acesso remoto seguro. Nenhum deles tem o papel de detectar e impedir a intrusão."
  },
  {
   "id": 198,
@@ -3658,7 +3658,7 @@ window.QUESTIONS_M4 = [
    "Manifesto"
   ],
   "cor": 1,
-  "why": "No Ansible, o conjunto de instruções a executar se chama Playbook — traduzido na plataforma como guia de atividades. Pilar é conceito do SaltStack, Cookbook é do Chef e Manifesto é do Puppet."
+  "why": "No Ansible, o conjunto de instruções a executar se chama Playbook, traduzido na plataforma como guia de atividades. Pilar é conceito do SaltStack, Cookbook é do Chef e Manifesto é do Puppet."
  },
  {
   "id": 199,
@@ -3679,7 +3679,7 @@ window.QUESTIONS_M4 = [
    4
   ],
   "sub": "Escolha as alternativas corretas",
-  "why": "Ansible e SaltStack são ferramentas de gerenciamento de configuração desenvolvidas em Python. Chef e Puppet são desenvolvidas em Ruby, que costuma ser considerada mais difícil de aprender que Python. O NETCONF não é ferramenta de gerenciamento de configuração — é um protocolo de gerenciamento de rede."
+  "why": "Ansible e SaltStack são ferramentas de gerenciamento de configuração desenvolvidas em Python. Chef e Puppet são desenvolvidas em Ruby, que costuma ser considerada mais difícil de aprender que Python. O NETCONF não é ferramenta de gerenciamento de configuração, e sim um protocolo de gerenciamento de rede."
  },
  {
   "id": 200,
@@ -3734,7 +3734,7 @@ window.QUESTIONS_M4 = [
    "Ataque STP"
   ],
   "cor": 0,
-  "why": "Um servidor DHCP não autorizado (rogue) conectado à rede responde aos clientes antes do servidor legítimo e entrega parâmetros falsos: gateway errado, DNS malicioso ou IP inválido. Isso permite ataque man-in-the-middle ou negação de serviço. Na plataforma em português esse ataque aparece como ataque de privação do DHCP; tecnicamente o nome correto em inglês é DHCP spoofing (falsificação de DHCP) — privação (starvation) é o outro ataque, que esgota o pool de endereços."
+  "why": "Um servidor DHCP não autorizado (rogue) conectado à rede responde aos clientes antes do servidor legítimo e entrega parâmetros falsos: gateway errado, DNS malicioso ou IP inválido. Isso permite ataque man-in-the-middle ou negação de serviço. Na plataforma em português esse ataque aparece como ataque de privação do DHCP; tecnicamente o nome correto em inglês é DHCP spoofing (falsificação de DHCP); privação (starvation) é o outro ataque, que esgota o pool de endereços."
  },
  {
   "id": 203,
@@ -3783,6 +3783,6 @@ window.QUESTIONS_M4 = [
    "uma distância administrativa de 2."
   ],
   "cor": 0,
-  "why": "Para enviar tráfego a UM servidor específico, a rota precisa apontar para aquele endereço único: uma rota de host, com prefixo /128 em IPv6 (o equivalente ao /32 do IPv4). CUIDADO: quando o próximo salto é um endereço link-local, a exigência é outra — informar o tipo e o número da interface."
+  "why": "Para enviar tráfego a UM servidor específico, a rota precisa apontar para aquele endereço único: uma rota de host, com prefixo /128 em IPv6 (o equivalente ao /32 do IPv4). Atenção: quando o próximo salto é um endereço link-local, a exigência é outra, informar o tipo e o número da interface."
  }
 ];

@@ -16,7 +16,7 @@ window.QUESTIONS_M3 = [
   ],
   "cor": 1,
   "sub": "descrição do banco de dados",
-  "why": "O pacote DBD (Descrição do Banco de Dados) carrega apenas um resumo do LSDB — os cabeçalhos dos LSAs — para que o vizinho compare com o seu próprio banco e só peça o que estiver faltando. É a etapa de 'comparar antes de copiar'."
+  "why": "O pacote DBD (Descrição do Banco de Dados) carrega apenas um resumo do LSDB (os cabeçalhos dos LSAs) para que o vizinho compare com o seu próprio banco e só peça o que estiver faltando. É a etapa de 'comparar antes de copiar'."
  },
  {
   "id": 2,
@@ -145,7 +145,7 @@ window.QUESTIONS_M3 = [
   ],
   "cor": 1,
   "sub": "show ip ospf interface serial 0/0/0",
-  "why": "O comando show ip ospf interface serial 0/0/0 exibe, entre outras informações, os temporizadores Hello e Dead configurados naquela interface específica — exatamente o que se quer verificar no link WAN ponto a ponto."
+  "why": "O comando show ip ospf interface serial 0/0/0 exibe, entre outras informações, os temporizadores Hello e Dead configurados naquela interface específica, exatamente o que se quer verificar no link WAN ponto a ponto."
  },
  {
   "id": 8,
@@ -166,7 +166,7 @@ window.QUESTIONS_M3 = [
    4
   ],
   "sub": "Escolha 2 alternativas",
-  "why": "O router ID identifica unicamente cada roteador dentro do domínio OSPF e é usado como critério de desempate na eleição do DR/BDR. Ele não define rotas nem áreas — serve para identificar e eleger."
+  "why": "O router ID identifica unicamente cada roteador dentro do domínio OSPF e é usado como critério de desempate na eleição do DR/BDR. Ele não define rotas nem áreas: serve para identificar e eleger."
  },
  {
   "id": 9,
@@ -875,7 +875,7 @@ window.QUESTIONS_M3 = [
   ],
   "cor": 3,
   "sub": "Pedir ao usuário para emitir o comando ipconfig.",
-  "why": "O primeiro passo é verificar a configuração IP da estação com ipconfig — endereço, máscara e gateway. Sem esses dados não é possível saber se o problema é de endereçamento, de rede ou de impressora."
+  "why": "O primeiro passo é verificar a configuração IP da estação com ipconfig: endereço, máscara e gateway. Sem esses dados não é possível saber se o problema é de endereçamento, de rede ou de impressora."
  },
  {
   "id": 47,
@@ -909,7 +909,7 @@ window.QUESTIONS_M3 = [
   ],
   "cor": 0,
   "sub": "As interfaces seriais não estão na mesma área.",
-  "why": "As interfaces seriais de R1 e R2 estão configuradas em áreas OSPF diferentes. OSPF só forma adjacência entre interfaces na mesma área — por isso a adjacência não estabelece.",
+  "why": "As interfaces seriais de R1 e R2 estão configuradas em áreas OSPF diferentes. OSPF só forma adjacência entre interfaces na mesma área. Por isso a adjacência não estabelece.",
   "fig": "img/m3-q048.webp",
   "figAlt": "Topologia OSPF: R2 na Area 0 e R1 na Area 1, com os blocos de configuração OSPF de cada roteador"
  },
@@ -966,7 +966,7 @@ window.QUESTIONS_M3 = [
   ],
   "cor": 1,
   "sub": "tipo 2",
-  "why": "O hypervisor Tipo 2 roda como um aplicativo sobre um sistema operacional hospedeiro — é o caso de VirtualBox ou VMware Workstation instalados no Windows do notebook. O Tipo 1 roda direto no hardware."
+  "why": "O hypervisor Tipo 2 roda como um aplicativo sobre um sistema operacional hospedeiro, como o VirtualBox ou o VMware Workstation instalados no Windows do notebook. O Tipo 1 roda direto no hardware."
  },
  {
   "id": 52,
