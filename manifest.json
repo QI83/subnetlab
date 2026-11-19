@@ -1,7 +1,7 @@
 {
   "name": "SubnetLab",
   "short_name": "SubnetLab",
-  "description": "Simulador de estudos CCNA — Cisco Networking Academy",
+  "description": "Simulador de estudos CCNA (Cisco Networking Academy)",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0F1117",

@@ -1,4 +1,4 @@
-# SubnetLab — Nuvem com Supabase (referência técnica)
+# SubnetLab: nuvem com Supabase (referência técnica)
 
 Integração em produção. Este documento descreve o esquema atual e as regras de negócio que o banco impõe.
 
@@ -63,7 +63,7 @@ create or replace view public.ranking
 
 A opção `security_invoker = true` é obrigatória: faz a view executar com os privilégios de quem a lê
 (a chave `anon`), e não com os do dono da view. Sem ela o Supabase Advisor marca *Security Definer View*
-como **Critical** — e ainda pior: a view bypassaria o RLS e exporia `dados` (onde está o código de acesso).
+como **Critical**. E ainda pior: a view bypassaria o RLS e exporia `dados` (onde está o código de acesso).
 
 Para a view funcionar com `security_invoker`, a role `anon` precisa de acesso explícito a colunas:
 
@@ -82,7 +82,7 @@ Todas chamadas com a chave `anon` (pública). Definidas como `security definer` 
 |---|---|---|---|
 | `sync_put` | `p_code, p_nome, p_xp, p_dados` | `void` | MERGE do progresso (nunca sobrescreve com dados mais antigos) |
 | `sync_get` | `p_code` | `(nome, xp, dados, atualizado_em)` | Lê o snapshot do aluno |
-| `sync_delete` | `p_code` | `void` | Apaga todos os dados do aluno (direito ao esquecimento — LGPD) |
+| `sync_delete` | `p_code` | `void` | Apaga todos os dados do aluno (direito ao esquecimento, LGPD) |
 | `cert_put` | `p_code, p_mod, p_pct, p_acertos, p_total, p_rank` | `(melhor_pct, melhorou)` | Grava certificado **só se a nota for maior**; devolve a melhor nota e se houve melhora |
 | `cert_list` | `p_code` | `(mod, pct, acertos, total, rank, emitido_em)` | Certificados de um aluno (tela de perfil) |
 | `conquista_add` | `p_code, p_nome, p_mod, p_pct, p_rank` | `void` | Publica conquista no feed |
@@ -103,7 +103,7 @@ Todas chamadas com a chave `anon` (pública). Definidas como `security definer` 
 
 1. Crie o projeto no Supabase (plano free é suficiente).
 2. No **SQL Editor**, rode `sql/certificados.sql` inteiro (cria `certificados`, `conquistas` e todas as RPCs
-   de certificados — é idempotente).
+   de certificados, é idempotente).
 3. Ainda no SQL Editor, rode `docs/setup.sql` (cria `alunos`, `sync_put/get/delete`, `ranking` e os grants).
 4. No topo de `js/app.js`, ajuste:
    ```js
@@ -118,7 +118,7 @@ Todas chamadas com a chave `anon` (pública). Definidas como `security definer` 
 |---|---|---|
 | `Project URL` | `https://xxxxx.supabase.co` | ✅ sim |
 | `anon` / `public` key | chave pública | ✅ sim (a segurança vem do RLS + funções `security definer`) |
-| `service_role` / `secret` | chave mestra | ❌ **nunca** — dá acesso irrestrito ao banco |
+| `service_role` / `secret` | chave mestra | ❌ **nunca**, dá acesso irrestrito ao banco |
 
 ## Armadilhas conhecidas
 
@@ -127,7 +127,7 @@ Todas chamadas com a chave `anon` (pública). Definidas como `security definer` 
 | Supabase Advisor marca `ranking` como *Security Definer View* (Critical) | View criada sem `security_invoker = true` | Recriar a view com a opção (ver `docs/setup.sql`) |
 | Ranking sempre vazio | `security_invoker = true` ligado mas sem `grant select (nome, xp) on alunos to anon` | Rodar o grant por coluna |
 | `sync_put` retorna erro 400 | Código de acesso nulo ou com menos de 16 caracteres alfanuméricos | Verificar que `localStorage['sl_code']` está presente no cliente |
-| Free tier pausa por inatividade | ~1 semana sem nenhum request | Reativar com 1 clique no painel — irrelevante com uso de turma |
+| Free tier pausa por inatividade | ~1 semana sem nenhum request | . Reativar com 1 clique no painel é irrelevante com uso de turma |
 
 ## Segurança
 
