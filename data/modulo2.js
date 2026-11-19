@@ -88,7 +88,7 @@ window.QUESTIONS_M2 = [
    "Identifica o número de hosts permitidos na interface."
   ],
   "cor": 1,
-  "sub": "Comando encapsulation dot1Q — parâmetro VLAN",
+  "sub": "Comando encapsulation dot1Q: parâmetro VLAN",
   "why": "O comando 'encapsulation dot1Q <vlan-id>' associa a subinterface a uma VLAN específica. O parâmetro obrigatório que falta é o número da VLAN (ex.: encapsulation dot1Q 7).",
   "fig": "img/m2-q04.webp",
   "figAlt": "Q4 diagram"
@@ -130,7 +130,7 @@ window.QUESTIONS_M2 = [
    "Pacotes da rede 10.10.0.0/16 serão encaminhados para 10.20.0.0/16 e vice-versa."
   ],
   "cor": 1,
-  "sub": "Rota padrão — ip route 0.0.0.0 0.0.0.0",
+  "sub": "Rota padrão: ip route 0.0.0.0 0.0.0.0",
   "why": "O comando cria uma rota padrão (gateway of last resort). Todo pacote cujo destino não corresponde a nenhuma rota mais específica da tabela é encaminhado pela interface serial 0/1/1 em direção à Internet.",
   "fig": "img/m2-q06.webp",
   "figAlt": "Q6 diagram",
@@ -150,7 +150,7 @@ window.QUESTIONS_M2 = [
    "ipv6 route ::/0 serial 0/1/1"
   ],
   "cor": 3,
-  "sub": "Rota padrão IPv6 — ::/0",
+  "sub": "Rota padrão IPv6: ::/0",
   "why": "A rota padrão IPv6 é representada por '::/0' (equivalente a 0.0.0.0/0 no IPv4). A interface de saída deve ser a que conecta à Internet (serial 0/1/1). O comando correto é: ipv6 route ::/0 serial 0/1/1.",
   "fig": "img/m2-q07.webp",
   "figAlt": "Q7 diagram"
@@ -169,7 +169,7 @@ window.QUESTIONS_M2 = [
    "Rotas estáticas que usam uma interface de saída serão desnecessárias."
   ],
   "cor": 2,
-  "sub": "CEF desabilitado — rotas em interfaces Ethernet",
+  "sub": "CEF desabilitado: rotas em interfaces Ethernet",
   "why": "Quando o CEF está desabilitado, o roteador usa process switching. Em interfaces multiacesso (Ethernet), é necessário especificar tanto a interface de saída quanto o próximo salto (rota totalmente especificada), pois sem CEF a resolução ARP pode falhar com apenas o next-hop."
  },
  {
@@ -186,7 +186,7 @@ window.QUESTIONS_M2 = [
    "O SW1 descarta o quadro porque não conhece o endereço MAC destino."
   ],
   "cor": 1,
-  "sub": "Flooding de unicast desconhecido — tabela MAC vazia",
+  "sub": "Flooding de unicast desconhecido: tabela MAC vazia",
   "why": "Com a tabela MAC vazia, o SW1 não sabe em qual porta está o destino. O switch realiza flooding: envia o quadro por TODAS as portas exceto a porta de entrada (Fa0/1). Isso inclui a porta trunk para SW2, que por sua vez também fará flooding para PCC e PCD.",
   "fig": "img/m2-q09.webp",
   "figAlt": "Q9 diagram"
@@ -227,7 +227,7 @@ window.QUESTIONS_M2 = [
    "Um comando no shutdown deve ser adicionado em cada subinterface."
   ],
   "cor": 1,
-  "sub": "Router-on-a-stick — porta do switch deve ser trunk",
+  "sub": "Router-on-a-stick: porta do switch deve ser trunk",
   "why": "No roteamento inter-VLAN router-on-a-stick, a porta do switch conectada à interface física do roteador (Gi0/0) deve ser configurada como modo trunk. Se estiver em modo access, somente o tráfego de uma VLAN passará, impedindo a comunicação entre VLANs.",
   "code": "R1# config terminal\nEnter configuration commands, one per line.  End with CNTL/Z.\nR1(config)# interface gigabitEthernet 0/0.1\nR1(config-subif)# encapsulation dot1Q 10\nR1(config-subif)# ip add 192.168.10.254 255.255.255.0\nR1(config-subif)# interface gigabitEthernet 0/0.20\nR1(config-subif)# encapsulation dot1Q 2\nR1(config-subif)# ip add 192.168.20.254 255.255.255.0\nR1(config-subif)# exit\nR1(config)# interface gigabitEthernet 0/0\nR1(config-if)# no shutdown"
  },
@@ -267,7 +267,7 @@ window.QUESTIONS_M2 = [
    0,
    4
   ],
-  "sub": "STP e RSTP — única instância para toda a rede",
+  "sub": "STP e RSTP: única instância para toda a rede",
   "why": "STP (802.1D) e RSTP (802.1w) usam uma única instância de spanning tree para todas as VLANs, independentemente de quantas existam. Isso pode bloquear links que poderiam ser usados por VLANs diferentes, resultando em uso ineficiente. PVST+ e Rapid PVST+ criam uma instância por VLAN."
  },
  {
@@ -284,7 +284,7 @@ window.QUESTIONS_M2 = [
    "O endereço MAC do roteador virtual"
   ],
   "cor": 3,
-  "sub": "HSRP — endereço MAC virtual do grupo",
+  "sub": "HSRP: endereço MAC virtual do grupo",
   "why": "No HSRP, a estação de trabalho usa o IP virtual como gateway padrão. Ao enviar um quadro, ela usa o MAC virtual do grupo HSRP (00-00-0C-07-AC-xx) como destino, não o MAC físico do roteador ativo ou standby. O roteador ativo responde por esse MAC virtual.",
   "fig": "img/m2-q14.webp",
   "figAlt": "Q14 diagram"
@@ -324,7 +324,7 @@ window.QUESTIONS_M2 = [
    "WPA2 Enterprise"
   ],
   "cor": 3,
-  "sub": "WPA2 Enterprise — autenticação via RADIUS",
+  "sub": "WPA2 Enterprise: autenticação via RADIUS",
   "why": "WPA2 Enterprise usa o protocolo 802.1X com EAP, que requer um servidor RADIUS para autenticar usuários individualmente com credenciais (usuário/senha ou certificados). WPA/WPA2 Personal utilizam apenas uma chave pré-compartilhada (PSK), sem necessidade de servidor RADIUS."
  },
  {
@@ -341,7 +341,7 @@ window.QUESTIONS_M2 = [
    "WPA2 com AES"
   ],
   "cor": 3,
-  "sub": "WPA2-AES — criptografia mais forte",
+  "sub": "WPA2-AES: criptografia mais forte",
   "why": "WPA2 com AES (Advanced Encryption Standard, 128-bit) é o método mais seguro. WEP é facilmente quebrado. WPA com TKIP é obsoleto. WPA2 com TKIP é mais forte que WEP/WPA, mas ainda inferior ao AES. WPA2-AES é o padrão atual recomendado (base do WPA3)."
  },
  {
@@ -358,7 +358,7 @@ window.QUESTIONS_M2 = [
    "Apenas usuários com placas de rede mais recentes podem usar 5 GHz, reduzindo o uso geral."
   ],
   "cor": 2,
-  "sub": "Banda de 5 GHz — menos congestionamento para multimídia",
+  "sub": "Banda de 5 GHz: menos congestionamento para multimídia",
   "why": "A banda de 5 GHz oferece mais canais não sobrepostos (23 canais de 20 MHz vs. 3 na de 2,4 GHz) e sofre menos interferência de dispositivos domésticos (micro-ondas, Bluetooth). Isso resulta em maior throughput e menor latência para streaming de vídeo. A desvantagem é o menor alcance comparado a 2,4 GHz."
  },
  {
@@ -397,7 +397,7 @@ window.QUESTIONS_M2 = [
    "A=designada, B=alternativa, C=raiz, D=raiz"
   ],
   "cor": 0,
-  "sub": "RSTP — funções de portas: raiz, designada, alternativa",
+  "sub": "RSTP: funções de portas: raiz, designada, alternativa",
   "why": "B (S2→S1): porta raiz de S2, o melhor caminho ao root. D (S3→S1): porta raiz de S3. C (S2→hosts): porta designada, por ser o único switch no segmento de acesso. A (S2↔S3): como S2 tem melhor caminho ao root que S3 nesse segmento, S2 vence e sua porta seria designada; mas como S3 também conecta diretamente ao root (via D), a porta A de S2 pode ser alternativa. A ordem correta é: A=alternativa, B=raiz, C=designada, D=raiz.",
   "fig": "img/m2-q20.webp",
   "figAlt": "Q20 diagram"
@@ -416,7 +416,7 @@ window.QUESTIONS_M2 = [
    "Tronco4"
   ],
   "cor": 1,
-  "sub": "STP — eleição da root bridge e porta alternativa",
+  "sub": "STP: eleição da root bridge e porta alternativa",
   "why": "S4 tem o menor MAC (000A.0003.1212) com mesma prioridade, portanto é a root bridge. S2 usa Tronco3 (→S4) como root port. S3 usa Tronco4 (→S4) como root port. S1 precisa de um root port: entre Tronco1 (→S2→S4) e Tronco2 (→S3→S4), S2 tem MAC menor que S3, então S1 prefere Tronco1. Tronco2 (S1-S3) fica como porta alternativa/bloqueada.",
   "fig": "img/m2-q21.webp",
   "figAlt": "Q21 diagram"
@@ -458,7 +458,7 @@ window.QUESTIONS_M2 = [
    "Imediatamente após a determinação de quais recursos um usuário pode acessar"
   ],
   "cor": 0,
-  "sub": "AAA — ordem: autenticação → autorização → contabilidade",
+  "sub": "AAA: ordem: autenticação → autorização → contabilidade",
   "why": "No modelo AAA: (A) Autenticação verifica a identidade; (A) Autorização determina o que o usuário autenticado pode fazer, e ocorre imediatamente após a autenticação bem-sucedida; (A) Contabilidade registra o que foi feito. A autorização só acontece após a identidade ser confirmada."
  },
  {
@@ -475,7 +475,7 @@ window.QUESTIONS_M2 = [
    "Aceita ambas as mensagens DHCPOFFER e envia um DHCPACK."
   ],
   "cor": 1,
-  "sub": "DORA — cliente aceita a primeira oferta com DHCPREQUEST",
+  "sub": "DORA: cliente aceita a primeira oferta com DHCPREQUEST",
   "why": "O cliente aceita normalmente a primeira oferta recebida e responde com um DHCPREQUEST broadcast, que inclui o Server Identifier do servidor escolhido. Os demais servidores veem esse broadcast e retornam suas ofertas ao pool. O servidor escolhido responde com DHCPACK para concluir a negociação."
  },
  {
@@ -512,7 +512,7 @@ window.QUESTIONS_M2 = [
    "A VLAN nativa usada em qualquer tronco deve ser uma das VLANs de dados ativas."
   ],
   "cor": 0,
-  "sub": "VLAN hopping por double tagging — mitigação",
+  "sub": "VLAN hopping por double tagging: mitigação",
   "why": "O ataque de double tagging explora o fato de que a tag da VLAN nativa é removida pelo switch. Se um atacante na VLAN 10 enviar um frame com duas tags (VLAN 10 externa, VLAN 20 interna), o switch remove a tag 10 (nativa) e encaminha na VLAN 20. A mitigação é garantir que as portas de acesso de usuário estejam em VLANs diferentes da VLAN nativa dos troncos."
  },
  {
@@ -565,7 +565,7 @@ window.QUESTIONS_M2 = [
    "R2(config)# ip route 172.16.3.0 255.255.255.0 172.16.2.254"
   ],
   "cor": 2,
-  "sub": "Rota estática — rede destino + próximo salto",
+  "sub": "Rota estática: rede destino + próximo salto",
   "why": "O R2 precisa chegar à rede 172.16.2.0/24 via R1. O próximo salto é 172.16.3.1 (interface de R1 no link entre os roteadores). O comando correto é: ip route 172.16.2.0 255.255.255.0 172.16.3.1. O destino deve ser o endereço de rede (não host) e o next-hop deve ser alcançável diretamente.",
   "fig": "img/m2-q28.webp",
   "figAlt": "Q28 diagram"
@@ -584,7 +584,7 @@ window.QUESTIONS_M2 = [
    "Decisões de encaminhamento são baseadas em endereços MAC e mapeamentos de porta na tabela CAM."
   ],
   "cor": 3,
-  "sub": "Tabela CAM — base das decisões de encaminhamento",
+  "sub": "Tabela CAM: base das decisões de encaminhamento",
   "why": "O switch usa a tabela CAM (Content Addressable Memory), também chamada de tabela MAC, que mapeia endereços MAC às portas. Quando um frame chega, o switch consulta a tabela para determinar a porta de saída. Se o MAC destino não estiver na tabela, o switch realiza flooding."
  },
  {
@@ -601,7 +601,7 @@ window.QUESTIONS_M2 = [
    "ip route 10.10.0.0 255.255.0.0 209.165.200.225 50"
   ],
   "cor": 2,
-  "sub": "Rota estática flutuante — AD maior que EIGRP (90)",
+  "sub": "Rota estática flutuante: AD maior que EIGRP (90)",
   "why": "EIGRP tem distância administrativa 90. Para criar uma rota flutuante de backup, precisa-se de AD > 90 (ex.: 100). O backup usa o link alternativo S0/0/0 (next-hop 209.165.200.225 via Branch1). A máscara correta para /16 é 255.255.0.0. Opção incorreta usar AD=50 pois seria preferida em vez do EIGRP.",
   "fig": "img/m2-q30.webp",
   "figAlt": "Q30 diagram"
@@ -620,7 +620,7 @@ window.QUESTIONS_M2 = [
    "sticky secure MAC addresses"
   ],
   "cor": 3,
-  "sub": "Sticky MAC — aprendizado dinâmico salvo na config",
+  "sub": "Sticky MAC: aprendizado dinâmico salvo na config",
   "why": "O recurso 'sticky' (switchport port-security mac-address sticky) permite que o switch aprenda automaticamente os MACs conectados e os salve na running-config como endereços seguros estáticos. Isso combina a facilidade do aprendizado dinâmico com a persistência da configuração estática."
  },
  {
@@ -637,7 +637,7 @@ window.QUESTIONS_M2 = [
    "S 10.17.2.0/24 is directly connected, Serial 0/0/0"
   ],
   "cor": 0,
-  "sub": "Leitura da tabela de roteamento — rota estática com next-hop",
+  "sub": "Leitura da tabela de roteamento: rota estática com next-hop",
   "why": "A entrada 'S 10.17.2.0/24 [1/0] via 10.16.2.2' indica: S=rota estática, rede específica 10.17.2.0/24, AD=1, métrica=0, próximo salto=10.16.2.2. Isso é uma rota estática para rede específica com next-hop. Já a rota 0.0.0.0/0 é a rota padrão, e não uma rota específica.",
   "code": "S  10.17.2.0/24 [1/0] via 10.16.2.2\nS  0.0.0.0/0 [1/0] via 10.16.2.2\nC  10.16.2.0/24 is directly connected, Serial0/0/0\nS  10.17.2.0/24 is directly connected, Serial 0/0/0"
  },
@@ -655,7 +655,7 @@ window.QUESTIONS_M2 = [
    "ff00::/8"
   ],
   "cor": 0,
-  "sub": "Endereços link-local IPv6 — fe80::/10",
+  "sub": "Endereços link-local IPv6: fe80::/10",
   "why": "Endereços com prefixo fe80::/10 são link-local: válidos apenas no segmento local e não roteáveis. Servem para comunicação entre vizinhos (NDP, protocolos de roteamento) e são configurados automaticamente em toda interface IPv6 habilitada. ff00::/8 é multicast; 2001::/3 é unicast global; fc::/7 é unicast local único (ULA)."
  },
  {
@@ -672,7 +672,7 @@ window.QUESTIONS_M2 = [
    "O host envia um broadcast ARP no link local e, se não houver resposta, considera o endereço único."
   ],
   "cor": 1,
-  "sub": "DAD — Duplicate Address Detection (ICMPv6 NS/NA)",
+  "sub": "DAD: Duplicate Address Detection (ICMPv6 NS/NA)",
   "why": "O processo DAD (Duplicate Address Detection) usa mensagens ICMPv6 Neighbor Solicitation (NS) enviadas ao endereço multicast solicited-node do novo endereço. Se nenhuma mensagem Neighbor Advertisement (NA) for recebida, o endereço é considerado único e é atribuído à interface. ARP é IPv4; IPv6 usa NDP."
  },
  {
@@ -689,7 +689,7 @@ window.QUESTIONS_M2 = [
    "Ataque de tabela CAM"
   ],
   "cor": 0,
-  "sub": "DHCP Starvation — esgotamento do pool DHCP",
+  "sub": "DHCP Starvation: esgotamento do pool DHCP",
   "why": "O ataque de DHCP starvation usa ferramentas como Gobbler para enviar centenas de DHCPDISCOVER com MACs falsificados aleatórios, esgotando o pool de endereços do servidor. Clientes legítimos não conseguem obter IP (DoS). DHCP Spoofing implanta um servidor DHCP falso para redirecionar tráfego."
  },
  {
@@ -706,7 +706,7 @@ window.QUESTIONS_M2 = [
    "Configurar uma ACL e aplicá-la às linhas VTY"
   ],
   "cor": 0,
-  "sub": "SSH — acesso remoto seguro e criptografado",
+  "sub": "SSH: acesso remoto seguro e criptografado",
   "why": "SSH (Secure Shell) criptografa todo o tráfego da sessão, incluindo credenciais. Telnet transmite tudo em texto claro, sendo vulnerável a sniffing. 802.1x serve para autenticação de acesso à porta, não para gerenciamento remoto. Uma ACL nas VTY restringe quem pode acessar, mas não criptografa a sessão: precisa ser combinada com SSH."
  },
  {
@@ -723,7 +723,7 @@ window.QUESTIONS_M2 = [
    "Ponto de acesso sem fio autônomo"
   ],
   "cor": 1,
-  "sub": "Roteador sem fio — switch + AP + roteador + firewall",
+  "sub": "Roteador sem fio: switch + AP + roteador + firewall",
   "why": "Um roteador sem fio residencial/SOHO combina: switch Ethernet (portas LAN), ponto de acesso Wi-Fi (SSID/autenticação), roteador (conectividade WAN/Internet) e firewall básico (NAT, filtragem de pacotes). É o dispositivo all-in-one descrito na questão."
  },
  {
@@ -740,7 +740,7 @@ window.QUESTIONS_M2 = [
    "Alterar a distância administrativa para 120."
   ],
   "cor": 3,
-  "sub": "Rota estática flutuante — AD deve ser maior que OSPF (110)",
+  "sub": "Rota estática flutuante: AD deve ser maior que OSPF (110)",
   "why": "OSPF tem distância administrativa 110. Para que a rota estática seja flutuante (backup), sua AD deve ser maior que 110. Com AD=100, a rota estática é preferida em relação ao OSPF (100 < 110). Alterar para AD=120 garante que o OSPF seja preferido enquanto ativo, e o backup só é ativado quando o OSPF falha.",
   "fig": "img/m2-q38.webp",
   "figAlt": "Q38 diagram"
@@ -759,7 +759,7 @@ window.QUESTIONS_M2 = [
    "Rota estática de sumarização"
   ],
   "cor": 1,
-  "sub": "Rota estática flutuante — definição",
+  "sub": "Rota estática flutuante: definição",
   "why": "Uma rota estática flutuante tem distância administrativa maior que a do protocolo de roteamento dinâmico. Enquanto o protocolo dinâmico estiver funcionando, a rota estática não aparece na tabela (fica 'flutuando'). Quando a rota dinâmica desaparece, a rota estática entra em ação como backup."
  },
  {
@@ -781,7 +781,7 @@ window.QUESTIONS_M2 = [
    0,
    1
   ],
-  "sub": "DHCP Relay — ip helper-address na interface do cliente",
+  "sub": "DHCP Relay: ip helper-address na interface do cliente",
   "why": "O ip helper-address deve ser configurado na interface do roteador que conecta à sub-rede dos clientes (R1 G0/0 = 10.1.0.254/16). Primeiro entra-se na interface (R1 G0/0) e depois aplica-se o helper com o IP do servidor DHCP (10.2.0.250). Isso faz o roteador encaminhar broadcasts DHCP como unicast ao servidor.",
   "fig": "img/m2-q40.webp",
   "figAlt": "Q40 diagram"
@@ -818,7 +818,7 @@ window.QUESTIONS_M2 = [
    "Encaminhar pela interface Serial0/0/0"
   ],
   "cor": 3,
-  "sub": "Rota padrão IPv6 ::/0 — gateway of last resort",
+  "sub": "Rota padrão IPv6 ::/0: gateway of last resort",
   "why": "O endereço 2001:db8:cafe:5::1 não corresponde a nenhuma rede específica na tabela (não é :1:, :2:, :3:, nem :4:/128). A correspondência mais longa é a rota padrão ::/0, que aponta para Serial0/0/0. O roteador encaminha o pacote por essa interface.",
   "code": "R1# show ipv6 route\n<saida omitida>\n\nS  ::/0 [1/0]\n   via Serial0/0/0, directly connected\nC  2001:DB8:CAFE:1::/64 [0/0]\n   via GigabitEthernet0/1, directly connected\nL  2001:DB8:CAFE:1::1/128 [0/0]\n   via GigabitEthernet0/1, receive\nC  2001:DB8:CAFE:2::/64 [0/0]\n   via GigabitEthernet0/0, directly connected\nL  2001:DB8:CAFE:2::1/128 [0/0]\n   via GigabitEthernet0/0, receive\nC  2001:DB8:CAFE:3::/64 [0/0]\n   via Serial0/0/0, directly connected\nL  2001:DB8:CAFE:3::1/128 [0/0]\n   via Serial0/0/0, receive\nS  2001:DB8:CAFE:4::1/128 [1/0]\n   via Serial0/0/0, directly connected\nL  FF00::/8 [0/0]\n   via Null0, receive"
  },
@@ -870,7 +870,7 @@ window.QUESTIONS_M2 = [
    2,
    4
   ],
-  "sub": "ARP broadcast — limitado à mesma VLAN",
+  "sub": "ARP broadcast: limitado à mesma VLAN",
   "why": "ARP é um broadcast da Camada 2, confinado à VLAN. O host A está na VLAN 1. Broadcasts da VLAN 1 chegam apenas a outros membros da VLAN 1: hosts C, D e F. Os hosts B, E e G estão na VLAN 2 e não receberão o broadcast, mesmo que a porta trunk transporte ambas as VLANs.",
   "fig": "img/m2-q44.webp",
   "figAlt": "Q44 diagram"
@@ -881,7 +881,7 @@ window.QUESTIONS_M2 = [
   "fonte": "curso",
   "tp": "EtherChannel",
   "ty": "single",
-  "text": "Consulte a figura (SW1 e SW2 conectados por Po1 e Po2 — dois EtherChannels redundantes com STP ativo). Um administrador conectou dois switches com EtherChannel. Se o STP estiver em execução, qual será o resultado?",
+  "text": "Consulte a figura (SW1 e SW2 conectados por Po1 e Po2, dois EtherChannels redundantes com STP ativo). Um administrador conectou dois switches com EtherChannel. Se o STP estiver em execução, qual será o resultado?",
   "opts": [
    "Os switches farão balanceamento de carga e usarão ambos os EtherChannels para encaminhar pacotes.",
    "O STP bloqueará um dos EtherChannels redundantes.",
@@ -889,7 +889,7 @@ window.QUESTIONS_M2 = [
    "Os dois port-channels serão desligados."
   ],
   "cor": 1,
-  "sub": "STP bloqueia links redundantes — mesmo EtherChannels",
+  "sub": "STP bloqueia links redundantes: mesmo EtherChannels",
   "why": "O STP trata cada EtherChannel (port-channel) como um único link lógico. Com dois links lógicos entre os mesmos switches, há um loop de Camada 2. O STP elegerá um deles como blocked (alternativa), permitindo apenas um caminho ativo. O EtherChannel não elimina a necessidade do STP.",
   "fig": "img/m2-q45.webp",
   "figAlt": "Q45 diagram"
@@ -908,7 +908,7 @@ window.QUESTIONS_M2 = [
    "O IP virtual do grupo 1 do HSRP e o MAC físico do R2"
   ],
   "cor": 1,
-  "sub": "HSRP — ARP do host aponta para IP/MAC virtual",
+  "sub": "HSRP: ARP do host aponta para IP/MAC virtual",
   "why": "O gateway padrão configurado no Host1 deve ser o IP virtual (10.1.1.254). A entrada ARP correspondente deve mapear esse IP virtual ao MAC virtual do grupo HSRP (00-00-0C-07-AC-01). Usar o IP/MAC de R1 ou R2 individualmente quebraria a redundância e causaria falha quando o roteador ativo mudasse.",
   "fig": "img/m2-q46.webp",
   "figAlt": "Q46 diagram"
@@ -932,7 +932,7 @@ window.QUESTIONS_M2 = [
    2,
    3
   ],
-  "sub": "VTP modos servidor e transparente — gerenciamento de VLANs",
+  "sub": "VTP modos servidor e transparente: gerenciamento de VLANs",
   "why": "No modo servidor VTP: VLANs podem ser criadas/modificadas/deletadas localmente e as mudanças são propagadas pelo domínio VTP. No modo transparente, as VLANs são gerenciadas localmente, mas as mudanças NÃO são propagadas: o switch apenas repassa as mensagens VTP. No modo cliente: não é possível modificar VLANs."
  },
  {
@@ -953,7 +953,7 @@ window.QUESTIONS_M2 = [
    1,
    3
   ],
-  "sub": "VTP cliente — recebe atualizações, não cria VLANs",
+  "sub": "VTP cliente: recebe atualizações, não cria VLANs",
   "why": "Para que o switch receba atualizações VTP sem poder criar VLANs: (1) configurar o mesmo domínio VTP da rede existente (sem isso, o switch ignora mensagens VTP); (2) configurar o modo cliente VTP (switchport mode vtp client). No modo cliente, o switch sincroniza VLANs mas não pode criar/modificar/deletar localmente."
  },
  {
@@ -970,7 +970,7 @@ window.QUESTIONS_M2 = [
    "Implementar segurança de porta (port security)"
   ],
   "cor": 2,
-  "sub": "DHCP Snooping — filtragem de respostas DHCP não autorizadas",
+  "sub": "DHCP Snooping: filtragem de respostas DHCP não autorizadas",
   "why": "DHCP Snooping classifica portas como confiáveis (trusted) ou não confiáveis (untrusted). Mensagens DHCP de servidor (DHCPOFFER, DHCPACK) recebidas em portas não confiáveis são descartadas. Somente a porta conectada ao servidor DHCP legítimo é marcada como trusted. Isso impede servidores rogue de fornecer configurações falsas."
  },
  {
@@ -980,7 +980,7 @@ window.QUESTIONS_M2 = [
   "tp": "FHRP",
   "ty": "match",
   "text": "Faça a correspondência do número da etapa com a descrição correta do processo de failover do HSRP.",
-  "sub": "HSRP failover — sequência de 3 etapas",
+  "sub": "HSRP failover: sequência de 3 etapas",
   "why": "O processo de failover HSRP: (1) o roteador ativo falha; (2) o roteador standby detecta a falha ao não receber mensagens Hello dentro do hold time; (3) o standby assume o papel ativo e passa a responder pelo IP e MAC virtuais do grupo, o que é transparente para os hosts da rede.",
   "pairs": [
    {
@@ -1011,7 +1011,7 @@ window.QUESTIONS_M2 = [
    "GERENCIAMENTO"
   ],
   "cor": 0,
-  "sub": "WLC — configuração de WLAN e segurança WPA2",
+  "sub": "WLC: configuração de WLAN e segurança WPA2",
   "why": "Na interface do WLC Cisco, a aba 'WLANs' lista todas as redes sem fio configuradas. Ao clicar em uma WLAN específica e acessar a guia 'Security', o administrador pode configurar a política WPA2 (camada 2), incluindo método de autenticação (PSK ou 802.1X) e tipo de criptografia (AES/TKIP)."
  },
  {
@@ -1028,7 +1028,7 @@ window.QUESTIONS_M2 = [
    "Nome de usuário e senha da empresa via Active Directory"
   ],
   "cor": 1,
-  "sub": "WPA2 PSK — chave pré-compartilhada para autenticação",
+  "sub": "WPA2 PSK: chave pré-compartilhada para autenticação",
   "why": "No modo WPA2 Personal (PSK, Pre-Shared Key), todos os dispositivos usam a mesma senha (passphrase) configurada no ponto de acesso. O usuário precisa conhecer essa chave para se conectar. Não há servidor de autenticação. WPA2 Enterprise (com RADIUS/802.1X) usa credenciais individuais por usuário."
  },
  {
@@ -1040,12 +1040,12 @@ window.QUESTIONS_M2 = [
   "text": "Uma rota estática foi configurada em um roteador, mas a rede destino não existe mais. O que o administrador deve fazer para remover a rota estática da tabela de roteamento?",
   "opts": [
    "Alterar a métrica de roteamento dessa rota.",
-   "Nada — a rota estática desaparecerá automaticamente.",
+   "Nada: a rota estática desaparecerá automaticamente.",
    "Alterar a distância administrativa dessa rota.",
    "Remover a rota com o comando no ip route."
   ],
   "cor": 3,
-  "sub": "Remoção de rota estática — comando no ip route",
+  "sub": "Remoção de rota estática: comando no ip route",
   "why": "Diferente de rotas dinâmicas, rotas estáticas não expiram automaticamente. Para removê-la, o administrador deve usar o comando 'no ip route <rede> <máscara> <next-hop ou interface>'. Alterar métrica ou AD não remove a rota da tabela."
  },
  {
@@ -1126,7 +1126,7 @@ window.QUESTIONS_M2 = [
    "VTP"
   ],
   "cor": 0,
-  "sub": "STP — prevenção de loops na Camada 2",
+  "sub": "STP: prevenção de loops na Camada 2",
   "why": "O Spanning Tree Protocol (STP/802.1D) previne loops de Camada 2 colocando portas redundantes em estado de bloqueio (blocking). DTP negocia trunking. EtherChannel agrega links (mas não elimina loops por si só). VTP distribui informações de VLAN. Apenas STP é projetado especificamente para eliminar loops L2."
  },
  {
@@ -1143,7 +1143,7 @@ window.QUESTIONS_M2 = [
    "Para monitorar o funcionamento da rede sem fio."
   ],
   "cor": 0,
-  "sub": "Alteração do DHCP padrão no AP — segurança por obscuridade",
+  "sub": "Alteração do DHCP padrão no AP: segurança por obscuridade",
   "why": "Roteadores sem fio domésticos geralmente usam faixas conhecidas como 192.168.0.x ou 192.168.1.x. Um atacante que conseguir acesso à rede saberá qual faixa usar. Alterar para uma sub-rede menos óbvia dificulta ataques automatizados e scanning de rede, adicionando uma camada de segurança por obscuridade."
  },
  {
@@ -1160,7 +1160,7 @@ window.QUESTIONS_M2 = [
    "Criar rotas estáticas para todas as redes internas e uma rota padrão para a Internet."
   ],
   "cor": 0,
-  "sub": "Diagnóstico de descarte de pacotes — tabela de roteamento",
+  "sub": "Diagnóstico de descarte de pacotes: tabela de roteamento",
   "why": "Pacotes descartados (dropped) em um roteador geralmente indicam que o destino não tem correspondência na tabela de roteamento (rota ausente). A primeira ação de troubleshooting deve ser verificar a tabela de roteamento (show ip route) para identificar rotas ausentes ou incorretas antes de tomar outras ações."
  },
  {
@@ -1177,7 +1177,7 @@ window.QUESTIONS_M2 = [
    "Ele habilita o BPDU guard em uma porta específica."
   ],
   "cor": 0,
-  "sub": "switchport mode access — desativa DTP na porta de acesso",
+  "sub": "switchport mode access: desativa DTP na porta de acesso",
   "why": "O comando 'switchport mode access' configura a porta como acesso permanente e desativa o DTP. A porta não negocia nem aceita trunk. É a prática recomendada para portas ligadas a hosts finais, porque impede ataques que exploram a negociação automática de trunk (DTP)."
  }
 ];
