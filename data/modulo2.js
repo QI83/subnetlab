@@ -16,7 +16,7 @@ window.QUESTIONS_M2 = [
   ],
   "cor": 2,
   "sub": "Encapsulamento de quadro a cada hop",
-  "why": "O endereço IP origem nunca muda durante o roteamento (permanece 10.1.1.10 — host A). O MAC origem, porém, é substituído a cada hop: ao chegar ao host B o MAC origem é o da interface de saída do último roteador (00E0.FE91.7799).",
+  "why": "O endereço IP de origem nunca muda durante o roteamento (permanece 10.1.1.10, o host A). O MAC de origem, porém, é substituído a cada hop: ao chegar ao host B, o MAC de origem é o da interface de saída do último roteador (00E0.FE91.7799).",
   "fig": "img/m2-q01.webp",
   "figAlt": "Q1 diagram"
  },
@@ -211,7 +211,7 @@ window.QUESTIONS_M2 = [
    4
   ],
   "sub": "Benefícios da segmentação com switch L2",
-  "why": "Um switch L2 cria um domínio de colisão por porta (mais domínios, não menos). Os benefícios reais da segmentação são: (1) melhorar a largura de banda — cada porta tem largura de banda dedicada; (2) isolar o tráfego entre segmentos — frames só cruzam para outras portas quando necessário."
+  "why": "Um switch L2 cria um domínio de colisão por porta (mais domínios, não menos). Os benefícios reais da segmentação são: (1) melhorar a largura de banda, já que cada porta tem largura de banda dedicada; (2) isolar o tráfego entre segmentos, porque frames só cruzam para outras portas quando necessário."
  },
  {
   "id": 11,
@@ -380,7 +380,7 @@ window.QUESTIONS_M2 = [
    1
   ],
   "sub": "Flags SD e D no show etherchannel summary",
-  "why": "O flag 'S' indica Layer 2 e 'D' indica Down. 'Po2(SD)' significa que o port-channel 2 está inativo (Down). As portas Fa0/1(D) e Fa0/2(D) também estão inativas. O ID do port-channel é 2 (Po2). O EtherChannel está inoperante — não há protocolo (−) negociando.",
+  "why": "O flag 'S' indica Layer 2 e 'D' indica Down. 'Po2(SD)' significa que o port-channel 2 está inativo (Down). As portas Fa0/1(D) e Fa0/2(D) também estão inativas. O ID do port-channel é 2 (Po2). O EtherChannel está inoperante porque nenhum protocolo (−) está negociando.",
   "code": "S1# show etherchannel summary\nFlags:  D - down        P - bundled in port-channel\n        I - stand-alone s - suspended\n        H - Hot-standby (LACP only)\n        R - Layer3      S - Layer2\n        U - in use      f - failed to allocate aggregator\n        M - not in use, minimum links not met\n        u - unsuitable for bundling\n        w - waiting to be aggregated\n        d - default port\nNumber of channel-groups in use: 1\nNumber of aggregators:           1\n\nGroup  Port-channel  Protocol    Ports\n------+-------------+-----------+-----------------------------------------------\n1      Po2(SD)       -           Fa0/1(D)    Fa0/2(D)"
  },
  {
@@ -398,7 +398,7 @@ window.QUESTIONS_M2 = [
   ],
   "cor": 0,
   "sub": "RSTP — funções de portas: raiz, designada, alternativa",
-  "why": "B (S2→S1): porta raiz de S2 — melhor caminho ao root. D (S3→S1): porta raiz de S3. C (S2→hosts): porta designada — único switch no segmento de acesso. A (S2↔S3): como S2 tem melhor caminho ao root que S3 nesse segmento, S2 vence e sua porta seria designada — mas como S3 também conecta diretamente ao root (via D), S2's porta A pode ser alternativa. A ordem correta é: A=alternativa, B=raiz, C=designada, D=raiz.",
+  "why": "B (S2→S1): porta raiz de S2, o melhor caminho ao root. D (S3→S1): porta raiz de S3. C (S2→hosts): porta designada, por ser o único switch no segmento de acesso. A (S2↔S3): como S2 tem melhor caminho ao root que S3 nesse segmento, S2 vence e sua porta seria designada; mas como S3 também conecta diretamente ao root (via D), a porta A de S2 pode ser alternativa. A ordem correta é: A=alternativa, B=raiz, C=designada, D=raiz.",
   "fig": "img/m2-q20.webp",
   "figAlt": "Q20 diagram"
  },
@@ -459,7 +459,7 @@ window.QUESTIONS_M2 = [
   ],
   "cor": 0,
   "sub": "AAA — ordem: autenticação → autorização → contabilidade",
-  "why": "No modelo AAA: (A) Autenticação verifica a identidade; (A) Autorização determina o que o usuário autenticado pode fazer — ocorre imediatamente após autenticação bem-sucedida; (A) Contabilidade registra o que foi feito. A autorização só acontece após a identidade ser confirmada."
+  "why": "No modelo AAA: (A) Autenticação verifica a identidade; (A) Autorização determina o que o usuário autenticado pode fazer, e ocorre imediatamente após a autenticação bem-sucedida; (A) Contabilidade registra o que foi feito. A autorização só acontece após a identidade ser confirmada."
  },
  {
   "id": 24,
@@ -494,7 +494,7 @@ window.QUESTIONS_M2 = [
   ],
   "cor": 2,
   "sub": "Flooding de broadcast pelo switch",
-  "why": "Um frame de broadcast é sempre encaminhado a todas as portas do switch, exceto a porta de entrada. O PC3 enviou o broadcast pela Fa0/4, portanto o switch encaminha para Fa0/1 (servidor DHCP), Fa0/2 (PC1) e Fa0/3 (PC2) — todas as outras portas exceto a de entrada.",
+  "why": "Um frame de broadcast é sempre encaminhado a todas as portas do switch, exceto a porta de entrada. O PC3 enviou o broadcast pela Fa0/4, portanto o switch encaminha para Fa0/1 (servidor DHCP), Fa0/2 (PC1) e Fa0/3 (PC2), todas as outras portas exceto a de entrada.",
   "fig": "img/m2-q25.webp",
   "figAlt": "Q25 diagram"
  },
@@ -523,7 +523,7 @@ window.QUESTIONS_M2 = [
   "ty": "match",
   "text": "Faça a correspondência de cada característica com o método de encaminhamento de switch correto.",
   "sub": "Cut-through vs Store-and-forward",
-  "why": "Cut-through inicia o encaminhamento assim que lê o MAC destino — menor latência, maior desempenho, mas pode propagar frames com erros. Store-and-forward aguarda o frame completo para verificar o FCS (CRC) — maior latência, mas garante que apenas frames válidos são encaminhados.",
+  "why": "Cut-through inicia o encaminhamento assim que lê o MAC de destino: menor latência e maior desempenho, mas pode propagar frames com erros. Store-and-forward aguarda o frame completo para verificar o FCS (CRC): maior latência, mas garante que apenas frames válidos são encaminhados.",
   "pairs": [
    {
     "l": "Adequado para aplicações de computação de alto desempenho",
@@ -638,7 +638,7 @@ window.QUESTIONS_M2 = [
   ],
   "cor": 0,
   "sub": "Leitura da tabela de roteamento — rota estática com next-hop",
-  "why": "A entrada 'S 10.17.2.0/24 [1/0] via 10.16.2.2' indica: S=rota estática, rede específica 10.17.2.0/24, AD=1, métrica=0, próximo salto=10.16.2.2. Isso é uma rota estática para rede específica com next-hop. A rota 0.0.0.0/0 é a rota padrão, não específica.",
+  "why": "A entrada 'S 10.17.2.0/24 [1/0] via 10.16.2.2' indica: S=rota estática, rede específica 10.17.2.0/24, AD=1, métrica=0, próximo salto=10.16.2.2. Isso é uma rota estática para rede específica com next-hop. Já a rota 0.0.0.0/0 é a rota padrão, e não uma rota específica.",
   "code": "S  10.17.2.0/24 [1/0] via 10.16.2.2\nS  0.0.0.0/0 [1/0] via 10.16.2.2\nC  10.16.2.0/24 is directly connected, Serial0/0/0\nS  10.17.2.0/24 is directly connected, Serial 0/0/0"
  },
  {
@@ -656,7 +656,7 @@ window.QUESTIONS_M2 = [
   ],
   "cor": 0,
   "sub": "Endereços link-local IPv6 — fe80::/10",
-  "why": "Endereços com prefixo fe80::/10 são link-local — válidos apenas no segmento de rede local e não roteáveis. São usados para comunicação entre vizinhos (NDP, routing protocols). São configurados automaticamente em toda interface IPv6 habilitada. ff00::/8 é multicast; 2001::/3 é unicast global; fc::/7 é unicast local único (ULA)."
+  "why": "Endereços com prefixo fe80::/10 são link-local: válidos apenas no segmento local e não roteáveis. Servem para comunicação entre vizinhos (NDP, protocolos de roteamento) e são configurados automaticamente em toda interface IPv6 habilitada. ff00::/8 é multicast; 2001::/3 é unicast global; fc::/7 é unicast local único (ULA)."
  },
  {
   "id": 34,
@@ -707,7 +707,7 @@ window.QUESTIONS_M2 = [
   ],
   "cor": 0,
   "sub": "SSH — acesso remoto seguro e criptografado",
-  "why": "SSH (Secure Shell) criptografa todo o tráfego da sessão, incluindo credenciais. Telnet transmite tudo em texto claro, sendo vulnerável a sniffing. 802.1x é usado para autenticação de acesso à porta (não gerenciamento remoto). ACL nas VTY restringe quem pode acessar, mas não criptografa a sessão — deve ser combinada com SSH."
+  "why": "SSH (Secure Shell) criptografa todo o tráfego da sessão, incluindo credenciais. Telnet transmite tudo em texto claro, sendo vulnerável a sniffing. 802.1x serve para autenticação de acesso à porta, não para gerenciamento remoto. Uma ACL nas VTY restringe quem pode acessar, mas não criptografa a sessão: precisa ser combinada com SSH."
  },
  {
   "id": 37,
@@ -933,7 +933,7 @@ window.QUESTIONS_M2 = [
    3
   ],
   "sub": "VTP modos servidor e transparente — gerenciamento de VLANs",
-  "why": "No modo servidor VTP: VLANs podem ser criadas/modificadas/deletadas localmente e as mudanças são propagadas pelo domínio VTP. No modo transparente: VLANs são gerenciadas localmente (criadas/modificadas/deletadas) mas as mudanças NÃO são propagadas — o switch apenas encaminha mensagens VTP. No modo cliente: não é possível modificar VLANs."
+  "why": "No modo servidor VTP: VLANs podem ser criadas/modificadas/deletadas localmente e as mudanças são propagadas pelo domínio VTP. No modo transparente, as VLANs são gerenciadas localmente, mas as mudanças NÃO são propagadas: o switch apenas repassa as mensagens VTP. No modo cliente: não é possível modificar VLANs."
  },
  {
   "id": 48,
@@ -981,7 +981,7 @@ window.QUESTIONS_M2 = [
   "ty": "match",
   "text": "Faça a correspondência do número da etapa com a descrição correta do processo de failover do HSRP.",
   "sub": "HSRP failover — sequência de 3 etapas",
-  "why": "O processo de failover HSRP: (1) o roteador ativo falha; (2) o roteador standby detecta a falha ao não receber mensagens Hello dentro do hold time; (3) o standby assume o papel ativo, respondendo pelo IP e MAC virtuais do grupo — transparente para os hosts da rede.",
+  "why": "O processo de failover HSRP: (1) o roteador ativo falha; (2) o roteador standby detecta a falha ao não receber mensagens Hello dentro do hold time; (3) o standby assume o papel ativo e passa a responder pelo IP e MAC virtuais do grupo, o que é transparente para os hosts da rede.",
   "pairs": [
    {
     "l": "Etapa 1",
@@ -1029,7 +1029,7 @@ window.QUESTIONS_M2 = [
   ],
   "cor": 1,
   "sub": "WPA2 PSK — chave pré-compartilhada para autenticação",
-  "why": "No modo WPA2 Personal (PSK — Pre-Shared Key), todos os dispositivos usam a mesma senha (passphrase) configurada no ponto de acesso. O usuário precisa conhecer essa chave para se conectar. Não há servidor de autenticação. WPA2 Enterprise (com RADIUS/802.1X) usa credenciais individuais por usuário."
+  "why": "No modo WPA2 Personal (PSK, Pre-Shared Key), todos os dispositivos usam a mesma senha (passphrase) configurada no ponto de acesso. O usuário precisa conhecer essa chave para se conectar. Não há servidor de autenticação. WPA2 Enterprise (com RADIUS/802.1X) usa credenciais individuais por usuário."
  },
  {
   "id": 53,
@@ -1063,7 +1063,7 @@ window.QUESTIONS_M2 = [
   ],
   "cor": 0,
   "sub": "Flooding de frames multicast pelo switch",
-  "why": "Por padrão (sem IGMP snooping), um switch trata frames com endereço MAC multicast de forma similar a broadcasts: encaminha para todas as portas ativas exceto a porta de entrada (flooding). O switch não aprende endereços multicast na tabela CAM a partir do endereço destino — apenas aprende o MAC origem."
+  "why": "Por padrão (sem IGMP snooping), um switch trata frames com endereço MAC multicast de forma similar a broadcasts: encaminha para todas as portas ativas exceto a porta de entrada (flooding). O switch não aprende endereços multicast na tabela CAM a partir do endereço de destino: aprende apenas o MAC de origem."
  },
  {
   "id": 55,
@@ -1087,7 +1087,7 @@ window.QUESTIONS_M2 = [
    2
   ],
   "sub": "Switch L3 inter-VLAN: criar VLANs, SVIs e atribuir portas",
-  "why": "Para roteamento inter-VLAN em um switch L3: (1) criar as VLANs (vlan <id>); (2) criar SVIs (interface vlan <id> + ip address) — uma por VLAN para ser o gateway; (3) atribuir as portas de acesso às VLANs corretas (switchport access vlan). Também é necessário 'ip routing', mas as três etapas essenciais listadas são as três primeiras."
+  "why": "Para roteamento inter-VLAN em um switch L3: (1) criar as VLANs (vlan <id>); (2) criar SVIs (interface vlan <id> + ip address), uma por VLAN, para ser o gateway; (3) atribuir as portas de acesso às VLANs corretas (switchport access vlan). Também é necessário 'ip routing', mas as três etapas essenciais listadas são as três primeiras."
  },
  {
   "id": 56,
@@ -1178,6 +1178,6 @@ window.QUESTIONS_M2 = [
   ],
   "cor": 0,
   "sub": "switchport mode access — desativa DTP na porta de acesso",
-  "why": "O comando 'switchport mode access' configura a porta como modo acesso permanente e desativa o DTP. A porta não irá negociar nem aceitar trunk. Isso é uma prática de segurança recomendada para portas conectadas a hosts finais, pois impede ataques que exploram a negociação automática de trunk (DTP)."
+  "why": "O comando 'switchport mode access' configura a porta como acesso permanente e desativa o DTP. A porta não negocia nem aceita trunk. É a prática recomendada para portas ligadas a hosts finais, porque impede ataques que exploram a negociação automática de trunk (DTP)."
  }
 ];
