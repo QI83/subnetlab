@@ -1,8 +1,8 @@
-# Cartão de estudo — template
+# Cartão de estudo: template
 
 Formato do "cartão" da Biblioteca. Um cartão = **um assunto**, lido em **60–90 segundos**.
 Regra número um: se o texto puder ser confundido com o material original da Cisco, o cartão está errado.
-Ele é escrito para **lembrar rápido**, não para ser completo — o completo já existe no curso.
+Ele é escrito para **lembrar rápido**, não para ser completo. O completo já existe no curso.
 
 ---
 
@@ -12,12 +12,12 @@ Ele é escrito para **lembrar rápido**, não para ser completo — o completo j
 Não é o nome do capítulo. É o que o aluno vai conseguir fazer depois de ler.
 
 > ✅ "Trunk: levar várias VLANs por um cabo"
-> ❌ "Capítulo 3 — VLANs e Trunking"
+> ❌ "Capítulo 3: VLANs e Trunking"
 
 **2. Gancho (1 frase)**
 Por que isso existe, em linguagem de gente. Sem "conforme estudamos anteriormente".
 
-> "Sem trunk, cada VLAN precisaria de um cabo até o roteador — um prédio com 12 setores viraria 12 cabos."
+> "Sem trunk, cada VLAN precisaria do seu próprio cabo até o roteador. Um prédio com 12 setores teria 12 cabos."
 
 **3. Ideia central (2–4 frases)**
 O conceito inteiro. Se não couber em 4 frases, o assunto precisa de dois cartões.
@@ -39,12 +39,12 @@ O aluno **digita** o comando (ou o JSON) que resolve a situação, com três apo
 - aceitar abreviação (`conf t`, `int gi0/1`, `sw mo tr`), minúsculas, espaços extras e prompt colado;
 - exigir a ordem correta de modo (comando de interface digitado antes de entrar na interface = erro explicado,
   não "errado");
-- no lugar de "errado", dizer **o que faltou** ("falta permitir as VLANs 10, 20 e 99 — você listou 10,20");
+- no lugar de "errado", dizer **o que faltou** ("falta permitir as VLANs 10, 20 e 99. Você listou 10,20");
 - nunca bloquear: quem travou usa "Ver dica" e depois "Ver resposta" e segue.
 
 **8. Recuperação ativa (3 perguntas)**
 Abertas, com resposta escondida atrás de um "ver resposta". Não é múltipla escolha: escrever/mentalizar é
-o que consolida. Nada de XP — leitura não é desempenho.
+o que consolida. Nada de XP: leitura não é desempenho.
 
 ---
 
@@ -62,11 +62,11 @@ o que consolida. Nada de XP — leitura não é desempenho.
 }
 ```
 
-- `topico` — deve casar com o `tp` das questões (é o que liga o cartão à fraqueza do aluno)
-- `nivel` — 1 (base), 2 (detalhe), 3 (pegadinha de prova)
-- `min` — minutos estimados de leitura
-- `questoes` — questões do banco que exercitam o mesmo assunto (viram o "praticar agora")
-- `fonte` — referência de onde saiu (ex.: "CCNA v7 — SRWE, cap. 3") — citar, nunca copiar
+- `topico`: deve casar com o `tp` das questões (é o que liga o cartão à fraqueza do aluno)
+- `nivel`: 1 (base), 2 (detalhe), 3 (pegadinha de prova)
+- `min`: minutos estimados de leitura
+- `questoes`: questões do banco que exercitam o mesmo assunto (viram o "praticar agora")
+- `fonte`: referência de onde saiu (ex.: "CCNA v7, SRWE, cap. 3"). Citar, nunca copiar
 
 ---
 
@@ -74,7 +74,7 @@ o que consolida. Nada de XP — leitura não é desempenho.
 
 **Título:** Trunk: levar várias VLANs por um cabo
 
-**Gancho:** Sem trunk, cada VLAN precisaria de um cabo até o roteador — um prédio com 12 setores viraria 12 cabos.
+**Gancho:** Sem trunk, cada VLAN precisaria do seu próprio cabo até o roteador. Um prédio com 12 setores teria 12 cabos.
 
 **Ideia central:** Um link trunk carrega quadros de várias VLANs ao mesmo tempo e marca cada quadro com a VLAN
 de origem. A marcação é o **tag 802.1Q**, inserido dentro do quadro. Porta de acesso não marca nada: ela já
@@ -85,7 +85,7 @@ leva caixas de vários destinos no mesmo veículo, e cada caixa tem etiqueta.
 
 **Onde a prova cobra:**
 - **Native VLAN** vai **sem tag** no trunk. Se dois switches discordam dela, o tráfego "vaza" para a VLAN errada
-  e aparece a mensagem de *native VLAN mismatch* — pegadinha clássica.
+  e aparece a mensagem de *native VLAN mismatch*. É a pegadinha clássica.
 - Trunk não "cria" VLAN: as VLANs precisam existir nos dois switches.
 - Por padrão, o trunk aceita todas as VLANs; restringir exige `switchport trunk allowed vlan`.
 
@@ -98,7 +98,7 @@ interface Gi0/1
 ```
 
 **Recuperação:**
-1. Por que a native VLAN viaja sem tag — e o que acontece se os dois lados discordarem?
+1. Por que a native VLAN viaja sem tag, e o que acontece se os dois lados discordarem?
 2. O que muda no quadro quando ele passa por um trunk, e onde exatamente esse campo é inserido?
 3. Um trunk está configurado, mas a VLAN 30 não passa. Cite duas causas possíveis.
 
@@ -112,8 +112,8 @@ interface Gi0/1
 - **Linguagem:** segunda pessoa, presente, frase curta. Zero "é importante ressaltar".
 - **Tamanho:** máximo ~250 palavras no corpo. Passou disso, divide.
 - **Se o cartão não responde "onde a prova cobra", ele ainda não está pronto.**
-- **Todo cartão com comando tem desafio.** Ler comando sem digitar não fixa sintaxe — e é justamente onde o
+- **Todo cartão com comando tem desafio.** Ler comando sem digitar não fixa sintaxe, e é justamente onde o
   aluno trava na prova prática.
 - **Desafio é sobre intenção, não sobre decorar string.** Se a validação reprova uma abreviação válida do IOS,
   o cartão está ensinando errado.
-- **O desafio não dá XP.** Acertar aqui é leitura com prática, não desempenho — a mesma regra dos cartões.
+- **O desafio não dá XP.** Acertar aqui é leitura com prática, não desempenho, a mesma regra dos cartões.

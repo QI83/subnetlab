@@ -50,93 +50,93 @@ function nextAfterSplash() {
 // ── 2. SIGLAS CCNA ──────────────────────────────────────────────────
 // Copiado de reference/CCNA_SIMULATOR.html
 const ACRONYMS = {
-  'LAN':   'Local Area Network — Rede de Área Local',
-  'WAN':   'Wide Area Network — Rede de Área Ampla',
-  'WLAN':  'Wireless Local Area Network — Rede Local Sem Fio',
-  'VLAN':  'Virtual Local Area Network — Rede Local Virtual',
-  'VPN':   'Virtual Private Network — Rede Privada Virtual',
-  'ISP':   'Internet Service Provider — Provedor de Serviço de Internet',
-  'IP':    'Internet Protocol — Protocolo de Internet',
-  'IPv4':  'Internet Protocol version 4 — Protocolo de Internet versão 4',
-  'IPv6':  'Internet Protocol version 6 — Protocolo de Internet versão 6',
-  'TCP':   'Transmission Control Protocol — Protocolo de Controle de Transmissão',
-  'UDP':   'User Datagram Protocol — Protocolo de Datagrama de Usuário',
-  'ICMP':  'Internet Control Message Protocol — Protocolo de Mensagens de Controle',
-  'ARP':   'Address Resolution Protocol — Protocolo de Resolução de Endereços (IP→MAC)',
-  'DNS':   'Domain Name System — Sistema de Nomes de Domínio (URL→IP)',
-  'DHCP':  'Dynamic Host Configuration Protocol — Protocolo de Configuração Dinâmica de Host',
-  'DHCPv4':'Dynamic Host Configuration Protocol v4 — DHCP para redes IPv4',
-  'DHCPv6':'Dynamic Host Configuration Protocol v6 — DHCP para redes IPv6',
-  'HTTP':  'HyperText Transfer Protocol — Protocolo de Transferência de Hipertexto',
-  'HTTPS': 'HTTP Secure — HTTP com camada de criptografia TLS/SSL',
-  'FTP':   'File Transfer Protocol — Protocolo de Transferência de Arquivos',
-  'SSH':   'Secure Shell — Protocolo de acesso remoto seguro (criptografado)',
-  'Telnet':'Telecommunication Network — Acesso remoto sem criptografia (inseguro)',
-  'SNMP':  'Simple Network Management Protocol — Protocolo de Gerenciamento de Rede',
-  'NTP':   'Network Time Protocol — Protocolo de Sincronização de Tempo',
-  'SMTP':  'Simple Mail Transfer Protocol — Protocolo de Envio de E-mail',
-  'PPP':   'Point-to-Point Protocol — Protocolo de Comunicação Ponto a Ponto',
-  'NAT':   'Network Address Translation — Tradução de Endereços de Rede',
-  'ACL':   'Access Control List — Lista de Controle de Acesso',
-  'QoS':   'Quality of Service — Qualidade de Serviço (priorização de tráfego)',
-  'PoE':   'Power over Ethernet — Alimentação elétrica via cabo Ethernet',
-  'RFC':   'Request for Comments — Documento de especificação de padrões da Internet',
-  'OSI':   'Open Systems Interconnection — Modelo de referência de 7 camadas para redes',
-  'PDU':   'Protocol Data Unit — Unidade de Dados de Protocolo (frame/pacote/segmento)',
-  'MTU':   'Maximum Transmission Unit — Tamanho máximo de unidade de transmissão',
-  'TTL':   'Time to Live — Tempo de Vida do pacote (número máximo de saltos)',
-  'DSL':   'Digital Subscriber Line — Linha Digital de Assinante (conexão banda larga)',
-  'ISL':   'Inter-Switch Link — Protocolo de trunk proprietário Cisco (obsoleto)',
-  'MAC':   'Media Access Control — Controle de Acesso ao Meio (endereço físico único da placa de rede)',
-  'NIC':   'Network Interface Card — Placa de Interface de Rede',
-  'CAM':   'Content Addressable Memory — Memória de Acesso por Conteúdo (tabela MAC do switch)',
-  'FCS':   'Frame Check Sequence — Verificação de erros no frame Ethernet',
-  'STP':   'Spanning Tree Protocol — Protocolo Árvore Geradora (elimina loops na camada 2)',
-  'RSTP':  'Rapid Spanning Tree Protocol — STP Rápido (IEEE 802.1w), converge mais rápido que o STP',
-  'PVST':  'Per-VLAN Spanning Tree — Instância STP separada por VLAN (proprietário Cisco)',
-  'MSTP':  'Multiple Spanning Tree Protocol — STP múltiplo, agrupa VLANs em instâncias (IEEE 802.1s)',
-  'MST':   'Multiple Spanning Tree — Implementação Cisco do IEEE 802.1s (múltiplas instâncias STP)',
-  'BPDU':  'Bridge Protocol Data Unit — Mensagem STP trocada entre switches para eleger caminhos',
-  'BID':   'Bridge ID — Identificador da Bridge: prioridade (2 bytes) + endereço MAC (6 bytes)',
-  'VTP':   'VLAN Trunking Protocol — Protocolo Cisco para propagar configurações de VLAN automaticamente',
-  'DTP':   'Dynamic Trunking Protocol — Protocolo Cisco para negociar links trunk automaticamente',
-  'SVI':   'Switch Virtual Interface — Interface virtual do switch para gerenciamento via VLAN',
-  'LACP':  'Link Aggregation Control Protocol — Padrão IEEE 802.3ad para agregação de links (EtherChannel)',
-  'PAgP':  'Port Aggregation Protocol — Protocolo proprietário Cisco para criar EtherChannel',
-  'FIB':   'Forwarding Information Base — Tabela pré-compilada de encaminhamento usada pelo CEF',
-  'CEF':   'Cisco Express Forwarding — Mecanismo de encaminhamento mais rápido dos roteadores Cisco',
-  'FHRP':  'First Hop Redundancy Protocol — Protocolo de Redundância do Primeiro Salto (gateway)',
-  'HSRP':  'Hot Standby Router Protocol — Gateway redundante Cisco: um roteador ativo + um standby',
-  'VRRP':  'Virtual Router Redundancy Protocol — Padrão aberto IEEE de gateway redundante',
-  'GLBP':  'Gateway Load Balancing Protocol — Gateway redundante Cisco COM balanceamento de carga real',
-  'DAI':   'Dynamic ARP Inspection — Inspeção ARP Dinâmica (protege contra ARP spoofing/poisoning)',
-  'AAA':   'Authentication, Authorization, Accounting — Autenticação, Autorização e Contabilidade',
-  'RADIUS':'Remote Authentication Dial-In User Service — Servidor de autenticação centralizada (AAA)',
-  'EAP':   'Extensible Authentication Protocol — Protocolo extensível de autenticação (usado no 802.1X)',
-  'AP':    'Access Point — Ponto de Acesso sem fio (dispositivo WiFi que conecta clientes à rede)',
-  'SSID':  'Service Set Identifier — Nome da rede WiFi transmitido pelo Access Point',
-  'WLC':   'Wireless LAN Controller — Controlador central que gerencia múltiplos APs',
-  'WPA':   'Wi-Fi Protected Access — Protocolo de segurança WiFi v1 (usa TKIP, mais fraco)',
-  'WEP':   'Wired Equivalent Privacy — Protocolo de segurança WiFi obsoleto e facilmente quebrado',
-  'AES':   'Advanced Encryption Standard — Criptografia simétrica forte (128/256 bits), usada no WPA2',
-  'TKIP':  'Temporal Key Integrity Protocol — Criptografia do WPA (mais fraca que AES/CCMP)',
-  'CCMP':  'Counter Mode CBC-MAC Protocol — Modo de criptografia do WPA2 baseado em AES',
-  'PSK':   'Pre-Shared Key — Chave Pré-Compartilhada (senha WiFi no modo Personal/doméstico)',
-  'OSPF':  'Open Shortest Path First — Protocolo de roteamento dinâmico de estado de link (padrão aberto)',
-  'EIGRP': 'Enhanced Interior Gateway Routing Protocol — Protocolo de roteamento híbrido proprietário Cisco',
-  'RIP':   'Routing Information Protocol — Protocolo de roteamento por vetor de distância (simples, legado)',
-  'BGP':   'Border Gateway Protocol — Protocolo de roteamento entre sistemas autônomos (Internet)',
-  'AD':    'Administrative Distance — Distância Administrativa (valor de confiabilidade da fonte de rota)',
-  'SLAAC': 'Stateless Address Autoconfiguration — Autoconfiguração de endereço IPv6 sem servidor DHCP',
-  'RA':    'Router Advertisement — Anúncio do Roteador (mensagem ICMPv6 com prefixo e flags M/O)',
-  'RS':    'Router Solicitation — Solicitação de Roteador (host pede RA ao roteador via ICMPv6)',
-  'NMS':   'Network Management System — Sistema de Gerenciamento de Rede (recebe traps SNMP)',
-  'MIB':   'Management Information Base — Base de dados de variáveis gerenciáveis pelo SNMP',
-  'VTY':   'Virtual Terminal Lines — Linhas virtuais de terminal para acesso remoto SSH/Telnet no IOS',
-  'IEEE':  'Institute of Electrical and Electronics Engineers — Organização que define padrões de rede',
-  'VoIP':  'Voice over IP — Voz sobre IP (telefonia transmitida pela rede de dados)',
-  'DORA':  'Discover, Offer, Request, Acknowledge — As 4 mensagens do processo DHCP',
-  'NAK':   'Negative Acknowledgment — Resposta negativa do DHCP (rejeita renovação de endereço)',
+  'LAN':   'Local Area Network: Rede de Área Local',
+  'WAN':   'Wide Area Network: Rede de Área Ampla',
+  'WLAN':  'Wireless Local Area Network: Rede Local Sem Fio',
+  'VLAN':  'Virtual Local Area Network: Rede Local Virtual',
+  'VPN':   'Virtual Private Network: Rede Privada Virtual',
+  'ISP':   'Internet Service Provider: Provedor de Serviço de Internet',
+  'IP':    'Internet Protocol: Protocolo de Internet',
+  'IPv4':  'Internet Protocol version 4: Protocolo de Internet versão 4',
+  'IPv6':  'Internet Protocol version 6: Protocolo de Internet versão 6',
+  'TCP':   'Transmission Control Protocol: Protocolo de Controle de Transmissão',
+  'UDP':   'User Datagram Protocol: Protocolo de Datagrama de Usuário',
+  'ICMP':  'Internet Control Message Protocol: Protocolo de Mensagens de Controle',
+  'ARP':   'Address Resolution Protocol: Protocolo de Resolução de Endereços (IP→MAC)',
+  'DNS':   'Domain Name System: Sistema de Nomes de Domínio (URL→IP)',
+  'DHCP':  'Dynamic Host Configuration Protocol: Protocolo de Configuração Dinâmica de Host',
+  'DHCPv4':'Dynamic Host Configuration Protocol v4: DHCP para redes IPv4',
+  'DHCPv6':'Dynamic Host Configuration Protocol v6: DHCP para redes IPv6',
+  'HTTP':  'HyperText Transfer Protocol: Protocolo de Transferência de Hipertexto',
+  'HTTPS': 'HTTP Secure: HTTP com camada de criptografia TLS/SSL',
+  'FTP':   'File Transfer Protocol: Protocolo de Transferência de Arquivos',
+  'SSH':   'Secure Shell: Protocolo de acesso remoto seguro (criptografado)',
+  'Telnet':'Telecommunication Network: Acesso remoto sem criptografia (inseguro)',
+  'SNMP':  'Simple Network Management Protocol: Protocolo de Gerenciamento de Rede',
+  'NTP':   'Network Time Protocol: Protocolo de Sincronização de Tempo',
+  'SMTP':  'Simple Mail Transfer Protocol: Protocolo de Envio de E-mail',
+  'PPP':   'Point-to-Point Protocol: Protocolo de Comunicação Ponto a Ponto',
+  'NAT':   'Network Address Translation: Tradução de Endereços de Rede',
+  'ACL':   'Access Control List: Lista de Controle de Acesso',
+  'QoS':   'Quality of Service: Qualidade de Serviço (priorização de tráfego)',
+  'PoE':   'Power over Ethernet: Alimentação elétrica via cabo Ethernet',
+  'RFC':   'Request for Comments: Documento de especificação de padrões da Internet',
+  'OSI':   'Open Systems Interconnection: Modelo de referência de 7 camadas para redes',
+  'PDU':   'Protocol Data Unit: Unidade de Dados de Protocolo (frame/pacote/segmento)',
+  'MTU':   'Maximum Transmission Unit: Tamanho máximo de unidade de transmissão',
+  'TTL':   'Time to Live: Tempo de Vida do pacote (número máximo de saltos)',
+  'DSL':   'Digital Subscriber Line: Linha Digital de Assinante (conexão banda larga)',
+  'ISL':   'Inter-Switch Link: Protocolo de trunk proprietário Cisco (obsoleto)',
+  'MAC':   'Media Access Control: Controle de Acesso ao Meio (endereço físico único da placa de rede)',
+  'NIC':   'Network Interface Card: Placa de Interface de Rede',
+  'CAM':   'Content Addressable Memory: Memória de Acesso por Conteúdo (tabela MAC do switch)',
+  'FCS':   'Frame Check Sequence: Verificação de erros no frame Ethernet',
+  'STP':   'Spanning Tree Protocol: Protocolo Árvore Geradora (elimina loops na camada 2)',
+  'RSTP':  'Rapid Spanning Tree Protocol: STP Rápido (IEEE 802.1w), converge mais rápido que o STP',
+  'PVST':  'Per-VLAN Spanning Tree: Instância STP separada por VLAN (proprietário Cisco)',
+  'MSTP':  'Multiple Spanning Tree Protocol: STP múltiplo, agrupa VLANs em instâncias (IEEE 802.1s)',
+  'MST':   'Multiple Spanning Tree: Implementação Cisco do IEEE 802.1s (múltiplas instâncias STP)',
+  'BPDU':  'Bridge Protocol Data Unit: Mensagem STP trocada entre switches para eleger caminhos',
+  'BID':   'Bridge ID: Identificador da Bridge: prioridade (2 bytes) + endereço MAC (6 bytes)',
+  'VTP':   'VLAN Trunking Protocol: Protocolo Cisco para propagar configurações de VLAN automaticamente',
+  'DTP':   'Dynamic Trunking Protocol: Protocolo Cisco para negociar links trunk automaticamente',
+  'SVI':   'Switch Virtual Interface: Interface virtual do switch para gerenciamento via VLAN',
+  'LACP':  'Link Aggregation Control Protocol: Padrão IEEE 802.3ad para agregação de links (EtherChannel)',
+  'PAgP':  'Port Aggregation Protocol: Protocolo proprietário Cisco para criar EtherChannel',
+  'FIB':   'Forwarding Information Base: Tabela pré-compilada de encaminhamento usada pelo CEF',
+  'CEF':   'Cisco Express Forwarding: Mecanismo de encaminhamento mais rápido dos roteadores Cisco',
+  'FHRP':  'First Hop Redundancy Protocol: Protocolo de Redundância do Primeiro Salto (gateway)',
+  'HSRP':  'Hot Standby Router Protocol: Gateway redundante Cisco: um roteador ativo + um standby',
+  'VRRP':  'Virtual Router Redundancy Protocol: Padrão aberto IEEE de gateway redundante',
+  'GLBP':  'Gateway Load Balancing Protocol: Gateway redundante Cisco COM balanceamento de carga real',
+  'DAI':   'Dynamic ARP Inspection: Inspeção ARP Dinâmica (protege contra ARP spoofing/poisoning)',
+  'AAA':   'Authentication, Authorization, Accounting: Autenticação, Autorização e Contabilidade',
+  'RADIUS':'Remote Authentication Dial-In User Service: Servidor de autenticação centralizada (AAA)',
+  'EAP':   'Extensible Authentication Protocol: Protocolo extensível de autenticação (usado no 802.1X)',
+  'AP':    'Access Point: Ponto de Acesso sem fio (dispositivo WiFi que conecta clientes à rede)',
+  'SSID':  'Service Set Identifier: Nome da rede WiFi transmitido pelo Access Point',
+  'WLC':   'Wireless LAN Controller: Controlador central que gerencia múltiplos APs',
+  'WPA':   'Wi-Fi Protected Access: Protocolo de segurança WiFi v1 (usa TKIP, mais fraco)',
+  'WEP':   'Wired Equivalent Privacy: Protocolo de segurança WiFi obsoleto e facilmente quebrado',
+  'AES':   'Advanced Encryption Standard: Criptografia simétrica forte (128/256 bits), usada no WPA2',
+  'TKIP':  'Temporal Key Integrity Protocol: Criptografia do WPA (mais fraca que AES/CCMP)',
+  'CCMP':  'Counter Mode CBC-MAC Protocol: Modo de criptografia do WPA2 baseado em AES',
+  'PSK':   'Pre-Shared Key: Chave Pré-Compartilhada (senha WiFi no modo Personal/doméstico)',
+  'OSPF':  'Open Shortest Path First: Protocolo de roteamento dinâmico de estado de link (padrão aberto)',
+  'EIGRP': 'Enhanced Interior Gateway Routing Protocol: Protocolo de roteamento híbrido proprietário Cisco',
+  'RIP':   'Routing Information Protocol: Protocolo de roteamento por vetor de distância (simples, legado)',
+  'BGP':   'Border Gateway Protocol: Protocolo de roteamento entre sistemas autônomos (Internet)',
+  'AD':    'Administrative Distance: Distância Administrativa (valor de confiabilidade da fonte de rota)',
+  'SLAAC': 'Stateless Address Autoconfiguration: Autoconfiguração de endereço IPv6 sem servidor DHCP',
+  'RA':    'Router Advertisement: Anúncio do Roteador (mensagem ICMPv6 com prefixo e flags M/O)',
+  'RS':    'Router Solicitation: Solicitação de Roteador (host pede RA ao roteador via ICMPv6)',
+  'NMS':   'Network Management System: Sistema de Gerenciamento de Rede (recebe traps SNMP)',
+  'MIB':   'Management Information Base: Base de dados de variáveis gerenciáveis pelo SNMP',
+  'VTY':   'Virtual Terminal Lines: Linhas virtuais de terminal para acesso remoto SSH/Telnet no IOS',
+  'IEEE':  'Institute of Electrical and Electronics Engineers: Organização que define padrões de rede',
+  'VoIP':  'Voice over IP: Voz sobre IP (telefonia transmitida pela rede de dados)',
+  'DORA':  'Discover, Offer, Request, Acknowledge: As 4 mensagens do processo DHCP',
+  'NAK':   'Negative Acknowledgment: Resposta negativa do DHCP (rejeita renovação de endereço)',
 };
 
 const _acrKeys = Object.keys(ACRONYMS).sort((a, b) => b.length - a.length);
@@ -928,7 +928,7 @@ function getPlan() {
       taken.forEach(i => used.add(qKey(Q[i])));
       const worstTp  = weakTopics[0][0];
       const worstPct = Math.round(weakTopics[0][1].c / weakTopics[0][1].a * 100);
-      partes.push({ motivo: `${taken.length} de ${worstTp} — ${worstPct}% de acerto`, qtd: taken.length, ids: taken });
+      partes.push({ motivo: `${taken.length} de ${worstTp}, ${worstPct}% de acerto`, qtd: taken.length, ids: taken });
     }
   }
 
@@ -1271,7 +1271,7 @@ function finishQuiz() {
 const CERT_MIN = 70;
 
 function certTipo(mod) {
-  if (mod === 0) return { titulo: 'Certificado de Revisão Completa', curso: 'Revisão Completa — todos os módulos', tipo: 'revisao' };
+  if (mod === 0) return { titulo: 'Certificado de Revisão Completa', curso: 'Revisão Completa (todos os módulos)', tipo: 'revisao' };
   const d = MOD_DEFS.find(x => x.mod === mod) || { name: 'SubnetLab' };
   if (mod === 4) return { titulo: 'Certificado de Preparação para Certificação', curso: d.name, tipo: 'prep' };
   return { titulo: 'Certificado de Conclusão de Curso', curso: d.name, tipo: 'curso' };
@@ -1555,7 +1555,7 @@ function mergeCerts(local, cloud) {
 function renderCertListHtml(certs) {
   const mods = Object.keys(certs).map(Number).sort((a, b) => a - b);
   if (!mods.length) {
-    return `<p class="cert-list-empty">Nenhum certificado ainda — conclua uma prova com 70% ou mais.</p>`;
+    return `<p class="cert-list-empty">Nenhum certificado ainda. Conclua uma prova com 70% ou mais.</p>`;
   }
   return mods.map(mod => {
     const c = certs[mod];
@@ -1651,7 +1651,7 @@ function showNotificacoes() {
   closeAllModals();
   const lista = Array.isArray(S.notif) ? S.notif : null;   // null = ainda não carregou / falhou
   const avisoVelho = (lista && S.notifStale)
-    ? `<p style="color:var(--text3);font-size:11px;margin:0 0 10px;display:flex;gap:6px;align-items:center">📵 Sem conexão agora — mostrando o que foi carregado nesta sessão.</p>`
+    ? `<p style="color:var(--text3);font-size:11px;margin:0 0 10px;display:flex;gap:6px;align-items:center">📵 Sem conexão agora. Mostrando o que foi carregado nesta sessão.</p>`
     : '';
   const itens = lista === null
     ? `<p style="color:var(--text2);font-size:13px">Não foi possível carregar as conquistas agora. Verifique a conexão e tente de novo.</p>`
@@ -1744,7 +1744,7 @@ const MOD_DEFS = [
     icon: '🎯',
     name: 'Revisão Completa',
     abbr: 'Todos',
-    desc: 'Revisão geral com todas as questões — ideal para a prova de certificação CCNA 200-301.',
+    desc: 'Revisão geral com todas as questões, ideal para a prova de certificação CCNA 200-301.',
   },
 ];
 
@@ -1981,9 +1981,9 @@ function renderGuide() {
 
   const stepsHtml = [
     { n: '1', title: 'Escolha o módulo',        text: 'SRWE, ENSA, Revisão Completa ou Certificação. O número no card é quantas questões o módulo tem. A barra mostra quanto você já viu.' },
-    { n: '2', title: 'Escolha o modo de estudo', text: 'Livre, Prova, Por Tópico, Revisão de Erros ou Revisão Espaçada — ou o Plano de hoje, que monta a sessão sozinho.' },
+    { n: '2', title: 'Escolha o modo de estudo', text: 'Livre, Prova, Por Tópico, Revisão de Erros ou Revisão Espaçada. Ou o Plano de hoje, que monta a sessão sozinho.' },
     { n: '3', title: 'Estude e acompanhe',       text: 'Cada questão tem explicação da resposta. O XP aparece no ranking, e um código guarda seu progresso para você continuar em outro aparelho.' },
-    { n: '4', title: 'Conquiste o certificado',  text: 'Termine uma Prova com 70% ou mais e o certificado sai na hora. Cada módulo tem o seu, e o app guarda sempre a sua melhor nota — refazer e tirar menos não apaga o certificado que você já ganhou.' },
+    { n: '4', title: 'Conquiste o certificado',  text: 'Termine uma Prova com 70% ou mais e o certificado sai na hora. Cada módulo tem o seu, e o app guarda sempre a sua melhor nota. Refazer e tirar menos não apaga o certificado que você já ganhou.' },
   ].map(s => `<div class="guide-step">
     <div class="guide-step-num">${s.n}</div>
     <div class="guide-step-body"><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>
@@ -2003,13 +2003,13 @@ function renderGuide() {
   </div>`).join('');
 
   const buttonsHtml = [
-    { icon: '🔍',    name: 'Gabarito',          desc: 'Procura qualquer questão do módulo e mostra a resposta certa com a explicação — modo consulta, não conta XP.' },
+    { icon: '🔍',    name: 'Gabarito',          desc: 'Procura qualquer questão do módulo e mostra a resposta certa com a explicação. É modo consulta, não conta XP.' },
     { icon: '📖',    name: 'Glossário',         desc: 'Explica as siglas do CCNA (VLAN, STP, OSPF…).' },
     { icon: '🎯',    name: 'Prontidão',         desc: 'Diz o quanto você está pronto para a prova.' },
     { icon: '📅',    name: 'Data da prova',     desc: 'Marca o dia do exame. Enquanto não marcar, nada aparece; depois, a contagem fica no topo do módulo.' },
     { icon: '📊',    name: 'Stats',             desc: 'Seu desempenho questão por questão.' },
     { icon: '📋',    name: 'Histórico',         desc: 'Todas as sessões que você já fez.' },
-    { icon: '🔔',    name: 'Conquistas',        desc: 'Avisa quando um colega conquista certificado — com nome, curso e nota.' },
+    { icon: '🔔',    name: 'Conquistas',        desc: 'Avisa quando um colega conquista certificado, com nome, curso e nota.' },
     { icon: '🎓',    name: 'Meus certificados', desc: 'No seu perfil: baixar o PNG, compartilhar ou imprimir (dá para salvar em PDF na impressão).' },
     { icon: '🔑',    name: 'Meu código',        desc: 'O código que leva seu progresso para outro aparelho.' },
     { icon: '🏆',    name: 'Ranking',           desc: 'A classificação da turma por XP.' },
@@ -2036,8 +2036,8 @@ function renderGuide() {
   </div>`).join('');
 
   const progHtml = [
-    { icon: '🔑', title: 'Código de acesso', text: 'É o que identifica você — sem senha, sem e-mail. Guarde-o: com ele você recupera tudo em outro celular ou computador.' },
-    { icon: '☁️', title: 'Sincronização',    text: 'Automática quando há internet: o app junta o que você fez em cada aparelho antes de enviar, então nada se perde se estudar em dois. Funciona offline — salva no aparelho e envia quando a conexão volta.' },
+    { icon: '🔑', title: 'Código de acesso', text: 'É o que identifica você, sem senha e sem e-mail. Guarde-o: com ele você recupera tudo em outro celular ou computador.' },
+    { icon: '☁️', title: 'Sincronização',    text: 'Automática quando há internet: o app junta o que você fez em cada aparelho antes de enviar, então nada se perde se estudar em dois. Funciona offline: salva no aparelho e envia quando a conexão volta.' },
     { icon: '🏆', title: 'Ranking',          text: 'Nome, XP e posição. Seu progresso individual nunca é mostrado a ninguém.' },
     { icon: '🗑️', title: 'Apagar da nuvem', text: 'No modal do código você pode apagar os dados do servidor. Os dados deste aparelho ficam.' },
   ].map(p => `<div class="guide-prog-item">
@@ -2076,7 +2076,7 @@ function renderGuide() {
         <div class="guide-plan-icon">🎯</div>
         <div class="guide-plan-body">
           <h3>Plano de hoje</h3>
-          <p>Monta uma sessão de ~25 questões sozinho — mistura seus pontos fracos, revisões vencidas e questões novas. Use quando não souber por onde começar.</p>
+          <p>Monta uma sessão de ~25 questões sozinho: mistura seus pontos fracos, revisões vencidas e questões novas. Use quando não souber por onde começar.</p>
         </div>
       </div>
       <div class="guide-modes">${modesHtml}</div>
@@ -2174,7 +2174,7 @@ function renderRanking() {
   }
 
   const offlineBanner = st.status === 'offline'
-    ? `<div class="rank-offline-banner">📶 Sem conexão — mostrando a última lista vista</div>` : '';
+    ? `<div class="rank-offline-banner">📶 Sem conexão. Mostrando a última lista vista</div>` : '';
 
   const totalAlunos = lista.length;
   const totalXP = lista.reduce((s, r) => s + (r.xp || 0), 0);
@@ -2224,7 +2224,7 @@ function renderRanking() {
     if (mePosicao === 1) {
       msg = '🏆 Você lidera o ranking!';
     } else if (mePosicao === totalAlunos && totalAlunos >= 2 && totalAlunos < 50) {
-      msg = '📍 Você está em último — bora subir?';
+      msg = '📍 Você está em último. Bora subir?';
     } else {
       msg = `📍 Você está em ${mePosicao}º de ${totalAlunos} aluno${totalAlunos !== 1 ? 's' : ''}`;
     }
@@ -2331,7 +2331,7 @@ function renderLogin() {
   return `<div class="login-wrap">
     <div class="login-logo">🌐</div>
     <h1 class="login-h">SubnetLab</h1>
-    <p class="login-sub">Simulador CCNA v7 — Cisco Networking Academy<br>Digite seu nome para começar</p>
+    <p class="login-sub">Simulador CCNA v7 · Cisco Networking Academy<br>Digite seu nome para começar</p>
     <div class="login-form">
       <input class="login-input" id="nameInput" type="text"
         placeholder="Seu nome" autocomplete="name" maxlength="40"
@@ -2398,7 +2398,7 @@ function bindLogin() {
 async function vincularCodigo(codigoDigitado) {
   const normalizado = normalizarCodigo(codigoDigitado);
   if (normalizado.length !== 16) {
-    showAlert('Código inválido — deve ter 16 caracteres.');
+    showAlert('Código inválido: ele precisa ter 16 caracteres.');
     return;
   }
   if (normalizado === normalizarCodigo(getCode())) {
@@ -2420,7 +2420,7 @@ async function vincularCodigo(codigoDigitado) {
     // progresso do outro aparelho ainda não subiu — a mensagem diz as duas coisas.
     showAlert('Não encontramos esse código na nuvem agora.\n\n'
       + 'Confira se digitou as 16 letras/números certos. Se o código é novo, o outro aparelho precisa estar online '
-      + 'e sincronizado — aguarde alguns segundos e toque em Vincular de novo.');
+      + 'e sincronizado. Aguarde alguns segundos e toque em Vincular de novo.');
     return;
   }
 
@@ -2730,7 +2730,7 @@ function renderStart() {
     ${evoHtml}
 
     ${S.startMode === 'topic' ? '' : `
-    <p class="sec-hdr" style="margin-top:4px">Tópicos — ${S.selectedMod ? (MOD_DEFS.find(d => d.mod === S.selectedMod) || {}).abbr || 'Módulo' : 'Revisão Completa'}</p>
+    <p class="sec-hdr" style="margin-top:4px">Tópicos: ${S.selectedMod ? (MOD_DEFS.find(d => d.mod === S.selectedMod) || {}).abbr || 'Módulo' : 'Revisão Completa'}</p>
     <div class="tgrid">
       ${topics.map(t => `<div class="tpill">
         <span class="tdot" style="background:${topicColor(t)}"></span>
@@ -2745,7 +2745,7 @@ function renderStart() {
 
     <div class="start-cta">
       <button class="btn pri" id="startBtn" style="width:100%;font-size:16px;padding:15px;border-radius:var(--radius)">
-        ▶ Iniciar${S.startMode === 'timed' ? ' Prova' : S.startMode === 'topic' && S.selectedTopic ? ' — ' + S.selectedTopic : ''}
+        ▶ Iniciar${S.startMode === 'timed' ? ' Prova' : S.startMode === 'topic' && S.selectedTopic ? ': ' + S.selectedTopic : ''}
       </button>
     </div>
   </div>`;
@@ -2962,7 +2962,7 @@ function renderMatchOpts(q) {
     return `<div class="match-row">
       <div class="match-left">${wrapAcronyms(esc(p.l))}</div>
       <select class="match-select" data-pi="${pi}" aria-label="Correspondência para: ${esc(p.l)}">
-        <option value="">— selecione —</option>
+        <option value="">(selecione)</option>
         ${S.shuffledMatchOpts.map((r, oi) => `<option value="${oi}" ${selVal === oi ? 'selected' : ''}>${esc(r)}</option>`).join('')}
       </select>
     </div>`;
@@ -3286,11 +3286,11 @@ function shareCert(mod, pct, acertos, total, dataStr) {
       navigator.share({ files: [file], title: 'Meu certificado SubnetLab' }).catch(err => {
         if (err && err.name === 'AbortError') return;          // usuário cancelou: silêncio é correto
         downloadCertFrom(mod, pct, acertos, total, dataStr);   // sem alvo de compartilhamento: baixa o PNG
-        showAlert('Não foi possível compartilhar direto neste aparelho — baixamos o PNG para você.');
+        showAlert('Não foi possível compartilhar direto neste aparelho. Baixamos o PNG para você.');
       });
     } else {
       downloadCertFrom(mod, pct, acertos, total, dataStr);
-      showAlert('Compartilhamento não disponível — baixamos o PNG para você.');
+      showAlert('Compartilhamento não disponível. Baixamos o PNG para você.');
     }
   }, 'image/png');
 }
@@ -3302,7 +3302,7 @@ function printCert(mod, pct, acertos, total, dataStr) {
   const dataUrl = cv.toDataURL('image/png');
   const win     = window.open('', '_blank');
   if (!win) {
-    showAlert('Popup bloqueado — permita popups para imprimir o certificado.');
+    showAlert('Popup bloqueado. Permita popups para imprimir o certificado.');
     return;
   }
   win.document.write(`<!DOCTYPE html><html><head><title>Certificado SubnetLab</title><style>
@@ -3449,7 +3449,7 @@ function renderHistory() {
           <div class="hist-pct" style="color:${gc}">${h.pct}%</div>
           <div class="hist-info">
             <div class="hist-date">${esc(h.date)} · ${esc(h.mode || '📚')}</div>
-            <div class="hist-detail">✓ ${h.correct} &nbsp;✗ ${h.wrong} &nbsp;· ${esc(h.level || '—')}</div>
+            <div class="hist-detail">✓ ${h.correct} &nbsp;✗ ${h.wrong} &nbsp;· ${esc(h.level || '·')}</div>
           </div>
           <span class="hist-tag" style="background:${bgc};color:${gc};border-color:${bc}">
             ${h.passed ? 'Aprovado' : 'Reprovado'}
@@ -3558,7 +3558,7 @@ function renderSearch() {
           ${S.searchQuery ? `<button id="clearSearch" style="position:absolute;right:0;top:0;bottom:0;width:44px;min-width:44px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--text2);display:flex;align-items:center;justify-content:center" aria-label="Limpar busca">✕</button>` : ''}
         </div>
         ${navHtml}
-        <div class="gabarito-badge">Somente consulta — não conta XP nem estatística</div>
+        <div class="gabarito-badge">Somente consulta: não conta XP nem estatística</div>
         <div class="qcard">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
             <span class="qtag" style="background:${tagColor}22;color:var(--text);border:.5px solid ${tagColor}66;border-left:3px solid ${tagColor}">${esc(gq.tp)}</span>
@@ -3847,7 +3847,7 @@ function showCodigoModal(allowSetSeen) {
       <div style="font-size:22px;font-weight:700;letter-spacing:2px;padding:12px 8px;background:var(--bg2);border-radius:8px;font-family:monospace;color:var(--blue-text)">${esc(codigo)}</div>
     </div>
     <div class="cmodal-msg" style="margin-bottom:16px;font-size:13px">
-      Guarde este código. É com ele que você recupera todo o seu progresso em outro celular ou computador — sem senha, sem e-mail, sem cadastro.<br><br>
+      Guarde este código. É com ele que você recupera todo o seu progresso em outro celular ou computador, sem senha, sem e-mail e sem cadastro.<br><br>
       <strong>Se perder o código, não conseguimos recuperar seu histórico.</strong>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:8px">
@@ -3889,14 +3889,14 @@ function showCodigoModal(allowSetSeen) {
       } else {
         copyFallback(codigo, btn);
       }
-      showAlert('Compartilhamento não disponível — código copiado.');
+      showAlert('Compartilhamento não disponível. Código copiado.');
     }
   };
 
   el.querySelector('#code-save').onclick = () => {
     const content = [
       codigo,
-      'Código de acesso SubnetLab — use para recuperar seu progresso em outro aparelho.',
+      'Código de acesso SubnetLab: use para recuperar seu progresso em outro aparelho.',
       `Criado em: ${dataStr}`,
       shareUrl,
     ].join('\n');
@@ -3947,7 +3947,7 @@ function showProfileModal() {
 
       <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin:10px 0 2px">Backup do progresso</div>
       <p style="font-size:11.5px;line-height:1.5;color:var(--text3);margin:0 0 4px">
-        O progresso já sobe sozinho pela nuvem. O arquivo serve para guardar uma cópia sua —
+        O progresso já sobe sozinho pela nuvem. O arquivo serve para guardar uma cópia sua.
         útil se perder o código ou quiser levar sem internet.
       </p>
       <div style="display:flex;gap:8px">
@@ -4074,9 +4074,9 @@ function showGlossary() {
   }
   closeAllModals();
   const items = Object.entries(ACRONYMS).sort((a, b) => a[0].localeCompare(b[0])).map(([acr, def]) => {
-    const dash = def.indexOf(' — ');
+    const dash = def.indexOf(': ');
     const full = dash > -1 ? def.slice(0, dash) : def;
-    const expl = dash > -1 ? def.slice(dash + 3) : '';
+    const expl = dash > -1 ? def.slice(dash + 2) : '';
     return { acr, full, expl };
   });
   const letters = [...new Set(items.map(x => x.acr[0].toUpperCase()))].sort();
@@ -4201,7 +4201,7 @@ function showReadiness() {
   const weak      = topicList.filter(x => x.pct < 60).sort((a, b) => a.pct - b.pct);
 
   const rColor = overall >= 80 ? '#5EE0A8' : overall >= 65 ? '#F5C842' : '#E05555';
-  const rMsg   = overall >= 80 ? 'Excelente preparação! 🚀' : overall >= 65 ? 'Bom progresso — foque nas lacunas! 💪' : 'Continue praticando — você consegue! 🎯';
+  const rMsg   = overall >= 80 ? 'Excelente preparação! 🚀' : overall >= 65 ? 'Bom progresso. Foque nas lacunas! 💪' : 'Continue praticando. Você consegue! 🎯';
 
   function tpRows(list) {
     return list.map(x => {
@@ -4235,7 +4235,7 @@ function showReadiness() {
         const label = i === 0 ? 'Hoje' : i === 1 ? 'Amanhã' : `Dia +${i}`;
         return `<div class="ready-plan-row">
           <span class="ready-day-badge">${label}</span>
-          <div><div class="ready-plan-topic">${esc(topic.tp)} — ${topic.pct}%</div>
+          <div><div class="ready-plan-topic">${esc(topic.tp)}: ${topic.pct}%</div>
           <div class="ready-plan-action">${actions[i % actions.length]}</div></div>
         </div>`;
       }).join('');
@@ -4452,7 +4452,11 @@ document.addEventListener('DOMContentLoaded', () => {
       max-width:min(300px,90vw);line-height:1.6;z-index:99999;
       box-shadow:0 4px 20px rgba(0,0,0,.5);text-align:center;
     `;
-    el.innerHTML = `<strong style="color:#7AB8F5">${esc(acr.textContent)}</strong><br>${esc(def).replace(' — ', '<br>')}`;
+    const corte = def.indexOf(': ');
+    const corpo = corte > -1
+      ? esc(def.slice(0, corte)) + '<br>' + esc(def.slice(corte + 2))
+      : esc(def);
+    el.innerHTML = `<strong style="color:#7AB8F5">${esc(acr.textContent)}</strong><br>${corpo}`;
     mountModal(el);
     setTimeout(() => el.remove(), 4000);
   });

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SubnetLab — Biblioteca (protótipo para avaliação)</title>
+<title>SubnetLab: Biblioteca (protótipo para avaliação)</title>
 <meta name="theme-color" content="#0F1117">
 <style>
   :root{
@@ -162,18 +162,18 @@ const CARDS = [
   {
     id: 'vlans-trunk', topico: 'VLANs', cor: '#1D9E75', min: 2,
     titulo: 'Trunk: levar várias VLANs por um cabo',
-    gancho: 'Sem trunk, cada VLAN precisaria de um cabo até o roteador — um prédio com 12 setores viraria 12 cabos.',
-    ideia: 'Um link trunk carrega quadros de várias VLANs ao mesmo tempo e marca cada um com a VLAN de origem. A marcação é o <b>tag 802.1Q</b>, inserido dentro do quadro. Porta de acesso não marca nada: ela já pertence a uma VLAN só. Quem decide se a porta é acesso ou trunk é a configuração, não o cabo.',
+    gancho: 'Sem trunk, cada VLAN precisaria do seu próprio cabo até o roteador. Um prédio com 12 setores teria 12 cabos.',
+    ideia: 'Um link trunk carrega quadros de várias VLANs ao mesmo tempo e marca cada um com a VLAN de origem. A marcação é o <b>tag 802.1Q</b>, inserido dentro do quadro. Porta de acesso não marca nada: ela já pertence a uma VLAN só. O cabo é o mesmo; o que muda é a configuração da porta.',
     analogia: 'Porta de acesso é carta entregue na mão, um destino só. Trunk é o caminhão da transportadora: várias caixas de destinos diferentes no mesmo veículo, cada uma com etiqueta.',
     prova: [
-      '<b>Native VLAN viaja sem tag.</b> Se os dois lados discordam dela, o tráfego cai na VLAN errada e aparece <i>native VLAN mismatch</i> — pegadinha clássica.',
+      '<b>Native VLAN viaja sem tag.</b> Se os dois lados discordam dela, o tráfego cai na VLAN errada e aparece <i>native VLAN mismatch</i>. É a pegadinha clássica.',
       'Trunk não cria VLAN: a VLAN precisa existir nos dois switches.',
       'Por padrão o trunk permite todas as VLANs; restringir é <b>allowed vlan</b>.'
     ],
     term: {
       capa: 'Repare no prompt: `switchport` só é aceito depois de entrar na interface (Switch(config-if)#).',
       linhas: [
-        { p: 'Switch#',            c: 'configure terminal',                     n: 'entra no modo de configuração — o prompt vira Switch(config)#' },
+        { p: 'Switch#',            c: 'configure terminal',                     n: 'entra no modo de configuração: o prompt vira Switch(config)#' },
         { p: 'Switch(config)#',    c: 'interface Gi0/1',                        n: 'escolhe a porta que liga este switch ao outro' },
         { p: 'Switch(config-if)#', c: 'switchport mode trunk',                  n: 'a porta passa a levar várias VLANs no mesmo link' },
         { p: 'Switch(config-if)#', c: 'switchport trunk native vlan 99',        n: 'a VLAN 99 será a única que viaja sem etiqueta' },
@@ -193,27 +193,27 @@ const CARDS = [
       ]
     },
     quiz: [
-      { q: 'Por que a native VLAN viaja sem tag — e o que quebra se os dois lados discordarem?',
-        a: 'Ela é a VLAN "de casa" do link: o padrão histórico é não marcar. Se os números divergem, o quadro sem tag é lido como outra VLAN — o tráfego vaza para o lugar errado e o switch avisa <i>native VLAN mismatch</i>.' },
+      { q: 'Por que a native VLAN viaja sem tag, e o que quebra se os dois lados discordarem?',
+        a: 'Ela é a VLAN "de casa" do link: o padrão histórico é não marcar. Se os números divergem, o quadro sem tag é lido como outra VLAN. O tráfego vaza para o lugar errado e o switch avisa <i>native VLAN mismatch</i>.' },
       { q: 'O que muda no quadro ao atravessar um trunk, e onde exatamente esse campo entra?',
         a: 'O quadro ganha o tag de 4 bytes do 802.1Q, inserido logo depois do MAC de origem: o campo EtherType passa a 0x8100 e o EtherType original vem depois do tag. O quadro cresce de 1518 para 1522 bytes e o FCS é recalculado.' },
       { q: 'O trunk está de pé, mas a VLAN 30 não passa. Duas causas possíveis?',
-        a: '1) a VLAN 30 não existe no switch (banco de VLANs / VTP); 2) a lista permitida do trunk não inclui a 30 — ou inclui em um lado só. Vale conferir também poda (pruning) e se a porta do outro lado está em access.' }
+        a: '1) a VLAN 30 não existe no switch (banco de VLANs / VTP); 2) a lista permitida do trunk não inclui a 30, ou inclui em um lado só. Vale conferir também poda (pruning) e se a porta do outro lado está em access.' }
     ]
   },
   {
     id: 'ospf-adjacencia', topico: 'OSPF', cor: '#2555B6', min: 3,
     titulo: 'Por que dois roteadores não viram vizinhos',
-    gancho: 'A maioria dos problemas de OSPF não é rota errada — é vizinhança que nunca subiu.',
-    ideia: 'Dois roteadores só formam adjacência se concordarem em quase tudo: mesma <b>área</b>, mesma <b>sub-rede e máscara</b>, mesmos <b>timers</b> (hello 10 s / dead 40 s em Ethernet), mesma <b>autenticação</b> e mesma <b>MTU</b>. Divergiu um item, a sessão fica presa — e o estado travado entrega o motivo. Em rede broadcast ainda existem <b>DR e BDR</b>, eleitos pela maior prioridade e, no empate, pelo maior Router ID. Não há reeleição: um DR novo só aparece se o atual cair.',
-    analogia: 'É uma reunião que só começa com todo mundo de acordo sobre horário, idioma e pauta. Se um chega falando outra língua, a reunião não começa — e ninguém entra na sala.',
+    gancho: 'Na maioria dos casos a rota está certa. O problema é a vizinhança que nunca subiu.',
+    ideia: 'Dois roteadores só formam adjacência se concordarem em quase tudo: mesma <b>área</b>, mesma <b>sub-rede e máscara</b>, mesmos <b>timers</b> (hello 10 s / dead 40 s em Ethernet), mesma <b>autenticação</b> e mesma <b>MTU</b>. Divergiu um item, a sessão fica presa. O estado travado entrega o motivo. Em rede broadcast ainda existem <b>DR e BDR</b>, eleitos pela maior prioridade e, no empate, pelo maior Router ID. Não há reeleição: um DR novo só aparece se o atual cair.',
+    analogia: 'É uma reunião que só começa com todo mundo de acordo sobre horário, idioma e pauta. Se um chega falando outra língua, a reunião não começa e ninguém entra na sala.',
     prova: [
-      'Dois roteadores que não são DR nem BDR ficam em <b>2WAY</b> — e isso é normal, não é falha.',
+      'Dois roteadores que não são DR nem BDR ficam em <b>2WAY</b>. Isso é normal, não é falha.',
       'Preso em <b>EXSTART/EXCHANGE</b>? Quase sempre <b>MTU diferente</b> entre as interfaces.',
       'Hello de um lado 10 s e do outro 30 s: nunca sai do INIT/DOWN.'
     ],
     term: {
-      capa: 'São comandos de leitura: não mudam configuração nenhuma — só mostram o que o protocolo está fazendo.',
+      capa: 'São comandos de leitura: não mudam configuração nenhuma, só mostram o que o protocolo está fazendo.',
       linhas: [
         { p: 'R1#', c: 'show ip ospf neighbor',        n: 'lista os vizinhos e o estado de cada um: FULL, 2WAY, EXSTART…' },
         { p: 'R1#', c: 'show ip ospf interface Gi0/1', n: 'mostra área, hello/dead, tipo de rede e MTU daquela interface' },
@@ -222,7 +222,7 @@ const CARDS = [
     },
     desafio: {
       meta: 'A adjacência com o vizinho não sobe. Digite os <b>dois comandos de leitura</b>: um mostra o estado dos vizinhos, o outro os parâmetros da interface <b>Gi0/1</b> (hello/dead e MTU).',
-      dica: 'Nenhum dos dois altera nada — são `show`. Um olha os vizinhos, o outro olha a interface. Abreviações aceitas: `sh ip os ne` e `sh ip os int gi0/1`.',
+      dica: 'Nenhum dos dois altera nada: são `show`. Um olha os vizinhos, o outro olha a interface. Abreviações aceitas: `sh ip os ne` e `sh ip os int gi0/1`.',
       resposta: 'show ip ospf neighbor\nshow ip ospf interface Gi0/1',
       exige: [
         { id: 'viz',  txt: 'mostrar os vizinhos (show ip ospf neighbor)', re: /^sh(ow)?\s+ip\s+os(pf)?\s+ne(i(ghbors?)?)?$/i },
@@ -231,9 +231,9 @@ const CARDS = [
     },
     quiz: [
       { q: 'Liste quatro coisas que precisam bater para a adjacência subir.',
-        a: 'Área, sub-rede/máscara da interface, timers (hello/dead) e autenticação. A quinta, que muita gente esquece: MTU — diferente, a sessão para em EXSTART.' },
+        a: 'Área, sub-rede/máscara da interface, timers (hello/dead) e autenticação. A quinta, que muita gente esquece: MTU. Se for diferente, a sessão para em EXSTART.' },
       { q: 'A sessão está em EXSTART há minutos. Qual é a primeira suspeita?',
-        a: 'MTU diferente entre as duas interfaces. O roteador com MTU menor descarta o DBD maior e a troca nunca avança — confirme com "show ip ospf interface" e "show interface".' },
+        a: 'MTU diferente entre as duas interfaces. O roteador com MTU menor descarta o DBD maior e a troca nunca avança. Confirme com "show ip ospf interface" e "show interface".' },
       { q: 'Por que dois roteadores que não são DR nem BDR não passam de 2WAY?',
         a: 'Em rede broadcast só DR e BDR formam adjacência plena com todo mundo. Dois DROTHERs só trocam hellos: é o estado 2WAY, que significa "nos vimos", não "somos vizinhos".' }
     ]
@@ -241,19 +241,19 @@ const CARDS = [
   {
     id: 'auto-api-json', topico: 'Automação', cor: '#6E4DD3', min: 3,
     titulo: 'O que JSON e API têm a ver com cabo e switch',
-    gancho: 'Configurar 50 switches à mão é 50 chances de errar a mesma linha — automação existe para isso.',
+    gancho: 'Configurar 50 switches à mão é criar 50 chances de errar a mesma linha. Automação existe para isso.',
     ideia: 'Em vez de digitar comando em cada equipamento, um <b>controlador</b> conversa com todos eles. A conversa tem duas direções: <b>northbound</b> é a API que o seu programa usa para pedir ("aplicar esta política"), <b>southbound</b> é como o controlador fala com o equipamento (CLI, SNMP, NETCONF). Os dados viajam em <b>JSON</b> (chaves aninhadas) ou <b>YAML</b> (indentação, mais legível). API <b>REST</b> usa os verbos HTTP: GET lê, POST cria, PUT/PATCH atualiza, DELETE remove.',
     analogia: 'O controlador é o gerente que recebe o pedido em português (northbound) e distribui a tarefa para cada funcionário no idioma que ele entende (southbound). Você fala uma vez; ele repete 50 vezes sem errar.',
     prova: [
       '<b>Northbound = aplicações; southbound = dispositivos.</b> Trocar os dois é o erro mais comum.',
       '<b>Ansible é sem agente</b> (SSH + playbook YAML); <b>Puppet e Chef usam agente</b>.',
-      'JSON exige chaves e aspas; YAML vive de <b>indentação</b> — um espaço errado quebra o arquivo.'
+      'JSON exige chaves e aspas; YAML depende de <b>indentação</b>: um espaço errado quebra o arquivo.'
     ],
     term: {
       capa: 'O mesmo pedido em JSON (o que a API recebe) e em YAML (o que o humano lê melhor).',
       linhas: [
         { p: 'JSON', c: '{ "interface": "Gi0/1",',    n: 'chave e valor entre aspas, separados por dois-pontos' },
-        { p: '',     c: '  "description": "UPLINK",', n: 'vírgula entre os campos — o último não tem' },
+        { p: '',     c: '  "description": "UPLINK",', n: 'vírgula entre os campos, e nenhuma depois do último' },
         { p: '',     c: '  "enabled": true }',        n: 'verdadeiro/falso vai sem aspas' },
         { p: 'YAML', c: 'interface: Gi0/1',           n: 'a mesma informação, sem chaves e sem aspas' },
         { p: '',     c: 'description: UPLINK',        n: 'dois espaços de indentação marcam o aninhamento' },
@@ -276,7 +276,7 @@ const CARDS = [
       { q: 'Qual API o seu script chama, e qual o controlador usa para falar com o switch?',
         a: 'O script chama a API northbound (REST, normalmente JSON). O controlador fala com o equipamento pela southbound (NETCONF, SNMP ou CLI).' },
       { q: 'Qual verbo HTTP você usaria para corrigir um campo já existente?',
-        a: 'PATCH, quando quer mudar só aquele campo. PUT troca o recurso inteiro — funciona, mas exige mandar tudo de novo. GET lê, POST cria, DELETE remove.' },
+        a: 'PATCH, quando quer mudar só aquele campo. PUT troca o recurso inteiro e exige mandar tudo de novo. GET lê, POST cria, DELETE remove.' },
       { q: 'Por que "Ansible precisa instalar agente no switch" é falso?',
         a: 'Ansible é agente-less: conecta por SSH (ou WinRM) e executa módulos temporários. Puppet e Chef é que rodam agente no equipamento.' }
     ]
@@ -307,7 +307,7 @@ function renderLib() {
 
   view.innerHTML = `
     <p class="lead">Protótipo para avaliação: <b>3 cartões</b> escritos a partir do currículo CCNA.
-       Leia como aluno — do gancho até as perguntas, passando pelo terminal — e responda a avaliação no fim.</p>
+       Leia como aluno, do gancho até as perguntas, passando pelo terminal, e responda a avaliação no fim.</p>
 
     <div class="reco">
       <div class="kicker">◆ Seu estudo de hoje</div>
@@ -345,7 +345,7 @@ function renderLib() {
         <span class="ring" style="background:var(--bg3);color:var(--text3);border:2px solid var(--border2)">→</span>
       </button>
     </div>
-    <p class="note">Protótipo — o conteúdo dos cartões não substitui o curso, e ler aqui não dá XP.</p>`;
+    <p class="note">Protótipo: o conteúdo dos cartões não substitui o curso, e ler aqui não dá XP.</p>`;
 
   view.querySelectorAll('.tcard[data-i]').forEach(b =>
     b.addEventListener('click', () => abrirCard(Number(b.dataset.i))));
@@ -405,7 +405,7 @@ function conferirDesafio(c, cobrar) {
       const v = obj[r.chave];
       const ok = r.booleano ? v === true
         : (typeof v === 'string' && v.trim().toLowerCase() === String(r.valor).toLowerCase());
-      itens.push([ok, ok ? r.txt : `${r.txt} — no seu JSON está ${JSON.stringify(v) ?? 'ausente'}`]);
+      itens.push([ok, ok ? r.txt : `${r.txt}: no seu JSON está ${JSON.stringify(v) ?? 'ausente'}`]);
     });
   } else {
     const linhas = normalizarComandos(entrada);
@@ -420,14 +420,14 @@ function conferirDesafio(c, cobrar) {
         const base = c.desafio.exige.find(x => x.id === r.dentro);
         const iBase = linhas.findIndex(l => base.re.test(l));
         if (iBase < 0 || idx <= iBase) {
-          itens.push([false, `${r.txt} — precisa estar dentro da interface (prompt Switch(config-if)#)`]);
+          itens.push([false, `${r.txt}: precisa estar dentro da interface (prompt Switch(config-if)#)`]);
           usados.add(idx); return;
         }
       }
       if (r.extra === 'vlans') {
         const nums = (linhas[idx].match(/\d+/g) || []).map(Number).sort((a, b) => a - b);
         if (nums.join(',') !== '10,20,99') {
-          itens.push([false, `${r.txt} — você listou ${nums.join(',') || 'nenhuma'}`]);
+          itens.push([false, `${r.txt}: você listou ${nums.join(',') || 'nenhuma'}`]);
           usados.add(idx); return;
         }
       }
@@ -442,7 +442,7 @@ function conferirDesafio(c, cobrar) {
     `<div class="fb-item"><span class="${ok ? 'fb-ok' : 'fb-no'}">${ok ? '✓' : '✗'}</span><span>${txt}</span></div>`
   ).join('')
   + (erros === 0 && cobrar
-      ? '<div class="fb-item fb-ok"><span>✓</span><span>Está certo — é o que o equipamento espera.</span></div>'
+      ? '<div class="fb-item fb-ok"><span>✓</span><span>Está certo: é o que o equipamento espera.</span></div>'
       : '')
   + (!cobrar ? '<div class="fb-item"><span style="color:var(--text3)">i</span><span style="color:var(--text3)">Resposta esperada preenchida para você.</span></div>' : '');
 }
@@ -464,7 +464,7 @@ function renderCard() {
     <div class="blk"><div class="lbl">Onde a prova cobra</div>
       <ul class="bullets">${c.prova.map(p => `<li>${p}</li>`).join('')}</ul>
     </div>
-    <div class="blk"><div class="lbl">No equipamento — e o que cada linha faz</div>
+    <div class="blk"><div class="lbl">No equipamento, e o que cada linha faz</div>
       ${termHTML(c.term)}
     </div>
 
@@ -496,7 +496,7 @@ function renderCard() {
       <button class="ghost" id="voltar">← Biblioteca</button>
       <button class="solid" id="proximo">${atual + 1 < CARDS.length ? 'Li este cartão ✓ · próximo' : 'Li este cartão ✓ · avaliar'}</button>
     </div>
-    <p class="note">Ler não dá XP — leitura não é desempenho. O selo de Biblioteca é separado do ranking.</p>`;
+    <p class="note">Ler não dá XP. Leitura não é desempenho, e o selo de Biblioteca fica separado do ranking.</p>`;
 
   view.querySelectorAll('.reveal').forEach(b => b.addEventListener('click', () => {
     const alvo = $('#a' + b.dataset.k);
@@ -588,7 +588,7 @@ function renderAval() {
     }
 
     const linhas = PERGUNTAS.map(p => `• ${p.t}\n  → ${respostas[p.id]}`).join('\n');
-    const txt = `Avaliação — Biblioteca SubnetLab (protótipo)\n`
+    const txt = `Avaliação da Biblioteca SubnetLab (protótipo)\n`
       + `Cartões lidos: ${lidos().length}/${CARDS.length}\n\n${linhas}`
       + (obs ? `\n\nComentário: ${obs}` : '');
 
@@ -602,7 +602,7 @@ function renderAval() {
 
     const aviso = $('#aviso');
     $('#copiar').addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(txt); aviso.textContent = 'Resumo copiado — cole no chat do Caique.'; }
+      try { await navigator.clipboard.writeText(txt); aviso.textContent = 'Resumo copiado. Cole no chat do Caique.'; }
       catch { aviso.textContent = 'Não deu para copiar automaticamente: selecione o texto acima.'; }
     });
     $('#zap').addEventListener('click', () => {

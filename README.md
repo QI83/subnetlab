@@ -8,13 +8,13 @@
 Simulador de estudos para o **CCNA** (Cisco Certified Network Associate).
 
 Projeto pensado e iniciado na turma de CCNA do **professor David de Oliveira**, do
-**SENAI Vila Mariana — SP**, como homenagem ao professor e aos alunos de 2026.
+**SENAI Vila Mariana, SP**, como homenagem ao professor e aos alunos de 2026.
 
 Treine para as provas do curso e para a certificação com questões em **português**, explicação da resposta e progresso salvo no seu aparelho.
 
 ## Como usar
 
-**Online:** abra **https://qi83.github.io/subnetlab/** no navegador — no PC ou no celular.
+**Online:** abra **https://qi83.github.io/subnetlab/** no navegador, no PC ou no celular.
 
 **Offline / no celular:** baixe o projeto, abra `index.html` no navegador e use o botão *Instalar* (PWA). Funciona sem internet depois da primeira abertura.
 
@@ -23,11 +23,11 @@ Treine para as provas do curso e para a certificação com questões em **portug
 ## O que tem
 
 - **Quiz** com 3 tipos de questão: múltipla escolha, escolha múltipla e associação.
-- **Explicação da resposta correta** em toda questão — o objetivo é aprender, não só acertar.
+- **Explicação da resposta correta** em toda questão. O objetivo é aprender, não só acertar.
 - **Modos**: estudo livre, prova cronometrada (sem feedback até o fim), por tópico, por módulo, revisão de erros e **revisão espaçada de verdade** (algoritmo SM-2).
 - **Certificados por módulo**: terminar uma **Prova** com 70% ou mais emite certificado com rank
   (Mestre CCNA, Expert em Redes, CCNA Aprovado, Técnico de Redes). Módulos 1–3 emitem *Conclusão de Curso*;
-  a Revisão Completa e a Preparação para Certificação têm os seus. O app guarda **sempre a melhor nota** —
+  a Revisão Completa e a Preparação para Certificação têm os seus. O app guarda **sempre a melhor nota**:
   refazer e tirar menos não apaga o certificado conquistado. Em *Meu perfil* dá para baixar em PNG,
   compartilhar ou imprimir (salvar em PDF pela impressão).
 - **Gamificação**: XP, níveis, medalhas, streak e sequência de acertos.
@@ -49,15 +49,15 @@ quantas questões estão vencidas hoje.
 
 | Módulo | Curso | Status |
 |---|---|---|
-| 1 | ITN — Introduction to Networks | 🚧 em breve |
-| 2 | SRWE — Switching, Routing and Wireless Essentials | ✅ 60 questões |
-| 3 | ENSA — Enterprise Networking, Security, and Automation | ✅ 55 questões (exame final) |
+| 1 | ITN (Introduction to Networks) | 🚧 em breve |
+| 2 | SRWE (Switching, Routing and Wireless Essentials) | ✅ 60 questões |
+| 3 | ENSA (Enterprise Networking, Security, and Automation) | ✅ 55 questões (exame final) |
 | 4 | **Preparação para a Certificação** | ✅ **90 questões (Exame 200-301)** |
 
-### Módulo 4 — Preparação para a Certificação
+### Módulo 4: preparação para a certificação
 
 O número do módulo é o **exame de certificação (90 questões)**. As questões de ENSA e SRWE não se
-repetem aqui — elas já são os Módulos 3 e 2.
+repetem aqui: elas já são os Módulos 3 e 2.
 
 | Seção da tela de módulos | Conteúdo |
 |---|---|
@@ -90,16 +90,16 @@ BRIEF.md            especificação técnica do projeto
 ## Nuvem (Supabase)
 
 O app sincroniza por um **código de acesso** (sem senha, sem e-mail): é o identificador do aluno e a credencial.
-Não há login — quem tem o código acessa o progresso, então ele deve ser tratado como segredo.
+Não há login. Quem tem o código acessa o progresso, então ele deve ser tratado como segredo.
 
 ### Regras de produto
 
 - **Melhor nota não regride**: o certificado só é gravado se a nova nota for maior que a guardada (validado no
   banco, em `cert_put`). Nota menor não sobrescreve, nem local nem na nuvem, e não gera notificação.
-- **Conquista só é anunciada quando melhora de fato** na nuvem — evita aviso duplicado ao refazer a prova.
+- **Conquista só é anunciada quando melhora de fato** na nuvem, o que evita aviso duplicado ao refazer a prova.
 - **Sincronização é merge, não substituição**: todo envio (`sbPush`) primeiro puxa o estado da nuvem e junta
   (qStats fica com o registro de mais tentativas, histórico é união sem duplicar, XP é o maior dos dois).
-  Sem isso, dois aparelhos se sobrescrevem — esse bug existiu e foi corrigido.
+  Sem isso, dois aparelhos se sobrescrevem. Esse bug existiu e foi corrigido.
 - **Nunca sincroniza durante o quiz** (evita re-render no meio da questão).
 
 ### Tabelas
@@ -126,7 +126,7 @@ Não há login — quem tem o código acessa o progresso, então ele deve ser tr
 
 1. Crie o projeto no Supabase.
 2. Rode `sql/certificados.sql` inteiro no SQL Editor (é idempotente).
-3. Garanta o RLS da tabela `alunos` com **privilégio por coluna**: `grant select (nome, xp) to anon` —
+3. Garanta o RLS da tabela `alunos` com **privilégio por coluna**: `grant select (nome, xp) to anon`,
    sem isso a view `ranking` (com `security_invoker = true`) fica vazia, e com grant amplo a chave pública
    leria `dados` (onde está o código de acesso).
 4. Ajuste `SB_URL` e `SB_KEY` no topo do `js/app.js`.
@@ -162,7 +162,7 @@ Depois inclua o `<script defer src="data/moduloN.js">` no `index.html`. O app de
 
 ### 📌 Regra obrigatória: figuras originais
 
-**Toda figura de questão deve ser a imagem original da fonte oficial — nunca uma recriação ou desenho "representativo".**
+**Toda figura de questão deve ser a imagem original da fonte oficial, nunca uma recriação ou desenho "representativo".**
 
 Figuras redesenhadas mudam detalhes (nomes de interface, IPs, rótulos, topologia) e o aluno acaba treinando num cenário diferente do da prova.
 
@@ -172,25 +172,25 @@ Passo a passo:
 3. Converta para WebP, largura máx. 900px, qualidade ~82-84.
 4. Salve em `img/m<modulo>-q<id>.webp`.
 5. Referencie: `fig: "img/m3-q021.webp"` + `figAlt` com descrição curta e fiel.
-6. Sem figura na fonte? Deixe `fig` vazio — **não invente**.
+6. Sem figura na fonte? Deixe `fig` vazio, **não invente**.
 
 ## Acessibilidade
 
 Auditado com **axe-core 4.10** (WCAG 2.1 A + AA) nas telas de login, trilha, escolha de modo, quiz, resultado,
-gabarito, ranking, perfil, guia e nos modais — nos **dois temas**. Estado atual: zero violações.
+gabarito, ranking, perfil, guia e nos modais, nos **dois temas**. Estado atual: zero violações.
 
 O que foi corrigido (e por quê, para não voltar):
 
-- **Cards da trilha eram `div role="button"` com um botão dentro** — controle aninhado, proibido. Agora: card
+- **Cards da trilha eram `div role="button"` com um botão dentro**: controle aninhado, proibido. Agora: card
   não selecionado é um `<button>` de verdade ("Selecionar módulo X"); o selecionado é um `div` com o CTA.
   Seleção por teclado funciona com Enter/Espaço e o foco tem contorno visível.
-- **Modais sem papel** — todos passam por `mountModal()`: `role="dialog"`, `aria-modal="true"`, nome vindo do
+- **Modais sem papel**: todos passam por `mountModal()` com `role="dialog"`, `aria-modal="true"`, nome vindo do
   título, foco preso dentro da caixa, `Esc` fecha e o foco volta para quem abriu.
-- **Barras de progresso sem nome** — `aria-label` em "Progresso para o próximo nível" e "Progresso da sessão".
+- **Barras de progresso sem nome**: `aria-label` em "Progresso para o próximo nível" e "Progresso da sessão".
 - **Contraste**: `--text3` do tema claro (#6B7280 → #4B5563), texto do percentual por desempenho com variante
   por tema (`pctText`), iniciais do avatar com cor calculada pela luminância do fundo (`corTextoAvatar`), cores
   de `corDoNome` escurecidas (48% → 28% de luminosidade), tag de tópico com texto neutro e faixa colorida, e
-  alternativa apagada (`.opt.dim`) sem `opacity` — o texto estava em ~1,9:1.
+  alternativa apagada (`.opt.dim`) sem `opacity`: o texto estava em ~1,9:1.
 
 Regra: **cor usada em barra não serve como cor de texto** no tamanho em que o app usa (11–13px). Precisa de
 variante mais clara (tema escuro) ou mais escura (tema claro), e a checagem é sempre medida, não estimada.
@@ -212,7 +212,7 @@ CTA → responde 3 questões (tratando múltipla escolha e associação) → enc
 volta para a lista. Sai com código 1 se qualquer passo falhar, e falha também em qualquer erro de JS.
 
 A verificação mais importante é a do Gabarito: compara `sl_qstats`, `sl_xp_total`, `sl_history` e
-`sl_spaced` **antes e depois** de consultar, byte a byte. Validado por teste negativo — injetando uma
+`sl_spaced` **antes e depois** de consultar, byte a byte. Validei com teste negativo: injetei uma
 escrita no gabarito, o smoke falha apontando a diferença exata.
 
 ## Validar o conteúdo
@@ -252,7 +252,7 @@ python -m http.server 8000
 
 ## Contribuir
 
-Sugestões e correções de questões são bem-vindas — abra uma *issue* ou mande no grupo da turma.
+Sugestões e correções de questões são bem-vindas: abra uma *issue* ou mande no grupo da turma.
 
 ## Aviso
 

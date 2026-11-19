@@ -1,19 +1,19 @@
-# 3 cartões de exemplo — Biblioteca SubnetLab
+# 3 cartões de exemplo da Biblioteca SubnetLab
 
 Rascunhos para validar **formato e tom** com a turma. Escritos a partir do currículo CCNA v7 e do banco de
-questões do app — sem cópia do material original, sem captura de tela do curso. Falta a conferência do
+questões do app, sem cópia do material original e sem captura de tela do curso. Falta a conferência do
 professor em cada um (itens marcados com ⚠️ são os que eu recomendo conferir primeiro).
 
 ---
 
-## 1. VLANs — Trunk: levar várias VLANs por um cabo
+## 1. VLANs: trunk, levar várias VLANs por um cabo
 
 ```json
 { "id": "vlans-trunk", "topico": "VLANs", "mod": 2, "nivel": 1, "min": 2,
   "tags": ["trunk", "802.1Q", "native vlan"], "questoes": ["2:12", "2:13", "2:31"] }
 ```
 
-**Gancho:** sem trunk, cada VLAN precisaria de um cabo até o roteador — um prédio com 12 setores viraria 12 cabos.
+**Gancho:** sem trunk, cada VLAN precisaria do seu próprio cabo até o roteador. Um prédio com 12 setores teria 12 cabos.
 
 **Ideia central:** um link trunk carrega quadros de várias VLANs ao mesmo tempo e marca cada um com a VLAN de
 origem. A marcação é o **tag 802.1Q**, inserido dentro do quadro. Porta de acesso não marca nada: ela já pertence
@@ -24,7 +24,7 @@ caixas de destinos diferentes no mesmo veículo, cada uma com etiqueta.
 
 **Onde a prova cobra:**
 - **Native VLAN viaja sem tag.** Se os dois lados discordam dela, o tráfego cai na VLAN errada e aparece
-  *native VLAN mismatch* — pegadinha clássica.
+  *native VLAN mismatch*. É a pegadinha clássica.
 - Trunk não cria VLAN: a VLAN precisa existir nos dois switches.
 - Por padrão o trunk permite todas as VLANs; restringir é `switchport trunk allowed vlan`.
 
@@ -37,32 +37,32 @@ interface Gi0/1
 ```
 
 **Recuperação:**
-1. Por que a native VLAN viaja sem tag — e o que quebra se os dois lados discordarem?
+1. Por que a native VLAN viaja sem tag, e o que quebra se os dois lados discordarem?
 2. O que muda no quadro ao atravessar um trunk, e onde exatamente esse campo entra?
 3. O trunk está de pé, mas a VLAN 30 não passa. Duas causas possíveis?
 
 ---
 
-## 2. OSPF — Por que dois roteadores não viram vizinhos
+## 2. OSPF: por que dois roteadores não viram vizinhos
 
 ```json
 { "id": "ospf-adjacencia", "topico": "OSPF", "mod": 3, "nivel": 2, "min": 3,
   "tags": ["hello", "dead interval", "DR/BDR", "MTU"], "questoes": ["3:4", "3:5", "3:22"] }
 ```
 
-**Gancho:** a maioria dos problemas de OSPF não é rota errada — é vizinhança que nunca subiu.
+**Gancho:** na maioria dos casos a rota está certa. O problema é a vizinhança que nunca subiu.
 
 **Ideia central:** dois roteadores só formam adjacência se concordarem em quase tudo: mesma **área**, mesma
 **sub-rede e máscara**, mesmos **timers** (hello 10 s / dead 40 s em Ethernet), mesma **autenticação** e mesma
-**MTU**. Divergiu um item, a sessão fica presa — e o estado travado entrega o motivo. Em rede broadcast, ainda
+**MTU**. Divergiu um item, a sessão fica presa. O estado travado entrega o motivo. Em rede broadcast ainda
 existe **DR e BDR**: eleitos pela maior prioridade e, no empate, pelo maior Router ID. Não há reeleição: um DR
 novo só aparece se o atual cair.
 
 **Analogia:** é uma reunião que só começa com todo mundo de acordo sobre o horário, o idioma e a pauta. Se um
-chega falando outra língua, a reunião não começa — e ninguém entra na sala.
+chega falando outra língua, a reunião não começa e ninguém entra na sala.
 
 **Onde a prova cobra:**
-- **Dois DROTHERs ficam em `2WAY`** e isso é normal — não é falha.
+- **Dois DROTHERs ficam em `2WAY`**. Isso é normal, não é falha.
 - Preso em **`EXSTART`/`EXCHANGE`** = quase sempre **MTU diferente** entre as interfaces.
 - Hello de um lado 10 s, do outro 30 s: nunca sai do `INIT`/`DOWN`.
 
@@ -79,14 +79,14 @@ show ip ospf interface Gi0/1
 
 ---
 
-## 3. Automação — O que JSON e API têm a ver com cabo e switch
+## 3. Automação: o que JSON e API têm a ver com cabo e switch
 
 ```json
 { "id": "auto-api-json", "topico": "Automação", "mod": 4, "nivel": 1, "min": 3,
   "tags": ["REST", "JSON", "YAML", "SDN", "Ansible"], "questoes": ["4:1", "4:2", "4:18"] }
 ```
 
-**Gancho:** configurar 50 switches à mão é 50 chances de errar a mesma linha — automação existe para isso.
+**Gancho:** configurar 50 switches à mão é criar 50 chances de errar a mesma linha. Automação existe para isso.
 
 **Ideia central:** em vez de digitar comando em cada equipamento, um **controlador** conversa com todos eles.
 A conversa tem duas direções: **northbound** é a API que o seu programa usa para pedir ("aplicar esta política"),
@@ -100,7 +100,7 @@ cada funcionário no idioma que ele entende (southbound). Você fala uma vez; el
 **Onde a prova cobra:**
 - **Northbound = para as aplicações; southbound = para os dispositivos.** Trocar os dois é o erro mais comum.
 - **Ansible é sem agente** (usa SSH, playbook em YAML); **Puppet e Chef usam agente** no equipamento.
-- JSON exige chaves e aspas; YAML vive de **indentação** — um espaço errado quebra o arquivo.
+- JSON exige chaves e aspas; YAML depende de **indentação**: um espaço errado quebra o arquivo.
 
 **Exemplo de dados:**
 ```json
